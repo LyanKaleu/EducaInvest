@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{# Uma turma: código de acesso e alunos matriculados (só apelidos, nunca e-mail). #}
+
+{% block titulo %}{{ turma.nome }}{% endblock %}
+
+{% block conteudo %}
+<h1>{{ turma.nome }}</h1>
+
+<p>Código de acesso: <code class="codigo-turma">{{ turma.codigo_acesso }}</code></p>
+<p class="dica">Passe este código aos alunos para eles se cadastrarem na turma.</p>
+
+<h2>Alunos</h2>
+{% if alunos %}
+  <ul>
+    {% for aluno in alunos %}
+      <li>{{ aluno.apelido }}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Nenhum aluno ainda.</p>
+{% endif %}
+
+<p><a href="{{ url_for('professor.turmas') }}">Voltar para as turmas</a></p>
+{% endblock %}
