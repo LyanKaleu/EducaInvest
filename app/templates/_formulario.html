@@ -1,0 +1,17 @@
+{# Macros de formulário compartilhadas. Importe com:
+   {% from "_formulario.html" import erro, invalido with context %}
+   ("with context" dá acesso à variável `erros` da página). #}
+
+{# Mensagem de erro de um campo, ligada a ele por aria-describedby. #}
+{% macro erro(nome) -%}
+  {% if erros.get(nome) %}<p class="erro-campo" id="erro-{{ nome }}">{{ erros[nome] }}</p>{% endif %}
+{%- endmacro %}
+
+{# Só quando há erro: marca o campo como inválido e aponta para a mensagem.
+   grupo=true (fieldset): só aponta a mensagem, sem aria-invalid. #}
+{% macro invalido(nome, grupo=false) -%}
+  {%- if erros.get(nome) -%}
+    {%- if not grupo %}aria-invalid="true" {% endif -%}
+    aria-describedby="erro-{{ nome }}"
+  {%- endif -%}
+{%- endmacro %}

@@ -1,0 +1,61 @@
+<!doctype html>
+{# Layout base mobile-first, herdado por todas as páginas. #}
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}EducaInvest{% endblock %} · EducaInvest</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="topo">
+    <a class="marca" href="{{ url_for('inicio') }}">EducaInvest</a>
+    <nav aria-label="Menu principal">
+      <ul>
+        {# aria-current="page" avisa ao leitor de tela qual é a página atual. #}
+        {% if session.get('perfil') == 'ALUNO' %}
+          <li>
+            <a href="{{ url_for('lancamentos.listar') }}"
+               aria-current="{{ 'page' if request.endpoint == 'lancamentos.listar' else 'false' }}">Lançamentos</a>
+          </li>
+          <li>
+            <a href="{{ url_for('lancamentos.novo') }}"
+               aria-current="{{ 'page' if request.endpoint in ('lancamentos.novo', 'lancamentos.criar') else 'false' }}">Novo</a>
+          </li>
+        {% elif session.get('perfil') == 'PROFESSOR' %}
+          <li>
+            <a href="{{ url_for('professor.turmas') }}"
+               aria-current="{{ 'page' if request.endpoint == 'professor.turmas' else 'false' }}">Turmas</a>
+          </li>
+        {% else %}
+          <li><a href="{{ url_for('auth.login') }}">Entrar</a></li>
+          <li><a href="{{ url_for('auth.cadastro') }}">Criar conta</a></li>
+        {% endif %}
+        {% if session.get('usuario_id') %}
+          <li>
+            {# Sair é POST: um link (GET) não pode encerrar a sessão. #}
+            <form method="post" action="{{ url_for('auth.sair') }}">
+              <button type="submit" class="link">Sair</button>
+            </form>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </header>
+
+  <main id="conteudo" tabindex="-1">
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% for categoria, mensagem in mensagens %}
+        {# "erro" interrompe o leitor de tela (alert); "sucesso" é anunciado sem interromper (status). #}
+        <p class="aviso aviso-{{ categoria }}" role="{{ 'alert' if categoria == 'erro' else 'status' }}">
+          {{ mensagem }}
+        </p>
+      {% endfor %}
+    {% endwith %}
+
+    {% block conteudo %}{% endblock %}
+  </main>
+</body>
+</html>

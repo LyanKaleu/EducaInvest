@@ -1,0 +1,116 @@
+/* Estilo único, leve e mobile-first. Cores com contraste AA sobre o fundo. */
+
+:root {
+  --texto: #1a1a1a;
+  --fundo: #ffffff;
+  --suave: #f3f4f2;
+  --borda: #6b6b6b;          /* contraste 5,3:1, visível em bordas de campo */
+  --primaria: #1b6e3a;       /* verde: entradas e botão principal */
+  --perigo: #b3261e;         /* vermelho: gastos, erros e excluir */
+  --foco: #1a5fb4;
+  --raio: 8px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--texto);
+  background: var(--fundo);
+}
+
+/* ---------- Acessibilidade ---------- */
+
+/* Foco sempre visível para quem navega pelo teclado. */
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+
+/* Some da tela, mas o leitor de tela continua lendo. */
+.oculto {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* "Pular para o conteúdo": escondido até receber foco. */
+.pular { position: absolute; left: -999px; }
+.pular:focus { left: 1rem; top: 1rem; z-index: 10; background: var(--fundo); padding: .5rem 1rem; }
+
+main:focus { outline: none; }
+
+/* ---------- Layout ---------- */
+
+.topo {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: .5rem; padding: .75rem 1rem; background: var(--primaria);
+}
+.topo a { color: #fff; }
+.marca { font-weight: 700; font-size: 1.15rem; text-decoration: none; }
+.topo ul { display: flex; gap: 1rem; margin: 0; padding: 0; list-style: none; }
+.topo [aria-current="page"] { font-weight: 700; text-decoration-thickness: 3px; }
+/* Botão "Sair" com cara de link (é um formulário POST). */
+.topo form { margin: 0; }
+button.link {
+  min-height: 0; padding: 0; background: none; border: 0;
+  color: #fff; font-weight: 400; text-decoration: underline; cursor: pointer;
+}
+code.codigo-turma { font-size: 1.1rem; font-weight: 700; letter-spacing: .1em; }
+
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
+h1 { font-size: 1.5rem; margin: .5rem 0 1rem; }
+a { color: var(--primaria); }
+
+/* ---------- Avisos (flash) e erros ---------- */
+
+.aviso { padding: .75rem 1rem; border-radius: var(--raio); border-left: 6px solid; }
+.aviso-sucesso { background: #e7f4ea; border-color: var(--primaria); }
+.aviso-erro { background: #fbeaea; border-color: var(--perigo); }
+.erro-campo { color: var(--perigo); font-weight: 600; margin: .25rem 0 0; }
+[aria-invalid="true"] { border-color: var(--perigo); border-width: 2px; }
+
+/* ---------- Formulários ---------- */
+
+.campo, fieldset { margin: 0 0 1rem; }
+fieldset { border: 1px solid var(--borda); border-radius: var(--raio); padding: .5rem 1rem; }
+label { display: block; font-weight: 600; margin-bottom: .25rem; }
+.opcao { display: inline-flex; align-items: center; gap: .4rem; font-weight: 400; margin-right: 1.5rem; min-height: 44px; }
+.dica { font-weight: 400; color: #555; }
+
+input[type="text"], input[type="search"], input[type="date"], select {
+  width: 100%; min-height: 44px;   /* área de toque confortável no celular */
+  padding: .5rem; font: inherit;
+  border: 1px solid var(--borda); border-radius: var(--raio); background: var(--fundo);
+}
+input[type="radio"] { width: 1.25rem; height: 1.25rem; accent-color: var(--primaria); }
+
+button, .botao {
+  display: inline-block; min-height: 44px; padding: .6rem 1.25rem;
+  font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+  color: #fff; background: var(--primaria); border: 0; border-radius: var(--raio);
+}
+button.perigo { background: var(--perigo); }
+
+.acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.busca { margin-bottom: 1.5rem; }
+.busca .linha { display: flex; gap: .5rem; }
+.busca .linha input { flex: 1; }
+
+/* ---------- Lista de lançamentos ---------- */
+
+.lancamentos { list-style: none; margin: 0; padding: 0; }
+.lancamento {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem;
+  padding: .75rem 1rem; margin-bottom: .75rem;
+  background: var(--suave); border-radius: var(--raio); border-left: 6px solid;
+}
+.lancamento.entrada { border-color: var(--primaria); }
+.lancamento.saida { border-color: var(--perigo); }
+.lancamento-info { display: flex; flex-direction: column; }
+.lancamento.entrada .valor { color: var(--primaria); }
+.lancamento.saida .valor { color: var(--perigo); }
+.descricao { color: #444; }
+
+/* ---------- Confirmação de exclusão ---------- */
+
+.resumo { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; }
+.resumo dt { font-weight: 600; }
+.resumo dd { margin: 0; }
