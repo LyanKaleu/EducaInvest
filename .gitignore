@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Ambiente virtual e segredos
+.venv/
+venv/
+.env
+
+# Testes e cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Flask
+instance/
+
+# Banco de dados (SQLite)
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Documentos: só a documentação técnica vai para o repositório público.
+# Trabalhos da disciplina (persona, segmentação, slides etc.) ficam no Drive.
+# Qualquer arquivo novo em docs/ fica privado por padrão; para publicar, adicione um "!" abaixo.
+docs/*
+!docs/EducaInvest_Especificacao_MVP.pdf
+!docs/educainvest_schema.sql
+
+# Sistema e editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
