@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{# Confirmação antes de excluir: só o botão (POST) apaga. #}
+
+{% block titulo %}Excluir lançamento{% endblock %}
+
+{% block conteudo %}
+<h1>Excluir este lançamento?</h1>
+
+<dl class="resumo">
+  <dt>Tipo</dt>
+  <dd>{{ 'Entrada' if lancamento.tipo == 'ENTRADA' else 'Gasto' }}</dd>
+  <dt>Valor</dt>
+  <dd>{{ lancamento.valor_centavos | reais }}</dd>
+  <dt>Categoria</dt>
+  <dd>{{ lancamento.categoria }}</dd>
+  <dt>Data</dt>
+  <dd><time datetime="{{ lancamento.data_lancamento }}">{{ lancamento.data_lancamento | data_br }}</time></dd>
+  {% if lancamento.descricao %}
+    <dt>Descrição</dt>
+    <dd>{{ lancamento.descricao }}</dd>
+  {% endif %}
+</dl>
+
+<p>Essa ação não pode ser desfeita.</p>
+
+<form method="post" action="{{ url_for('lancamentos.excluir', lancamento_id=lancamento.id) }}">
+  <div class="acoes">
+    <button type="submit" class="perigo">Sim, excluir</button>
+    <a href="{{ url_for('lancamentos.listar') }}">Não, voltar</a>
+  </div>
+</form>
+{% endblock %}
