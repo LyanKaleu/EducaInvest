@@ -32,6 +32,7 @@ instance/
 docs/*
 !docs/EducaInvest_Especificacao_MVP.pdf
 !docs/educainvest_schema.sql
+!docs/code_review.md
 
 # Sistema e editor
 .DS_Store
