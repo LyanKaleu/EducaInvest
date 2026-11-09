@@ -12,6 +12,11 @@
 
   <header class="topo">
     <a class="marca" href="{{ url_for('inicio') }}">EducaInvest</a>
+    {% if session.get('usuario_id') %}
+      {# Quem está logado e com qual perfil. Sessão antiga (sem apelido) mostra só o perfil. #}
+      {% set perfil = 'Professor' if session.get('perfil') == 'PROFESSOR' else 'Aluno' %}
+      <span class="identificacao">{% if session.get('apelido') %}{{ session.get('apelido') }} · {% endif %}{{ perfil }}</span>
+    {% endif %}
     <nav aria-label="Menu principal">
       <ul>
         {# aria-current="page" avisa ao leitor de tela qual é a página atual. #}

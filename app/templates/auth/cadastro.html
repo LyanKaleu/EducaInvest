@@ -9,6 +9,14 @@
 {% block conteudo %}
 <h1>{{ titulo_pagina }}</h1>
 
+{# O tipo de conta é escolhido aqui, uma vez; o login é o mesmo para todos. #}
+<nav class="escolha-perfil" aria-label="Tipo de conta">
+  <a class="botao" href="{{ url_for('auth.cadastro') }}"
+     aria-current="{{ 'false' if professor else 'page' }}">Sou aluno</a>
+  <a class="botao" href="{{ url_for('auth.cadastro_professor') }}"
+     aria-current="{{ 'page' if professor else 'false' }}">Sou professor</a>
+</nav>
+
 <form method="post" novalidate
       action="{{ url_for('auth.cadastrar_professor') if professor else url_for('auth.cadastrar_aluno') }}">
   <div class="campo">
@@ -55,12 +63,4 @@
     <a href="{{ url_for('auth.login') }}">Já tenho conta</a>
   </div>
 </form>
-
-<p>
-  {% if professor %}
-    É aluno? <a href="{{ url_for('auth.cadastro') }}">Cadastre-se como aluno</a>.
-  {% else %}
-    É professor? <a href="{{ url_for('auth.cadastro_professor') }}">Cadastre-se como professor</a>.
-  {% endif %}
-</p>
 {% endblock %}

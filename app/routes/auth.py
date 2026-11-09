@@ -25,6 +25,7 @@ def _iniciar_sessao(usuario: dict):
     session.clear()  # descarta qualquer sessão anterior (evita fixação de sessão)
     session["usuario_id"] = usuario["id"]
     session["perfil"] = usuario["perfil"]
+    session["apelido"] = usuario["apelido"]  # só para mostrar no topo; o acesso usa o perfil
     return redirect(destino_do_perfil(usuario["perfil"]))
 
 
