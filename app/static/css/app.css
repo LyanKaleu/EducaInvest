@@ -114,3 +114,19 @@ button.perigo { background: var(--perigo); }
 .resumo { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; }
 .resumo dt { font-weight: 600; }
 .resumo dd { margin: 0; }
+
+/* ---------- Missões e XP ---------- */
+
+.xp { display: flex; flex-direction: column; gap: .25rem; margin-bottom: 1.5rem; }
+.xp-total { font-size: 2rem; color: var(--primaria); }
+.xp ~ h2, #conquistas h2 { font-size: 1.2rem; margin: 1.5rem 0 .75rem; }
+.missoes { list-style: none; margin: 0; padding: 0; }
+.missao {
+  display: flex; flex-direction: column; gap: .25rem;
+  padding: .75rem 1rem; margin-bottom: .75rem;
+  background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--borda);
+}
+.missao[data-status="ATIVA"] { border-color: var(--foco); }
+.missao.concluida { border-color: var(--primaria); }
+.missao label { font-weight: 400; margin: .25rem 0 0; }
+.missao progress { width: 100%; height: 1rem; accent-color: var(--primaria); }

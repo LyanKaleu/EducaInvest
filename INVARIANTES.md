@@ -44,6 +44,11 @@ Regra sem enforcement é desejo. Promoção: violou uma vez, reescreva; duas vez
 - **Caminho seguro:** o repositório da turma devolve só as colunas que a tela usa.
 - **Enforcement:** `test_lista_da_turma_nao_mostra_email_do_aluno` e `test_turma_de_outro_professor_retorna_404`.
 
+### N6 · XP nunca diminui nem duplica (RN-10 a RN-12)
+- **Invariante:** o XP só entra por INSERT no livro-razão `xp_eventos`, cada origem (lançamento, missão, quiz) pontua uma vez por aluno e o crédito vai junto com a ação que o gerou.
+- **Caminho seguro:** use `XpRepository.creditar` dentro do mesmo `with conn:` da ação (veja `registrar_progresso` em `app/routes/missoes.py`). Total e nível são calculados, nunca guardados em coluna.
+- **Enforcement:** gatilhos `tr_xp_eventos_sem_update`/`tr_xp_eventos_sem_delete` e `UNIQUE (aluno_id, origem, origem_id)` em `xp_repo.py`, mais `test_banco_recusa_apagar_xp`, `test_mesma_origem_pontua_uma_vez_so`, `test_missao_concluida_nao_paga_de_novo` e `test_falha_ao_creditar_xp_nao_salva_o_lancamento`.
+
 ## Operacionais: sempre com aprovação humana explícita
 Valem independentemente de o CI estar verde.
 

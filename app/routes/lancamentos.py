@@ -9,9 +9,11 @@ from app.db import obter_conexao
 from app.filtros import data_br, reais  # noqa: F401 (mantém os nomes importáveis daqui)
 from app.repositories.lancamento_repo import LancamentoRepository
 from app.routes.acesso import exigir_perfil
+from app.routes.missoes import avisar_conquistas, registrar_progresso
 from app.services.auth_service import PERFIL_ALUNO
 from app.services.erros import ErroValidacao
 from app.services.lancamento_service import CATEGORIAS, hoje_no_piaui, validar_lancamento
+from app.services.xp_service import TETO_DIARIO_LANCAMENTOS
 
 bp = Blueprint("lancamentos", __name__, url_prefix="/lancamentos")
 
@@ -106,9 +108,19 @@ def criar():
         flash(MSG_ERRO_FORM, "erro")
         return _render_form(request.form, erro.erros, status=400)
 
-    with obter_conexao():
-        _repo().criar(_aluno_id(), **dados)
-    flash("Lançamento salvo!", "sucesso")
+    conn = obter_conexao()
+    with conn:  # lançamento, XP e missões na mesma transação (HU3, falha parcial)
+        lancamento = _repo().criar(_aluno_id(), **dados)
+        progresso = registrar_progresso(conn, _aluno_id(), lancamento["id"])
+
+    if progresso["xp_lancamento"]:
+        flash(f"Lançamento salvo! +{progresso['xp_lancamento']} XP", "sucesso")
+    elif progresso["teto_atingido"]:
+        flash("Lançamento salvo. Você já ganhou o máximo de XP por registros hoje "
+              f"({TETO_DIARIO_LANCAMENTOS} XP).", "sucesso")
+    else:
+        flash("Lançamento salvo!", "sucesso")
+    avisar_conquistas(progresso)
     return redirect(url_for(".listar"))
 
 
@@ -134,9 +146,12 @@ def atualizar(lancamento_id):
         return _render_form(request.form, erro.erros, lancamento=lancamento, status=400)
 
     dados.pop("chave_idempotencia")
-    with obter_conexao():
+    conn = obter_conexao()
+    with conn:  # mudar o tipo pode cumprir uma missão; editar não rende XP de registro
         _repo().atualizar(_aluno_id(), lancamento_id, dados)
+        progresso = registrar_progresso(conn, _aluno_id())
     flash("Lançamento atualizado!", "sucesso")
+    avisar_conquistas(progresso)
     return redirect(url_for(".listar"))
 
 

@@ -1,1 +1,60 @@
-<!-- Missões ativas e concluídas. -->
+{% extends "base.html" %}
+{# Missões do aluno: XP, nível, trilha de missões e conquistas (HU3). #}
+
+{% block titulo %}Missões{% endblock %}
+
+{% block conteudo %}
+<h1>Missões</h1>
+
+<section class="xp" aria-label="Seu XP">
+  <strong class="xp-total">{{ xp_total }} XP</strong>
+  <span>Nível {{ nivel.nivel }} · {{ nivel.nome }}</span>
+  {% if nivel.falta is not none %}
+    <span class="dica">Faltam {{ nivel.falta }} XP para o próximo nível.</span>
+  {% else %}
+    <span class="dica">Você está no nível mais alto. Parabéns!</span>
+  {% endif %}
+</section>
+
+{% set ativas = missoes | rejectattr('status', 'equalto', 'CONCLUIDA') | list %}
+{% set concluidas = missoes | selectattr('status', 'equalto', 'CONCLUIDA') | list %}
+
+<h2>Trilha</h2>
+{% if ativas %}
+  <ul class="missoes">
+    {% for missao in ativas %}
+      {# O estado vai em texto, não só na cor, para quem não distingue cores. #}
+      <li class="missao" data-codigo="{{ missao.codigo }}" data-status="{{ missao.status }}">
+        <strong>{{ missao.titulo }}</strong>
+        <span>{{ missao.descricao }} · +{{ missao.xp }} XP</span>
+        {% if missao.status == 'ATIVA' %}
+          <label for="progresso-{{ missao.codigo }}">Em andamento: {{ missao.atual }} de {{ missao.alvo }}</label>
+          <progress id="progresso-{{ missao.codigo }}" max="{{ missao.alvo }}" value="{{ missao.atual }}">
+            {{ missao.atual }} de {{ missao.alvo }}
+          </progress>
+        {% else %}
+          <span class="dica">Bloqueada: conclua a missão anterior para liberar.</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Você concluiu todas as missões. Novas missões chegam em breve!</p>
+{% endif %}
+
+<section id="conquistas" aria-labelledby="titulo-conquistas">
+  <h2 id="titulo-conquistas">Conquistas</h2>
+  {% if concluidas %}
+    <ul class="missoes">
+      {% for missao in concluidas %}
+        <li class="missao concluida" data-codigo="{{ missao.codigo }}" data-status="{{ missao.status }}">
+          <strong>{{ missao.titulo }}</strong>
+          <span>Concluída · +{{ missao.xp }} XP</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Nenhuma conquista ainda. Registre seus gastos para ganhar a primeira!</p>
+  {% endif %}
+</section>
+{% endblock %}

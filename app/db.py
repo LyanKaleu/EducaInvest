@@ -4,8 +4,10 @@ import sqlite3
 from flask import current_app, g
 
 from app.repositories.lancamento_repo import LancamentoRepository
+from app.repositories.missao_repo import MissaoRepository
 from app.repositories.turma_repo import TurmaRepository
 from app.repositories.usuario_repo import UsuarioRepository
+from app.repositories.xp_repo import XpRepository
 
 
 def conectar(caminho: str) -> sqlite3.Connection:
@@ -18,6 +20,8 @@ def conectar(caminho: str) -> sqlite3.Connection:
     UsuarioRepository.criar_tabela(conn)
     TurmaRepository.criar_tabela(conn)
     LancamentoRepository.criar_tabela(conn)
+    XpRepository.criar_tabela(conn)
+    MissaoRepository.criar_tabela(conn)
     return conn
 
 
