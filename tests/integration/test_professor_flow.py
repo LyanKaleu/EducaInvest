@@ -30,6 +30,13 @@ def test_turma_com_nome_repetido_do_mesmo_professor_retorna_400(cliente_professo
     assert "Você já tem uma turma com esse nome." in resposta.get_data(as_text=True)
 
 
+def test_turma_com_mesmo_nome_em_outra_caixa_retorna_400(cliente_professor, turma):
+    resposta = criar_turma(cliente_professor, nome="2º a")
+
+    assert resposta.status_code == 400
+    assert "Você já tem uma turma com esse nome." in resposta.get_data(as_text=True)
+
+
 def test_professores_diferentes_podem_usar_o_mesmo_nome_de_turma(app, turma):
     outro = app.test_client()
     cadastrar_professor(outro, email="prof.bia@escola.br", apelido="Prof. Bia")

@@ -31,6 +31,8 @@ Regra sem enforcement é desejo. Promoção: violou uma vez, reescreva; duas vez
 - **Invariante:** dois usuários nunca têm o mesmo e-mail (`Ana@x` = `ana@x`).
 - **Caminho seguro:** o cadastro checa antes, para dar uma mensagem boa. O banco garante, inclusive sob concorrência.
 - **Enforcement:** `email ... UNIQUE COLLATE NOCASE` em `usuario_repo.py`, mais `test_cadastro_com_email_ja_usado_retorna_400`.
+- **Mesma regra para o nome da turma:** único por professor, sem diferenciar maiúsculas (`Turma 2` = `TURMA 2`). Professores diferentes podem repetir o nome.
+  Enforcement: índice `ux_turmas_professor_nome (professor_id, nome COLLATE NOCASE)` em `turma_repo.py`, mais `test_banco_recusa_turma_do_mesmo_professor_com_nome_em_outra_caixa` e `test_turma_com_mesmo_nome_em_outra_caixa_retorna_400`.
 
 ### N4 · Consentimento obrigatório no cadastro do aluno (RN-05)
 - **Invariante:** aluno só é criado com a autorização marcada, e a data e a hora ficam em `consentimento_em`.

@@ -14,6 +14,10 @@ CREATE TABLE IF NOT EXISTS turmas (
     UNIQUE (professor_id, nome)
 );
 
+-- "Turma 2" e "TURMA 2" contam como o mesmo nome para o professor
+CREATE UNIQUE INDEX IF NOT EXISTS ux_turmas_professor_nome
+    ON turmas (professor_id, nome COLLATE NOCASE);
+
 -- aluno_id como chave: cada aluno pertence a uma única turma no MVP
 CREATE TABLE IF NOT EXISTS matriculas (
     aluno_id   INTEGER PRIMARY KEY REFERENCES usuarios (id) ON DELETE CASCADE,
@@ -63,7 +67,8 @@ class TurmaRepository:
 
     def existe_nome(self, professor_id, nome) -> bool:
         linha = self.conn.execute(
-            "SELECT 1 FROM turmas WHERE professor_id = ? AND nome = ?", (professor_id, nome)
+            "SELECT 1 FROM turmas WHERE professor_id = ? AND nome = ? COLLATE NOCASE",
+            (professor_id, nome),
         ).fetchone()
         return linha is not None
 
