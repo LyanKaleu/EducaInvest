@@ -256,6 +256,14 @@ def test_confirmacao_de_exclusao_inexistente_retorna_404(cliente):
     assert cliente.get("/lancamentos/9999/excluir").status_code == 404
 
 
+def test_confirmacao_de_exclusao_de_outro_aluno_retorna_404_sem_mostrar_o_valor(
+        cliente_outro_aluno, lancamento_existente):
+    resposta = cliente_outro_aluno.get(f"/lancamentos/{lancamento_existente['id']}/excluir")
+
+    assert resposta.status_code == 404
+    assert "R$ 25,00" not in resposta.get_data(as_text=True)
+
+
 def test_excluir_via_post_remove_da_lista(cliente, lancamento_existente):
     cliente.post(f"/lancamentos/{lancamento_existente['id']}/excluir")
 
@@ -276,3 +284,9 @@ def test_excluir_lancamento_de_outro_aluno_retorna_404(cliente_outro_aluno, lanc
     resposta = cliente_outro_aluno.post(f"/lancamentos/{lancamento_existente['id']}/excluir")
 
     assert resposta.status_code == 404
+
+
+def test_tentativa_de_outro_aluno_excluir_nao_apaga_do_dono(cliente, cliente_outro_aluno, lancamento_existente):
+    cliente_outro_aluno.post(f"/lancamentos/{lancamento_existente['id']}/excluir")
+
+    assert quantas_vezes_na_lista(cliente, "R$ 25,00") == 1
