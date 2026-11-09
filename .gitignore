@@ -32,9 +32,13 @@ instance/
 docs/*
 !docs/EducaInvest_Especificacao_MVP.pdf
 !docs/educainvest_schema.sql
+!docs/code_review.md
 
 # Sistema e editor
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+
+# Claude Code: configurações pessoais (as do projeto, em .claude/settings.json, são versionadas)
+.claude/settings.local.json

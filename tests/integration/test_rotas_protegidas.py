@@ -35,16 +35,15 @@ def _requisicoes(app, ignorar):
 
 
 def _abrir(cliente, metodo, url):
-    """Faz a requisição e devolve (status, Location). Exceção no handler vira status "erro"."""
-    try:
-        resposta = cliente.open(url, method=metodo)
-    except Exception as erro:  # rota sem proteção costuma quebrar ao ler a sessão vazia
-        return f"erro {type(erro).__name__}", ""
+    """Faz a requisição e devolve (status, Location)."""
+    resposta = cliente.open(url, method=metodo)
     return resposta.status_code, resposta.headers.get("Location", "")
 
 
 def rotas_abertas_a_visitante(app):
     """Rotas não públicas que um visitante sem login consegue usar (devia ir para /login)."""
+    # Rota sem proteção costuma quebrar ao ler a sessão vazia: vira 500 na lista, em vez de exceção.
+    app.config["PROPAGATE_EXCEPTIONS"] = False
     cliente = app.test_client()
     abertas = []
     for metodo, url in _requisicoes(app, ignorar=ROTAS_PUBLICAS):
@@ -56,6 +55,7 @@ def rotas_abertas_a_visitante(app):
 
 def rotas_sem_perfil_definido(cliente_aluno, cliente_professor, app):
     """Rotas restritas em que aluno e professor não são separados (403 para exatamente um)."""
+    app.config["PROPAGATE_EXCEPTIONS"] = False
     misturadas = []
     ignorar = ROTAS_PUBLICAS | ROTAS_DE_QUALQUER_PERFIL
     for metodo, url in _requisicoes(app, ignorar=ignorar):
