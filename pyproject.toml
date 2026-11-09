@@ -1,0 +1,33 @@
+# Configuração das ferramentas do gate (gate.sh). Não é empacotamento: o app roda com run.py.
+
+[tool.ruff]
+target-version = "py310"
+extend-exclude = [".claude"]
+
+[tool.ruff.lint]
+# Lista explícita: erros reais (E4/E7/E9: sintaxe e imports; F: nomes indefinidos, imports
+# sem uso) + bugbear (B: armadilhas comuns). Ordenação de imports (I) fica de fora até o
+# grupo decidir, porque reformataria arquivos existentes.
+select = ["E4", "E7", "E9", "F", "B"]
+
+[tool.importlinter]
+root_package = "app"
+include_external_packages = true
+
+# INVARIANTES A1: dependência só para baixo.
+[[tool.importlinter.contracts]]
+name = "Camadas: routes -> services -> repositories"
+type = "layers"
+layers = ["app.routes", "app.services", "app.repositories"]
+
+[[tool.importlinter.contracts]]
+name = "Services puros: sem Flask e sem banco"
+type = "forbidden"
+source_modules = ["app.services"]
+forbidden_modules = ["flask", "sqlite3", "app.db", "app.repositories"]
+
+[[tool.importlinter.contracts]]
+name = "Repositories sem Flask"
+type = "forbidden"
+source_modules = ["app.repositories"]
+forbidden_modules = ["flask"]
