@@ -39,3 +39,6 @@ docs/*
 Thumbs.db
 .vscode/
 .idea/
+
+# Claude Code: configurações pessoais (as do projeto, em .claude/settings.json, são versionadas)
+.claude/settings.local.json
