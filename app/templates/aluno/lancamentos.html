@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{# Lista de lançamentos do aluno, com busca. #}
+
+{% block titulo %}Lançamentos{% endblock %}
+
+{% block conteudo %}
+<h1>Lançamentos</h1>
+
+<p><a class="botao" href="{{ url_for('lancamentos.novo') }}">+ Novo lançamento</a></p>
+
+<form class="busca" method="get" action="{{ url_for('lancamentos.listar') }}" role="search">
+  <label for="busca">Buscar por categoria ou descrição</label>
+  <div class="linha">
+    <input type="search" id="busca" name="busca" value="{{ busca }}" maxlength="60">
+    <button type="submit">Buscar</button>
+  </div>
+  {% if busca %}
+    <a href="{{ url_for('lancamentos.listar') }}">Limpar busca</a>
+  {% endif %}
+</form>
+
+{% if lancamentos %}
+  <ul class="lancamentos">
+    {% for lancamento in lancamentos %}
+      {% set entrada = lancamento.tipo == 'ENTRADA' %}
+      <li class="lancamento {{ 'entrada' if entrada else 'saida' }}">
+        <div class="lancamento-info">
+          {# O tipo aparece em texto, não só na cor, para quem não distingue cores. #}
+          <strong class="valor">{{ '+' if entrada else '−' }} {{ lancamento.valor_centavos | reais }}</strong>
+          <span>{{ 'Entrada' if entrada else 'Gasto' }} · {{ lancamento.categoria }}</span>
+          <span><time datetime="{{ lancamento.data_lancamento }}">{{ lancamento.data_lancamento | data_br }}</time></span>
+          {% if lancamento.descricao %}<span class="descricao">{{ lancamento.descricao }}</span>{% endif %}
+        </div>
+        <div class="acoes">
+          {% set resumo = (lancamento.valor_centavos | reais) ~ ' em ' ~ lancamento.categoria %}
+          <a href="{{ url_for('lancamentos.editar', lancamento_id=lancamento.id) }}">
+            Editar<span class="oculto"> lançamento de {{ resumo }}</span>
+          </a>
+          <a href="{{ url_for('lancamentos.confirmar_exclusao', lancamento_id=lancamento.id) }}">
+            Excluir<span class="oculto"> lançamento de {{ resumo }}</span>
+          </a>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% elif busca %}
+  <p>Nada encontrado para “{{ busca }}”.</p>
+{% else %}
+  <p>Você ainda não registrou nada. Que tal começar pelo gasto de hoje?</p>
+{% endif %}
+{% endblock %}

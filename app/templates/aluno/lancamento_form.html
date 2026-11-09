@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{# Formulário de criar (lancamento vazio) ou editar um lançamento. #}
+
+{% set editando = lancamento is not none %}
+{% block titulo %}{{ 'Editar lançamento' if editando else 'Novo lançamento' }}{% endblock %}
+
+{% from "_formulario.html" import erro, invalido with context %}
+
+{% block conteudo %}
+<h1>{{ 'Editar lançamento' if editando else 'Novo lançamento' }}</h1>
+
+{% if erros.get('chave_idempotencia') %}
+  <p class="erro-campo" role="alert">{{ erros['chave_idempotencia'] }}</p>
+{% endif %}
+
+{# novalidate: as mensagens vêm sempre do servidor, iguais em qualquer navegador. #}
+<form method="post" novalidate
+      action="{{ url_for('lancamentos.atualizar', lancamento_id=lancamento.id) if editando else url_for('lancamentos.criar') }}">
+
+  {% set tipo = (form.get('tipo') or '') | lower %}
+  <fieldset {{ invalido('tipo', grupo=true) }}>
+    <legend>Tipo</legend>
+    <label class="opcao">
+      <input type="radio" name="tipo" value="saida" {{ 'checked' if tipo == 'saida' }}> Gasto
+    </label>
+    <label class="opcao">
+      <input type="radio" name="tipo" value="entrada" {{ 'checked' if tipo == 'entrada' }}> Entrada
+    </label>
+    {{ erro('tipo') }}
+  </fieldset>
+
+  <div class="campo">
+    <label for="valor">Valor (R$)</label>
+    <input type="text" id="valor" name="valor" inputmode="decimal" autocomplete="off"
+           placeholder="25,50" value="{{ form.get('valor', '') }}" {{ invalido('valor') }}>
+    {{ erro('valor') }}
+  </div>
+
+  <div class="campo">
+    <label for="categoria">Categoria</label>
+    <select id="categoria" name="categoria" {{ invalido('categoria') }}>
+      <option value="">Escolha…</option>
+      {% for grupo, chave in (('Gastos', 'SAIDA'), ('Entradas', 'ENTRADA')) %}
+        <optgroup label="{{ grupo }}">
+          {% for nome in categorias[chave] %}
+            <option value="{{ nome }}" {{ 'selected' if form.get('categoria') == nome }}>{{ nome }}</option>
+          {% endfor %}
+        </optgroup>
+      {% endfor %}
+    </select>
+    {{ erro('categoria') }}
+  </div>
+
+  <div class="campo">
+    <label for="data">Data</label>
+    <input type="date" id="data" name="data" value="{{ form.get('data', '') }}" {{ invalido('data') }}>
+    {{ erro('data') }}
+  </div>
+
+  <div class="campo">
+    <label for="descricao">Descrição <span class="dica">(opcional)</span></label>
+    <input type="text" id="descricao" name="descricao" maxlength="140"
+           value="{{ form.get('descricao', '') }}" {{ invalido('descricao') }}>
+    {{ erro('descricao') }}
+  </div>
+
+  {% if not editando %}
+    {# Gerada ao abrir o formulário: se o envio for repetido, o lançamento não duplica. #}
+    <input type="hidden" name="chave_idempotencia" value="{{ form.get('chave_idempotencia', '') }}">
+  {% endif %}
+
+  <div class="acoes">
+    <button type="submit">Salvar</button>
+    <a href="{{ url_for('lancamentos.listar') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
