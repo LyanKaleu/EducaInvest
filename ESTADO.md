@@ -1,0 +1,35 @@
+# Estado do projeto
+
+Ponto de retomada entre sessões e computadores. Atualize no PR que muda a fase ou o próximo passo.
+Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
+
+**Atualizado em:** 10/11/2026 · **Branch de integração:** `develop` (a `main` só tem o commit inicial)
+**Mapa visual (artefato privado do Lyan):** https://claude.ai/artifact/XXL3NbF42XXgsiTX4EHXNY
+
+## Pronto (na `develop`)
+| Item | PR |
+|---|---|
+| Base, login, perfis e turmas (RF01, RF02) | #1, #2 |
+| Setup do Claude Code, gate e CI | #3 |
+| Nome de turma único por professor, sem diferenciar maiúsculas | #4 |
+| HU1: lançamentos (CRUD, busca, idempotência) | #1 |
+| HU3: missões em trilha, XP com teto diário e nível | #8 |
+| Perfil visível no cadastro, no login e no topo | #9 |
+| Plan mode obrigatório, TDD por seams, skills no AGENTS.md | #10 |
+
+## Próximo passo
+Ordem da especificação: **streak da HU3 (RN-13) + painel do aluno** → HU2 metas e aportes → HU4 quiz → HU5 painel agregado do professor.
+
+## Backlog (issues abertas)
+- #5 professor renomeia turma
+- #6 professor exclui turma vazia (bloqueada com alunos; liga `PRAGMA foreign_keys` junto)
+- #7 busca/filtro na lista de turmas
+
+## Decisões pendentes do grupo
+- Lista de categorias e valor máximo do lançamento ("A confirmar" em `lancamento_service.py`).
+- Valores de XP, teto diário e níveis (hoje são os exemplos da especificação).
+- Manter as camadas ou migrar para fatias verticais.
+- Onde hospedar o protótipo.
+
+## Em andamento
+Nada. Ao abrir uma branch de trabalho, registre aqui a branch e o link do artefato do plano.
