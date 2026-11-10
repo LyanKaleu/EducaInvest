@@ -21,6 +21,7 @@ Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
 ## Próximo passo
 **Prazo: 13/11/2026** (2ª avaliação: documento + MVP + pitch). A ordem combinada em 10/11 é **HU2 metas e aportes** (o aporte é um valor separado e não desconta do saldo) → HU5 painel agregado do professor → HU4 quiz, se der tempo.
 Refatoração e arquitetura (camadas ou fatias) só depois da entrega, com o feedback do MVP.
+**Pitch por último:** depois de completar o escopo do MVP, capturar todas as telas no celular, compartilhar com o grupo e só então estruturar a apresentação.
 
 ## Backlog (issues abertas)
 - #5 professor renomeia turma
