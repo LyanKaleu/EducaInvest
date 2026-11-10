@@ -17,10 +17,10 @@ Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
 | Perfil visível no cadastro, no login e no topo | #9 |
 | Plan mode obrigatório, TDD por seams, skills no AGENTS.md | #10 |
 | Tela inicial do aluno: saldo, sequência de dias (RN-13), XP, nível e missão | #12 |
-| HU2: metas e aportes (aporte fora do saldo), card da meta na tela inicial | #13 (em revisão) |
+| HU2: metas e aportes (aporte fora do saldo e limitado ao que falta), card da meta na tela inicial | #13 |
 
 ## Próximo passo
-**Prazo: 13/11/2026** (2ª avaliação: documento + MVP + pitch). A ordem combinada em 10/11 é HU2 metas e aportes (PR #13) → **HU5 painel agregado do professor** → HU4 quiz, se der tempo.
+**Prazo: 13/11/2026** (2ª avaliação: documento + MVP + pitch). A ordem combinada em 10/11 é HU2 metas e aportes (PR #13, pronta) → **HU5 painel agregado do professor** → HU4 quiz, se der tempo.
 Refatoração e arquitetura (camadas ou fatias) só depois da entrega, com o feedback do MVP.
 As refatorações sem mudança de comportamento já levantadas (11 itens, em ordem, com os testes de cada um) estão em https://claude.ai/artifact/CosbUZ15hganrotte19ggc (artefato privado do Lyan).
 **Pitch por último:** depois de completar o escopo do MVP, capturar todas as telas no celular, compartilhar com o grupo e só então estruturar a apresentação.
@@ -34,6 +34,8 @@ Combinado em 10/11: enquanto o MVP é construído, tudo entra na `develop`. Quan
 - #5 professor renomeia turma
 - #6 professor exclui turma vazia (bloqueada com alunos; liga `PRAGMA foreign_keys` junto)
 - #7 busca/filtro na lista de turmas
+- #14 id gigante na URL responde 500 em vez de 404 (metas e lançamentos)
+- Depois do MVP: aceitar aporte acima da meta junto com "desfazer aporte" (hoje o aporte para no que falta, porque não há como desfazer)
 
 ## Decisões pendentes do grupo
 - Lista de categorias e valor máximo do lançamento ("A confirmar" em `lancamento_service.py`).
@@ -42,5 +44,5 @@ Combinado em 10/11: enquanto o MVP é construído, tudo entra na `develop`. Quan
 - Onde hospedar o protótipo.
 
 ## Em andamento
-HU2 no PR #13 (`feature/metas` → `develop`), aguardando revisão e merge.
-Artefato do plano: https://claude.ai/artifact/3cmboRjs6bgsXewE9HTtU7
+Nada. A próxima tarefa é a HU5 (painel agregado do professor), começando pelo plan mode.
+Artefato da HU2 (plano, decisões e revisão sênior): https://claude.ai/artifact/3cmboRjs6bgsXewE9HTtU7
