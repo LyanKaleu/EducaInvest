@@ -4,7 +4,7 @@
 
 Protótipo (MVP) web, leve e mobile-first, feito para funcionar bem no celular e com conexão instável. Desenvolvido como projeto da disciplina de Empreendedorismo.
 
-> **Estado atual:** protótipo em desenvolvimento. Estão implementados **contas, login e turmas** e o **registro de entradas e gastos**. O que ainda falta está listado em [Em desenvolvimento](#em-desenvolvimento).
+> **Estado atual:** protótipo em desenvolvimento. Estão implementados **contas, login e turmas**, o **registro de entradas e gastos** e as **missões com XP e nível**. O que ainda falta está listado em [Em desenvolvimento](#em-desenvolvimento).
 
 ---
 
@@ -34,6 +34,16 @@ Protótipo (MVP) web, leve e mobile-first, feito para funcionar bem no celular e
 - **Isolamento entre alunos:** cada aluno só vê, edita e exclui os próprios lançamentos. O registro de outro aluno responde 404.
 - **Acessibilidade:** HTML semântico, link "Pular para o conteúdo", mensagens anunciadas por leitores de tela, foco visível, áreas de toque de 44px e contraste AA. Não usa JavaScript.
 
+### Prontas: missões, XP e nível (HU3)
+
+- **Missões em trilha:** a tela **Missões** mostra o progresso de cada missão (por exemplo, "2 de 3") a partir dos lançamentos do aluno. Concluir uma missão dá XP, aparece como **conquista** e libera a próxima. Cada missão é concluída uma vez só, mesmo que o aluno exclua registros depois.
+  - "Primeiros passos": registre 3 gastos (+30 XP).
+  - "Hábito em construção": registre 7 lançamentos (+50 XP), liberada pela anterior.
+- **XP por registro:** cada lançamento novo rende 10 XP, com **teto diário de 50 XP** de registros (fuso do Piauí). Depois do teto, o lançamento é salvo normalmente e o aluno vê um aviso. Editar não rende XP de registro, e o reenvio do mesmo formulário não pontua duas vezes.
+- **Nível pelo XP acumulado:** Iniciante (0), Aprendiz (100) e Organizado (300). A tela mostra quanto falta para o próximo nível e avisa quando o aluno sobe.
+- **XP nunca diminui nem duplica:** o XP fica num livro-razão só de inserções, e o banco recusa alterar ou apagar um evento. O lançamento e o XP que ele gera são gravados na mesma transação: ou os dois, ou nenhum.
+- Os valores de XP, teto e níveis são exemplos da especificação e ainda serão confirmados pelo grupo. A sequência de dias (streak) fica para o próximo ciclo.
+
 ### Em desenvolvimento
 
 Estes itens têm arquivos reservados na estrutura de pastas, mas **ainda não têm código**:
@@ -41,7 +51,7 @@ Estes itens têm arquivos reservados na estrutura de pastas, mas **ainda não t�
 | Funcionalidade | Situação |
 |---|---|
 | Metas e aportes (HU2) | Não iniciado |
-| Missões, XP, níveis e conquistas (HU3) | Não iniciado |
+| Sequência de dias (streak) da HU3 | Não iniciado |
 | Quizzes (HU4) | Não iniciado |
 | Painel agregado do professor: XP médio, missões e frequência (HU5) | Não iniciado (hoje a turma mostra só a lista de alunos) |
 
@@ -138,23 +148,28 @@ EducaInvest/
 │   │   ├── acesso.py            #   exigir_perfil(): login + perfil para um Blueprint inteiro
 │   │   ├── auth.py              #   cadastro (aluno e professor), login e logout
 │   │   ├── professor.py         #   turmas do professor (só perfil PROFESSOR)
-│   │   └── lancamentos.py       #   CRUD de lançamentos (só perfil ALUNO)
+│   │   ├── lancamentos.py       #   CRUD de lançamentos (só perfil ALUNO)
+│   │   └── missoes.py           #   tela de missões e registrar_progresso() (XP na transação do lançamento)
 │   ├── services/                # regras de negócio: sem SQL e sem Flask
 │   │   ├── erros.py             #   ErroValidacao (campo → mensagem)
 │   │   ├── formulario.py        #   texto_do_campo(): leitura de campo de formulário
 │   │   ├── auth_service.py      #   perfis, validação de cadastro/login e hash de senha
 │   │   ├── turma_service.py     #   nome da turma e código de acesso
-│   │   └── lancamento_service.py#   validar_lancamento()
+│   │   ├── lancamento_service.py#   validar_lancamento()
+│   │   ├── missao_service.py    #   trilha de missões: progresso, conclusão e desbloqueio
+│   │   └── xp_service.py        #   XP por lançamento com teto diário e nível
 │   ├── repositories/            # único lugar com SQL, sempre com parâmetros (?)
 │   │   ├── conversao.py         #   linha_para_dict()
 │   │   ├── usuario_repo.py      #   tabela usuarios
 │   │   ├── turma_repo.py        #   tabelas turmas e matriculas
-│   │   └── lancamento_repo.py   #   tabela lancamentos (CRUD)
+│   │   ├── lancamento_repo.py   #   tabela lancamentos (CRUD)
+│   │   ├── missao_repo.py       #   tabela missoes_concluidas
+│   │   └── xp_repo.py           #   tabela xp_eventos (livro-razão de XP, só inserções)
 │   ├── templates/
 │   │   ├── base.html            #   layout, menu por perfil e mensagens (flash)
 │   │   ├── _formulario.html     #   macros `erro` e `invalido` dos formulários
 │   │   ├── auth/                #   cadastro, login
-│   │   ├── aluno/               #   lancamentos, lancamento_form, lancamento_excluir
+│   │   ├── aluno/               #   lancamentos, lancamento_form, lancamento_excluir, missoes
 │   │   └── professor/           #   turmas, turma
 │   └── static/css/app.css       # estilo único, sem framework
 ├── tests/
@@ -169,7 +184,7 @@ EducaInvest/
 └── pytest.ini
 ```
 
-Os arquivos de **metas, missões, quiz, XP e painel** em `routes/`, `services/`, `repositories/` e `templates/`, além de `professor/progresso.html`, são **reservas**: por enquanto só têm uma linha de descrição. O mesmo vale para `app/config.py` e `db/schema.sql`.
+Os arquivos de **metas, quiz e painel** em `routes/`, `services/`, `repositories/` e `templates/`, além de `professor/progresso.html`, são **reservas**: por enquanto só têm uma linha de descrição. O mesmo vale para `app/config.py` e `db/schema.sql`.
 
 ---
 

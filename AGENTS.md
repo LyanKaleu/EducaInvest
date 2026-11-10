@@ -31,7 +31,8 @@ tests/integration/ rotas via test_client com banco temporário (fixtures em test
 docs/              especificação do MVP (PDF) e schema de referência em PostgreSQL
 ```
 - `db/schema.sql` e `app/config.py` são reservas vazias. Não use como referência.
-- Metas, missões, quiz, XP e painel (HU2 a HU5) só têm a docstring. Ainda não estão implementados.
+- Missões e XP (HU3) estão implementados: `missao_service`/`xp_service`, `missao_repo`/`xp_repo` e `routes/missoes.py`. O crédito de XP roda dentro da transação do lançamento (`registrar_progresso`).
+- Metas, quiz e painel (HU2, HU4 e HU5) só têm a docstring. Ainda não estão implementados.
 
 ## Convenções que divergem do padrão
 - Nomes, docstrings, testes e mensagens ao usuário em português.

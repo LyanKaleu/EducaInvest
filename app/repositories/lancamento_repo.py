@@ -144,6 +144,21 @@ class LancamentoRepository:
         ).fetchone()
         return linha_para_dict(linha)
 
+    def contar_por_tipo(self, aluno_id) -> dict:
+        """Quantos lançamentos o aluno tem de cada tipo (critério das missões).
+
+        Args:
+            aluno_id: id do aluno.
+
+        Returns:
+            dict: {"ENTRADA": n, "SAIDA": m}, com zero para o tipo sem lançamentos.
+        """
+        linhas = self.conn.execute(
+            "SELECT tipo, COUNT(*) AS qtd FROM lancamentos WHERE aluno_id = ? GROUP BY tipo",
+            (aluno_id,),
+        ).fetchall()
+        return {"ENTRADA": 0, "SAIDA": 0, **{linha["tipo"]: linha["qtd"] for linha in linhas}}
+
     def atualizar(self, aluno_id, lancamento_id, campos: dict) -> bool:
         """Altera colunas de um lançamento do aluno. Não faz commit.
 
