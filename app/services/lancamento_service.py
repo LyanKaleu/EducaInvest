@@ -94,6 +94,15 @@ def validar_lancamento(dados, hoje: date | None = None) -> dict:
 # ---------------------------------------------------------------------------
 
 
+def saldo(somas: dict) -> int:
+    """Saldo do aluno em centavos: entradas menos gastos (RN-08). Pode ser negativo.
+
+    Args:
+        somas: {"ENTRADA": centavos, "SAIDA": centavos}, como em `somar_por_tipo`.
+    """
+    return somas["ENTRADA"] - somas["SAIDA"]
+
+
 def _converter_tipo(texto):
     tipo = TIPOS.get(texto.casefold())
     if tipo is None:

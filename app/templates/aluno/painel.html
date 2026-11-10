@@ -1,1 +1,55 @@
-<!-- Painel do aluno: saldo, XP, nível e atalhos. -->
+{% extends "base.html" %}
+{# Tela inicial do aluno: saldo, atalho para registrar, sequência, XP/nível e missão em andamento. #}
+
+{% block titulo %}Início{% endblock %}
+
+{% block conteudo %}
+<h1>Olá{% if session.get('apelido') %}, {{ session.get('apelido') }}{% endif %}!</h1>
+
+<section class="painel-saldo" aria-labelledby="titulo-saldo">
+  <h2 id="titulo-saldo" class="rotulo">Seu saldo</h2>
+  {# O sinal vai no texto ("-R$ 10,50"), não só na cor. #}
+  <strong id="saldo" class="saldo{% if saldo < 0 %} negativo{% endif %}">{{ saldo | reais }}</strong>
+  <span class="dica">Entradas {{ entradas | reais }} · Gastos {{ gastos | reais }}</span>
+  {% if saldo < 0 %}
+    <span class="dica">Você gastou mais do que entrou.</span>
+  {% endif %}
+</section>
+
+<p><a class="botao botao-largo" href="{{ url_for('lancamentos.novo') }}">Registrar gasto</a></p>
+
+<div class="painel-indicadores">
+  <section class="indicador" aria-labelledby="titulo-sequencia">
+    <h2 id="titulo-sequencia" class="rotulo">Sequência</h2>
+    <strong id="sequencia">{{ sequencia }} {{ 'dia' if sequencia == 1 else 'dias' }}</strong>
+    <span class="dica">
+      {%- if sequencia == 0 %}Registre algo hoje para começar.
+      {%- elif not ativo_hoje %}Registre hoje para manter.
+      {%- else %}Você já registrou hoje.{% endif -%}
+    </span>
+  </section>
+
+  <section class="indicador" aria-labelledby="titulo-nivel">
+    <h2 id="titulo-nivel" class="rotulo">Nível {{ nivel.nivel }} · {{ nivel.nome }}</h2>
+    <strong id="xp-total">{{ xp_total }} XP</strong>
+    <span class="dica">
+      {%- if nivel.falta is not none %}Faltam {{ nivel.falta }} XP para o próximo.
+      {%- else %}Nível mais alto. Parabéns!{% endif -%}
+    </span>
+  </section>
+</div>
+
+<section class="missao" aria-labelledby="titulo-missao"{% if missao %} data-status="ATIVA"{% endif %}>
+  <h2 id="titulo-missao" class="rotulo">Missão em andamento</h2>
+  {% if missao %}
+    <label id="missao-progresso" for="progresso-painel">{{ missao.titulo }}: {{ missao.atual }} de {{ missao.alvo }}</label>
+    <progress id="progresso-painel" max="{{ missao.alvo }}" value="{{ missao.atual }}">
+      {{ missao.atual }} de {{ missao.alvo }}
+    </progress>
+    <span class="dica">{{ missao.descricao }} · +{{ missao.xp }} XP</span>
+  {% else %}
+    <p>Você concluiu todas as missões. Novas missões chegam em breve!</p>
+  {% endif %}
+  <a href="{{ url_for('missoes.listar') }}">Ver todas as missões</a>
+</section>
+{% endblock %}

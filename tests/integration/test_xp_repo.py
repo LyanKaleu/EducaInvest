@@ -1,5 +1,6 @@
 """Garantias do banco no XP e nas missões concluídas (INVARIANTES N6), sem passar pela rota."""
 import sqlite3
+from datetime import date
 
 import pytest
 
@@ -72,3 +73,12 @@ def test_missao_conclui_uma_vez_so_por_aluno(conn):
     assert not repo.concluir(aluno_id=1, missao_codigo="REG_3_GASTOS")
     assert repo.concluir(aluno_id=2, missao_codigo="REG_3_GASTOS")
     assert repo.concluidas(1) == {"REG_3_GASTOS"}
+
+
+def test_dias_ativos_sao_distintos_e_so_do_aluno(repo):
+    repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="1", pontos=10, dia_ref="2026-11-09")
+    repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="2", pontos=10, dia_ref="2026-11-10")
+    repo.creditar(aluno_id=1, origem="MISSAO", origem_id="REG_3_GASTOS", pontos=30, dia_ref="2026-11-10")
+    repo.creditar(aluno_id=2, origem="LANCAMENTO", origem_id="3", pontos=10, dia_ref="2026-11-08")
+
+    assert repo.dias_ativos(1) == {date(2026, 11, 9), date(2026, 11, 10)}

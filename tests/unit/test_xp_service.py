@@ -1,4 +1,6 @@
 """Testes de teto diário e nível (HU3, RN-11 e RN-12). Só o service."""
+from datetime import date
+
 import pytest
 
 from app.services import xp_service
@@ -49,3 +51,27 @@ def test_nivel_informa_quanto_falta_para_o_proximo():
 
 def test_ultimo_nivel_nao_tem_proximo():
     assert xp_service.nivel(300)["falta"] is None
+
+
+# ---------------------------------------------------------------------------
+# Sequência de dias (RN-13): dias seguidos com XP; hoje em aberto não zera
+# ---------------------------------------------------------------------------
+
+HOJE = date(2026, 11, 10)
+
+
+@pytest.mark.parametrize(
+    ("dias", "esperado"),
+    [
+        (set(), 0),                                                  # nunca teve atividade
+        ({10}, 1),                                                   # só hoje
+        ({8, 9, 10}, 3),                                             # três seguidos até hoje
+        ({8, 9}, 2),                                                 # hoje ainda não acabou: não zera
+        ({7, 8}, 0),                                                 # 09 em branco zera
+        ({6, 8, 9, 10}, 3),                                          # lacuna antiga não conta
+    ],
+)
+def test_sequencia_conta_dias_seguidos_ate_hoje(dias, esperado):
+    dias_ativos = {date(2026, 11, dia) for dia in dias}
+
+    assert xp_service.sequencia(dias_ativos, HOJE) == esperado

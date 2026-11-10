@@ -1,5 +1,6 @@
 """SQL do livro-razão de XP: único lugar com SQL desta entidade (INVARIANTES N6)."""
 import sqlite3
+from datetime import date
 
 # Livro-razão: o XP só entra por INSERT, e cada origem pontua uma vez por aluno.
 # Total e nível são calculados, nunca guardados em coluna.
@@ -88,3 +89,11 @@ class XpRepository:
             (aluno_id,),
         ).fetchone()
         return linha[0]
+
+    def dias_ativos(self, aluno_id) -> set[date]:
+        """Dias (fuso do Piauí) em que o aluno ganhou algum XP, sem repetição (RN-13)."""
+        linhas = self.conn.execute(
+            "SELECT DISTINCT dia_ref FROM xp_eventos WHERE aluno_id = ?",
+            (aluno_id,),
+        ).fetchall()
+        return {date.fromisoformat(linha[0]) for linha in linhas}

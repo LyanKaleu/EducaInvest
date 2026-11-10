@@ -18,7 +18,7 @@ MSG_EMAIL_EM_USO = "Este e-mail já está cadastrado."
 
 def destino_do_perfil(perfil: str) -> str:
     """Página inicial de cada perfil depois de entrar."""
-    return url_for("professor.turmas") if perfil == auth_service.PERFIL_PROFESSOR else url_for("lancamentos.listar")
+    return url_for("professor.turmas") if perfil == auth_service.PERFIL_PROFESSOR else url_for("painel.ver")
 
 
 def _iniciar_sessao(usuario: dict):

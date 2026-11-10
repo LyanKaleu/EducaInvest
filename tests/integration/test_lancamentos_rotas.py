@@ -19,13 +19,6 @@ def quantas_vezes_na_lista(cliente, valor):
 # Acesso
 # ---------------------------------------------------------------------------
 
-def test_inicio_redireciona_para_a_lista(cliente):
-    resposta = cliente.get("/")
-
-    assert resposta.status_code == 302
-    assert resposta.headers["Location"].endswith("/lancamentos/")
-
-
 def test_lista_sem_login_redireciona_para_o_login(cliente_sem_login):
     # Comportamento NOVO (login real): antes era 401.
     resposta = cliente_sem_login.get("/lancamentos/")

@@ -159,6 +159,21 @@ class LancamentoRepository:
         ).fetchall()
         return {"ENTRADA": 0, "SAIDA": 0, **{linha["tipo"]: linha["qtd"] for linha in linhas}}
 
+    def somar_por_tipo(self, aluno_id) -> dict:
+        """Total em centavos dos lançamentos do aluno, por tipo (base do saldo).
+
+        Args:
+            aluno_id: id do aluno.
+
+        Returns:
+            dict: {"ENTRADA": centavos, "SAIDA": centavos}, com zero para o tipo sem lançamentos.
+        """
+        linhas = self.conn.execute(
+            "SELECT tipo, SUM(valor_centavos) AS total FROM lancamentos WHERE aluno_id = ? GROUP BY tipo",
+            (aluno_id,),
+        ).fetchall()
+        return {"ENTRADA": 0, "SAIDA": 0, **{linha["tipo"]: linha["total"] for linha in linhas}}
+
     def atualizar(self, aluno_id, lancamento_id, campos: dict) -> bool:
         """Altera colunas de um lançamento do aluno. Não faz commit.
 

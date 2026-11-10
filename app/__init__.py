@@ -10,6 +10,7 @@ from app.routes.auth import bp as auth_bp
 from app.routes.auth import destino_do_perfil
 from app.routes.lancamentos import bp as lancamentos_bp
 from app.routes.missoes import bp as missoes_bp
+from app.routes.painel import bp as painel_bp
 from app.routes.professor import bp as professor_bp
 
 
@@ -45,6 +46,7 @@ def create_app(config: dict | None = None) -> Flask:
     app.register_blueprint(auth_bp)
     app.register_blueprint(lancamentos_bp)
     app.register_blueprint(missoes_bp)
+    app.register_blueprint(painel_bp)
     app.register_blueprint(professor_bp)
 
     @app.get("/")
