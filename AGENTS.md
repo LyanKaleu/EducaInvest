@@ -32,7 +32,8 @@ docs/              especificação do MVP (PDF) e schema de referência em Postg
 ```
 - `db/schema.sql` e `app/config.py` são reservas vazias. Não use como referência.
 - Missões e XP (HU3) estão implementados: `missao_service`/`xp_service`, `missao_repo`/`xp_repo` e `routes/missoes.py`. O crédito de XP roda dentro da transação do lançamento (`registrar_progresso`).
-- Metas, quiz e painel (HU2, HU4 e HU5) só têm a docstring. Ainda não estão implementados.
+- A tela inicial do aluno (`routes/painel.py`) mostra saldo, XP, nível, sequência de dias (`xp_service.sequencia`, com os dias que têm XP em `xp_eventos`) e a missão em andamento.
+- Metas, quiz e o painel do professor (HU2, HU4 e HU5) só têm a docstring. Ainda não estão implementados.
 
 ## Convenções que divergem do padrão
 - Nomes, docstrings, testes e mensagens ao usuário em português.

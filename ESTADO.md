@@ -16,9 +16,11 @@ Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
 | HU3: missões em trilha, XP com teto diário e nível | #8 |
 | Perfil visível no cadastro, no login e no topo | #9 |
 | Plan mode obrigatório, TDD por seams, skills no AGENTS.md | #10 |
+| Tela inicial do aluno: saldo, sequência de dias (RN-13), XP, nível e missão | #12 |
 
 ## Próximo passo
-Ordem da especificação: **streak da HU3 (RN-13) + painel do aluno** → HU2 metas e aportes → HU4 quiz → HU5 painel agregado do professor.
+**Prazo: 13/11/2026** (2ª avaliação: documento + MVP + pitch). A ordem combinada em 10/11 é **HU2 metas e aportes** (o aporte é um valor separado e não desconta do saldo) → HU5 painel agregado do professor → HU4 quiz, se der tempo.
+Refatoração e arquitetura (camadas ou fatias) só depois da entrega, com o feedback do MVP.
 
 ## Backlog (issues abertas)
 - #5 professor renomeia turma
