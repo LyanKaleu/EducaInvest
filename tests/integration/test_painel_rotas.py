@@ -56,3 +56,35 @@ def test_inicio_do_aluno_abre_o_painel(cliente_aluno):
 
     assert resposta.status_code == 302
     assert resposta.headers["Location"].endswith("/painel/")
+
+
+# ---------------------------------------------------------------------------
+# Meta em destaque (HU2)
+# ---------------------------------------------------------------------------
+
+def criar_meta_com_aporte(cliente, nome, alvo, aporte):
+    """Cria a meta e faz um aporte pelas rotas. Devolve o id da meta."""
+    cliente.post("/metas/nova", data={"nome": nome, "alvo": alvo, "prazo": "",
+                                       "chave_idempotencia": str(uuid.uuid4())})
+    meta_id = max(int(i) for i in re.findall(r'data-meta-id="(\d+)"', cliente.get("/metas/").get_data(as_text=True)))
+    cliente.post(f"/metas/{meta_id}/aportes", data={"valor": aporte, "chave_idempotencia": str(uuid.uuid4())})
+    return meta_id
+
+
+def test_painel_mostra_a_meta_mais_perto_de_concluir(cliente_aluno):
+    criar_meta_com_aporte(cliente_aluno, "Fone", "200,00", "100,00")      # 50%
+    criar_meta_com_aporte(cliente_aluno, "Bicicleta", "800,00", "120,00")  # 15%
+
+    assert valor(painel(cliente_aluno), "meta-progresso") == "Fone: R$ 100,00 de R$ 200,00 · 50%"
+
+
+def test_painel_sem_metas_convida_a_criar_a_primeira(cliente_aluno):
+    assert "Crie sua primeira meta" in painel(cliente_aluno)
+
+
+def test_aporte_na_meta_nao_muda_o_saldo(cliente_aluno):
+    registrar(cliente_aluno, "entrada", "Mesada", "50,00")
+
+    criar_meta_com_aporte(cliente_aluno, "Fone", "200,00", "30,00")
+
+    assert valor(painel(cliente_aluno), "saldo") == "R$ 50,00"

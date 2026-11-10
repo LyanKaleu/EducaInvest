@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{# Tela inicial do aluno: saldo, atalho para registrar, sequência, XP/nível e missão em andamento. #}
+{# Tela inicial do aluno: saldo, atalho para registrar, sequência, XP/nível, missão e meta em andamento. #}
 
 {% block titulo %}Início{% endblock %}
 
@@ -51,5 +51,21 @@
     <p>Você concluiu todas as missões. Novas missões chegam em breve!</p>
   {% endif %}
   <a href="{{ url_for('missoes.listar') }}">Ver todas as missões</a>
+</section>
+
+<section class="meta" aria-labelledby="titulo-meta">
+  <h2 id="titulo-meta" class="rotulo">Meta em andamento</h2>
+  {% if meta %}
+    <label id="meta-progresso" for="progresso-meta">{{ meta.nome }}: {{ meta.guardado_centavos | reais }} de {{ meta.valor_alvo_centavos | reais }} · {{ meta.percentual }}%</label>
+    <progress id="progresso-meta" max="100" value="{{ meta.percentual }}">{{ meta.percentual }}%</progress>
+    <span class="dica">Faltam {{ (meta.valor_alvo_centavos - meta.guardado_centavos) | reais }}</span>
+    <a href="{{ url_for('metas.listar') }}">Guardar dinheiro na meta</a>
+  {% elif tem_metas %}
+    <p>Você concluiu todas as suas metas. Parabéns!</p>
+    <a href="{{ url_for('metas.nova') }}">Criar nova meta</a>
+  {% else %}
+    <p>Junte dinheiro para algo que você quer.</p>
+    <a href="{{ url_for('metas.nova') }}">Crie sua primeira meta</a>
+  {% endif %}
 </section>
 {% endblock %}

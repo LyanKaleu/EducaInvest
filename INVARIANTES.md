@@ -17,15 +17,15 @@ Regra sem enforcement é desejo. Promoção: violou uma vez, reescreva; duas vez
 
 ## De negócio
 
-### N1 · Aluno só acessa os próprios lançamentos
-- **Invariante:** todo SELECT, UPDATE e DELETE de lançamento filtra por `aluno_id` da sessão.
-- **Caminho seguro:** use os métodos do `LancamentoRepository`, que recebem `aluno_id`. Lançamento de outro aluno responde 404.
-- **Enforcement:** `test_*_de_outro_aluno_*` em `tests/integration/test_lancamentos_rotas.py` (listar, editar, atualizar, confirmar e excluir).
+### N1 · Aluno só acessa os próprios lançamentos e metas
+- **Invariante:** todo SELECT, UPDATE e DELETE de lançamento ou meta filtra por `aluno_id` da sessão, e o aporte só é gravado em meta do próprio aluno.
+- **Caminho seguro:** use os métodos do `LancamentoRepository` e do `MetaRepository`, que recebem `aluno_id`. Lançamento ou meta de outro aluno responde 404.
+- **Enforcement:** `test_*_de_outro_aluno_*` em `tests/integration/test_lancamentos_rotas.py` (listar, editar, atualizar, confirmar e excluir) e em `tests/integration/test_metas_rotas.py` (listar e aportar).
 
-### N2 · Lançamento não duplica
+### N2 · Lançamento, meta e aporte não duplicam
 - **Invariante:** o mesmo envio do formulário (clique duplo, reenvio após falha de rede) grava uma vez só.
 - **Caminho seguro:** todo formulário de criação leva `chave_idempotencia`, e o repositório usa `ON CONFLICT DO NOTHING`.
-- **Enforcement:** `UNIQUE (aluno_id, chave_idempotencia)` no banco, mais `test_reenvio_com_a_mesma_chave_nao_duplica`.
+- **Enforcement:** `UNIQUE (aluno_id, chave_idempotencia)` em `lancamentos` e `metas` e `UNIQUE (meta_id, chave_idempotencia)` em `aportes_meta`, mais `test_reenvio_com_a_mesma_chave_nao_duplica`, `test_reenvio_da_meta_com_a_mesma_chave_nao_duplica` `test_reenvio_do_aporte_com_a_mesma_chave_nao_duplica` e `test_reenvio_do_aporte_que_concluiu_a_meta_responde_como_sucesso`.
 
 ### N3 · E-mail único, sem diferenciar maiúsculas
 - **Invariante:** dois usuários nunca têm o mesmo e-mail (`Ana@x` = `ana@x`).

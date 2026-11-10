@@ -52,7 +52,16 @@ Depois de entrar, o aluno cai no **Início**, que mostra:
 - o botão **Registrar gasto**, que abre o formulário com gasto e a data de hoje já preenchidos;
 - a **sequência de dias** (RN-13): dias seguidos em que o aluno ganhou XP, no fuso do Piauí. O dia de hoje ainda não acabou, então só um dia inteiro em branco zera a sequência;
 - **XP e nível**, com quanto falta para o próximo;
-- a **missão em andamento**, com a barra de progresso.
+- a **missão em andamento**, com a barra de progresso;
+- a **meta em andamento** mais perto de concluir, com a barra e quanto falta. Sem metas, aparece o convite para criar a primeira.
+
+### Prontas: metas e aportes (HU2)
+
+- **Criar meta:** nome (até 60 caracteres), quanto quer juntar e prazo opcional, que não pode ser no passado. A meta nasce com 0%.
+- **Aporte:** em cada meta, o aluno informa quanto guardou. O cartão mostra `R$ 100,00 de R$ 200,00 · 50%` e quanto falta. O percentual é arredondado para baixo, então só aparece 100% quando o alvo foi atingido. O aporte não passa do que falta: como ainda não dá para desfazer um aporte, um valor maior volta com a mensagem "Faltam só R$ X para concluir esta meta".
+- **Meta concluída:** ao chegar a 100%, a meta aparece como **Concluída**, o aluno recebe os parabéns e o formulário de aporte some.
+- **O aporte é um valor separado:** não desconta do saldo dos lançamentos (decisão do grupo de 10/11) e não rende XP.
+- **Sem duplicar e sem acesso de outro aluno:** criar meta e aportar levam a chave única do envio, e a meta de outro aluno responde 404.
 
 ### Em desenvolvimento
 
@@ -60,7 +69,6 @@ Estes itens têm arquivos reservados na estrutura de pastas, mas **ainda não t�
 
 | Funcionalidade | Situação |
 |---|---|
-| Metas e aportes (HU2) | Não iniciado |
 | Quizzes (HU4) | Não iniciado |
 | Painel agregado do professor: XP médio, missões e frequência (HU5) | Não iniciado (hoje a turma mostra só a lista de alunos) |
 
@@ -158,14 +166,16 @@ EducaInvest/
 │   │   ├── auth.py              #   cadastro (aluno e professor), login e logout
 │   │   ├── professor.py         #   turmas do professor (só perfil PROFESSOR)
 │   │   ├── lancamentos.py       #   CRUD de lançamentos (só perfil ALUNO)
+│   │   ├── metas.py             #   metas e aportes (só perfil ALUNO)
 │   │   ├── missoes.py           #   tela de missões e registrar_progresso() (XP na transação do lançamento)
-│   │   └── painel.py            #   tela inicial do aluno: saldo, XP, nível, sequência e missão (só ALUNO)
+│   │   └── painel.py            #   tela inicial do aluno: saldo, XP, nível, sequência, missão e meta (só ALUNO)
 │   ├── services/                # regras de negócio: sem SQL e sem Flask
 │   │   ├── erros.py             #   ErroValidacao (campo → mensagem)
-│   │   ├── formulario.py        #   texto_do_campo(): leitura de campo de formulário
+│   │   ├── formulario.py        #   leitura de campo e conversores de valor, data e chave
 │   │   ├── auth_service.py      #   perfis, validação de cadastro/login e hash de senha
 │   │   ├── turma_service.py     #   nome da turma e código de acesso
 │   │   ├── lancamento_service.py#   validar_lancamento()
+│   │   ├── meta_service.py      #   validar_meta(), validar_aporte(), limite do aporte, progresso e meta em destaque
 │   │   ├── missao_service.py    #   trilha de missões: progresso, conclusão e desbloqueio
 │   │   └── xp_service.py        #   XP por lançamento com teto diário e nível
 │   ├── repositories/            # único lugar com SQL, sempre com parâmetros (?)
@@ -173,13 +183,14 @@ EducaInvest/
 │   │   ├── usuario_repo.py      #   tabela usuarios
 │   │   ├── turma_repo.py        #   tabelas turmas e matriculas
 │   │   ├── lancamento_repo.py   #   tabela lancamentos (CRUD)
+│   │   ├── meta_repo.py         #   tabelas metas e aportes_meta
 │   │   ├── missao_repo.py       #   tabela missoes_concluidas
 │   │   └── xp_repo.py           #   tabela xp_eventos (livro-razão de XP, só inserções)
 │   ├── templates/
 │   │   ├── base.html            #   layout, menu por perfil e mensagens (flash)
 │   │   ├── _formulario.html     #   macros `erro` e `invalido` dos formulários
 │   │   ├── auth/                #   cadastro, login
-│   │   ├── aluno/               #   painel, lancamentos, lancamento_form, lancamento_excluir, missoes
+│   │   ├── aluno/               #   painel, lancamentos, lancamento_form, lancamento_excluir, missoes, metas, meta_form
 │   │   └── professor/           #   turmas, turma
 │   └── static/css/app.css       # estilo único, sem framework
 ├── tests/
@@ -194,7 +205,7 @@ EducaInvest/
 └── pytest.ini
 ```
 
-Os arquivos de **metas e quiz** em `routes/`, `services/`, `repositories/` e `templates/`, além de `professor/progresso.html`, são **reservas**: por enquanto só têm uma linha de descrição. O mesmo vale para `app/config.py` e `db/schema.sql`.
+Os arquivos de **quiz** em `routes/`, `services/`, `repositories/` e `templates/`, além de `professor/progresso.html`, são **reservas**: por enquanto só têm uma linha de descrição. O mesmo vale para `app/config.py` e `db/schema.sql`.
 
 ---
 

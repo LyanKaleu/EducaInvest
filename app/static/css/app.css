@@ -45,7 +45,7 @@ main:focus { outline: none; }
 }
 .topo a { color: #fff; }
 .marca { font-weight: 700; font-size: 1.15rem; text-decoration: none; }
-.topo ul { display: flex; gap: 1rem; margin: 0; padding: 0; list-style: none; }
+.topo ul { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: 0; padding: 0; list-style: none; }
 .topo [aria-current="page"] { font-weight: 700; text-decoration-thickness: 3px; }
 /* Botão "Sair" com cara de link (é um formulário POST). */
 .topo form { margin: 0; }
@@ -139,6 +139,23 @@ button.perigo { background: var(--perigo); }
 .missao.concluida { border-color: var(--primaria); }
 .missao label { font-weight: 400; margin: .25rem 0 0; }
 .missao progress { width: 100%; height: 1rem; accent-color: var(--primaria); }
+
+/* ---------- Metas e aportes ---------- */
+
+.metas { list-style: none; margin: 0; padding: 0; }
+.meta {
+  display: flex; flex-direction: column; gap: .4rem;
+  padding: .75rem 1rem; margin-bottom: .75rem;
+  background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--foco);
+}
+.meta.concluida { border-color: var(--primaria); }
+.metas .meta h2 { font-size: 1.1rem; margin: 0; overflow-wrap: anywhere; }
+.meta progress { width: 100%; height: 1rem; accent-color: var(--primaria); }
+.meta-progresso { font-variant-numeric: tabular-nums; }
+.selo { align-self: flex-start; color: var(--primaria); }
+.meta label { font-weight: 400; margin: .25rem 0 0; }
+.aporte .linha { display: flex; gap: .5rem; }
+.aporte .linha input { flex: 1; min-width: 0; }
 
 /* ---------- Painel do aluno ---------- */
 

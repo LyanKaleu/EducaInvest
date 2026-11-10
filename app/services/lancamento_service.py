@@ -1,11 +1,8 @@
 """Valida lançamentos (RN-07), calcula saldo e dispara a verificação de missões."""
-import re
-import uuid
 from datetime import date, datetime, timedelta, timezone
-from decimal import Decimal
 
 from app.services.erros import ErroValidacao
-from app.services.formulario import texto_do_campo
+from app.services.formulario import converter_chave, converter_valor, ler_data, texto_do_campo
 
 # O Piauí fica em UTC-3 o ano todo (sem horário de verão). Usamos o deslocamento
 # fixo porque, no Windows, zoneinfo("America/Fortaleza") exige instalar o pacote tzdata.
@@ -20,7 +17,6 @@ CATEGORIAS = {
 }
 
 DESCRICAO_MAX = 140
-VALOR_MAXIMO_CENTAVOS = 10_000_000  # R$ 100.000,00: barra erros de digitação. A confirmar.
 
 
 def hoje_no_piaui() -> date:
@@ -70,10 +66,10 @@ def validar_lancamento(dados, hoje: date | None = None) -> dict:
 
     tipo = campo("tipo", _converter_tipo)
     categoria = campo("categoria", _converter_categoria, tipo)
-    valor_centavos = campo("valor", _converter_valor)
+    valor_centavos = campo("valor", converter_valor)
     data_lancamento = campo("data", _converter_data, hoje)
     descricao = campo("descricao", _converter_descricao)
-    chave = campo("chave_idempotencia", _converter_chave)
+    chave = campo("chave_idempotencia", converter_chave)
 
     if erros:
         raise ErroValidacao(erros)
@@ -124,43 +120,10 @@ def _converter_categoria(texto, tipo):
     raise ValueError("Escolha uma categoria da lista.")
 
 
-def _converter_valor(texto):
-    if not texto:
-        raise ValueError("Informe o valor.")
-    limpo = texto.replace("R$", "").replace(" ", "").replace(" ", "")
-    if limpo.startswith("-"):
-        raise ValueError("O valor precisa ser maior que zero.")
-
-    if re.fullmatch(r"\d{1,3}(\.\d{3})*,\d{1,2}|\d+,\d{1,2}", limpo):
-        numero = limpo.replace(".", "").replace(",", ".")  # 1.234,56 -> 1234.56
-    elif re.fullmatch(r"\d+(\.\d{1,2})?", limpo):
-        numero = limpo                                        # 25 ou 25.50 (input type=number)
-    elif re.fullmatch(r"\d{1,3}(\.\d{3})+", limpo):
-        numero = limpo.replace(".", "")                       # 1.234 -> 1234
-    else:
-        raise ValueError("Valor inválido. Use só números, por exemplo 25,50.")
-
-    centavos = int(Decimal(numero) * 100)
-    if centavos <= 0:
-        raise ValueError("O valor precisa ser maior que zero.")
-    if centavos > VALOR_MAXIMO_CENTAVOS:
-        raise ValueError("O valor máximo é R$ 100.000,00.")
-    return centavos
-
-
 def _converter_data(texto, hoje):
     if not texto:
         return hoje  # RNF03: menos toques; sem data, vale o dia de hoje
-    if m := re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", texto):      # 2026-11-04 (input type=date)
-        ano, mes, dia = m.groups()
-    elif m := re.fullmatch(r"(\d{1,2})/(\d{1,2})/(\d{4})", texto):  # 04/11/2026
-        dia, mes, ano = m.groups()
-    else:
-        raise ValueError("Data inválida. Use o formato dd/mm/aaaa.")
-    try:
-        data = date(int(ano), int(mes), int(dia))
-    except ValueError:
-        raise ValueError("Essa data não existe.") from None
+    data = ler_data(texto)
     if data > hoje:
         raise ValueError("A data não pode ser no futuro.")
     return data
@@ -171,11 +134,3 @@ def _converter_descricao(texto):
         raise ValueError(f"A descrição pode ter no máximo {DESCRICAO_MAX} caracteres.")
     return texto or None
 
-
-def _converter_chave(texto):
-    try:
-        return str(uuid.UUID(texto))
-    except ValueError:
-        raise ValueError(
-            "Não foi possível identificar este envio. Recarregue a página e tente de novo."
-        ) from None
