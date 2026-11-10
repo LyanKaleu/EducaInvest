@@ -1,7 +1,5 @@
-"""Calcula o XP do lançamento com teto diário e o nível pelo XP acumulado (RN-11, RN-12).
-
-A sequência de dias (streak, RN-13) fica para o próximo ciclo.
-"""
+"""Calcula o XP do lançamento com teto diário, o nível e a sequência de dias (RN-11 a RN-13)."""
+from datetime import date, timedelta
 
 # Valores de exemplo da spec (HU3). A confirmar pelo grupo.
 XP_POR_LANCAMENTO = 10
@@ -50,3 +48,24 @@ def nivel(xp_total: int) -> dict:
         "nome": atual[1],
         "falta": proximo[2] - xp_total if proximo else None,
     }
+
+
+def sequencia(dias_ativos: set[date], hoje: date) -> int:
+    """Dias seguidos com atividade até hoje (streak, RN-13).
+
+    Hoje ainda não acabou: se o aluno não teve atividade hoje, a sequência
+    conta a partir de ontem. Um dia inteiro em branco zera.
+
+    Args:
+        dias_ativos: dias (fuso do Piauí) em que o aluno ganhou XP.
+        hoje: dia de hoje no fuso do Piauí.
+
+    Returns:
+        int: quantidade de dias seguidos; 0 se ontem e hoje estão em branco.
+    """
+    dia = hoje if hoje in dias_ativos else hoje - timedelta(days=1)
+    total = 0
+    while dia in dias_ativos:
+        total += 1
+        dia -= timedelta(days=1)
+    return total

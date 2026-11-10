@@ -139,3 +139,17 @@ button.perigo { background: var(--perigo); }
 .missao.concluida { border-color: var(--primaria); }
 .missao label { font-weight: 400; margin: .25rem 0 0; }
 .missao progress { width: 100%; height: 1rem; accent-color: var(--primaria); }
+
+/* ---------- Painel do aluno ---------- */
+
+.rotulo { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #555; margin: 0; }
+.painel-saldo { display: flex; flex-direction: column; gap: .25rem; margin-bottom: 1rem; }
+.saldo { font-size: 2.25rem; line-height: 1.1; color: var(--primaria); font-variant-numeric: tabular-nums; }
+.saldo.negativo { color: var(--perigo); }
+.botao-largo { display: block; text-align: center; }
+.painel-indicadores { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin: 1.5rem 0 .75rem; }
+.indicador {
+  display: flex; flex-direction: column; gap: .25rem;
+  padding: .75rem 1rem; border: 1px solid var(--borda); border-radius: var(--raio);
+}
+.indicador strong { font-size: 1.4rem; font-variant-numeric: tabular-nums; }

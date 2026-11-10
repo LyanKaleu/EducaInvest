@@ -17,11 +17,11 @@ def test_pagina_de_cadastro_mostra_o_formulario(cliente_anonimo):
         assert f'name="{campo}"' in html
 
 
-def test_cadastro_de_aluno_valido_redireciona_para_lancamentos(app, turma):
+def test_cadastro_de_aluno_valido_redireciona_para_o_painel(app, turma):
     resposta = cadastrar_aluno(app.test_client(), turma["codigo"])
 
     assert resposta.status_code == 302
-    assert caminho(resposta).endswith("/lancamentos/")
+    assert caminho(resposta).endswith("/painel/")
 
 
 def test_aluno_fica_logado_depois_do_cadastro(cliente_aluno):
@@ -90,11 +90,11 @@ def test_cadastro_de_professor_invalido_retorna_400(cliente_anonimo):
 # Login e logout
 # ---------------------------------------------------------------------------
 
-def test_login_de_aluno_redireciona_para_lancamentos(app, cliente_aluno):
+def test_login_de_aluno_redireciona_para_o_painel(app, cliente_aluno):
     resposta = entrar(app.test_client(), "gabriel@escola.br")
 
     assert resposta.status_code == 302
-    assert caminho(resposta).endswith("/lancamentos/")
+    assert caminho(resposta).endswith("/painel/")
 
 
 def test_login_de_professor_redireciona_para_turmas(app, cliente_professor):

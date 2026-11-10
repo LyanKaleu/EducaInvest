@@ -22,6 +22,10 @@
         {# aria-current="page" avisa ao leitor de tela qual é a página atual. #}
         {% if session.get('perfil') == 'ALUNO' %}
           <li>
+            <a href="{{ url_for('painel.ver') }}"
+               aria-current="{{ 'page' if request.endpoint == 'painel.ver' else 'false' }}">Início</a>
+          </li>
+          <li>
             <a href="{{ url_for('lancamentos.listar') }}"
                aria-current="{{ 'page' if request.endpoint == 'lancamentos.listar' else 'false' }}">Lançamentos</a>
           </li>

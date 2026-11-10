@@ -2,9 +2,11 @@
 
 
 def reais(centavos: int) -> str:
-    """Formata centavos como dinheiro: 123456 -> 'R$ 1.234,56'."""
-    inteiro, resto = divmod(centavos, 100)
-    return f"R$ {inteiro:,}".replace(",", ".") + f",{resto:02d}"
+    """Formata centavos como dinheiro: 123456 -> 'R$ 1.234,56'; -1050 -> '-R$ 10,50'."""
+    # divmod de negativo arredonda para baixo (-1050 -> -11 e 50): formata o módulo e põe o sinal.
+    inteiro, resto = divmod(abs(centavos), 100)
+    sinal = "-" if centavos < 0 else ""
+    return f"{sinal}R$ {inteiro:,}".replace(",", ".") + f",{resto:02d}"
 
 
 def data_br(data_iso: str) -> str:
