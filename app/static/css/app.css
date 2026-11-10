@@ -149,11 +149,11 @@ button.perigo { background: var(--perigo); }
   background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--foco);
 }
 .meta.concluida { border-color: var(--primaria); }
-.meta h2 { font-size: 1.1rem; margin: 0; overflow-wrap: anywhere; }
+.metas .meta h2 { font-size: 1.1rem; margin: 0; overflow-wrap: anywhere; }
 .meta progress { width: 100%; height: 1rem; accent-color: var(--primaria); }
 .meta-progresso { font-variant-numeric: tabular-nums; }
 .selo { align-self: flex-start; color: var(--primaria); }
-.aporte label { font-weight: 400; }
+.meta label { font-weight: 400; margin: .25rem 0 0; }
 .aporte .linha { display: flex; gap: .5rem; }
 .aporte .linha input { flex: 1; min-width: 0; }
 

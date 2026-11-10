@@ -4,7 +4,7 @@ import uuid
 import pytest
 
 from app.services.erros import ErroValidacao
-from app.services.meta_service import progresso, validar_aporte, validar_meta
+from app.services.meta_service import mais_perto_de_concluir, progresso, validar_aporte, validar_meta
 from tests.conftest import HOJE  # 2026-11-04
 
 
@@ -86,3 +86,28 @@ def test_aporte_valido_vira_centavos():
 ])
 def test_progresso_de_meta_de_200_reais(guardado, percentual, concluida):
     assert progresso(20000, guardado) == {"percentual": percentual, "concluida": concluida}
+
+
+# ---------------------------------------------------------------------------
+# mais_perto_de_concluir (card da tela inicial)
+# ---------------------------------------------------------------------------
+
+def meta(id_, alvo, guardado):
+    return {"id": id_, "valor_alvo_centavos": alvo, "guardado_centavos": guardado}
+
+
+def test_destaca_a_meta_em_andamento_com_maior_percentual_e_ignora_concluidas():
+    metas = [meta(3, 10000, 10000), meta(2, 80000, 12000), meta(1, 20000, 10000)]
+
+    assert mais_perto_de_concluir(metas)["id"] == 1  # 50% vence 15%; a de 100% já foi
+
+
+def test_no_empate_destaca_a_meta_mais_antiga():
+    metas = [meta(2, 20000, 10000), meta(1, 40000, 20000)]  # as duas em 50%; id menor é mais antiga
+
+    assert mais_perto_de_concluir(metas)["id"] == 1
+
+
+def test_sem_meta_em_andamento_nao_destaca_nenhuma():
+    assert mais_perto_de_concluir([]) is None
+    assert mais_perto_de_concluir([meta(1, 10000, 10000)]) is None

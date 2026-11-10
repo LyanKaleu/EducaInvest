@@ -89,6 +89,28 @@ def progresso(alvo_centavos: int, guardado_centavos: int) -> dict:
     }
 
 
+def mais_perto_de_concluir(metas: list[dict]) -> dict | None:
+    """A meta em andamento mais perto de concluir, para o card da tela inicial.
+
+    Args:
+        metas: dicts com `id`, `valor_alvo_centavos` e `guardado_centavos`
+            (como em `MetaRepository.listar`).
+
+    Returns:
+        dict | None: a meta não concluída com o maior percentual (no empate, a
+        mais antiga, de menor id), com as chaves de `progresso` somadas; ou
+        None se não houver meta em andamento.
+    """
+    em_andamento = [
+        {**meta, **progresso(meta["valor_alvo_centavos"], meta["guardado_centavos"])}
+        for meta in metas
+    ]
+    em_andamento = [meta for meta in em_andamento if not meta["concluida"]]
+    if not em_andamento:
+        return None
+    return min(em_andamento, key=lambda meta: (-meta["percentual"], meta["id"]))
+
+
 def _converter_nome(texto):
     if not texto:
         raise ValueError("Dê um nome para a meta.")
