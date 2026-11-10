@@ -102,6 +102,17 @@ class MetaRepository:
         ).fetchone()
         return linha_para_dict(linha)
 
+    def aporte_registrado(self, aluno_id, meta_id, chave_idempotencia) -> bool:
+        """Se este envio (chave) já gravou um aporte nesta meta do aluno (reenvio, N2)."""
+        linha = self.conn.execute(
+            """
+            SELECT 1 FROM aportes_meta a JOIN metas m ON m.id = a.meta_id
+            WHERE m.aluno_id = ? AND a.meta_id = ? AND a.chave_idempotencia = ?
+            """,
+            (aluno_id, meta_id, chave_idempotencia),
+        ).fetchone()
+        return linha is not None
+
     def aportar(self, aluno_id, meta_id, valor_centavos, chave_idempotencia) -> bool:
         """Registra um aporte numa meta do aluno. Não faz commit.
 

@@ -99,6 +99,11 @@ def criar():
 @bp.post("/<int:meta_id>/aportes")
 def aportar(meta_id):
     meta = _com_progresso(_buscar_ou_404(meta_id))
+    chave = request.form.get("chave_idempotencia", "").strip()
+    if _repo().aporte_registrado(_aluno_id(), meta_id, chave):
+        # Reenvio de um aporte já gravado (clique duplo, falha de rede): responde como
+        # sucesso, mesmo que esse aporte tenha concluído a meta (N2).
+        return redirect(url_for(".listar"))
     if meta["concluida"]:  # meta cheia fecha: não aceita mais aportes
         flash("Essa meta já foi concluída.", "erro")
         return _render_lista(status=400)

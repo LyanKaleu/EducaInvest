@@ -109,10 +109,11 @@ def test_meta_concluida_recusa_novo_aporte(cliente, meta_fone):
     assert "R$ 200,00 de R$ 200,00 · 100%" in lista(cliente)
 
 
-def test_aporte_zero_retorna_400_e_o_progresso_nao_muda(cliente, meta_fone):
+@pytest.mark.parametrize("valor", ["0", "-10,00"])
+def test_aporte_zero_ou_negativo_retorna_400_e_o_progresso_nao_muda(cliente, meta_fone, valor):
     aportar(cliente, meta_fone, "50,00")
 
-    resposta = aportar(cliente, meta_fone, "0")
+    resposta = aportar(cliente, meta_fone, valor)
 
     assert resposta.status_code == 400
     html = resposta.get_data(as_text=True)
@@ -161,3 +162,15 @@ def test_reenvio_do_aporte_com_a_mesma_chave_nao_duplica(cliente, meta_fone):
 
     assert resposta.status_code == 302
     assert "R$ 50,00 de R$ 200,00 · 25%" in lista(cliente)
+
+
+def test_reenvio_do_aporte_que_concluiu_a_meta_responde_como_sucesso(cliente, meta_fone):
+    # Clique duplo no aporte que completa o alvo: o 2º envio não pode virar "meta já concluída".
+    aportar(cliente, meta_fone, "190,00")
+    chave = str(uuid.uuid4())
+    aportar(cliente, meta_fone, "10,00", chave=chave)
+
+    resposta = aportar(cliente, meta_fone, "10,00", chave=chave)
+
+    assert resposta.status_code == 302
+    assert "R$ 200,00 de R$ 200,00 · 100%" in lista(cliente)
