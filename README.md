@@ -58,7 +58,7 @@ Depois de entrar, o aluno cai no **Início**, que mostra:
 ### Prontas: metas e aportes (HU2)
 
 - **Criar meta:** nome (até 60 caracteres), quanto quer juntar e prazo opcional, que não pode ser no passado. A meta nasce com 0%.
-- **Aporte:** em cada meta, o aluno informa quanto guardou. O cartão mostra `R$ 100,00 de R$ 200,00 · 50%` e quanto falta. O percentual é arredondado para baixo, então só aparece 100% quando o alvo foi atingido.
+- **Aporte:** em cada meta, o aluno informa quanto guardou. O cartão mostra `R$ 100,00 de R$ 200,00 · 50%` e quanto falta. O percentual é arredondado para baixo, então só aparece 100% quando o alvo foi atingido. O aporte não passa do que falta: como ainda não dá para desfazer um aporte, um valor maior volta com a mensagem "Faltam só R$ X para concluir esta meta".
 - **Meta concluída:** ao chegar a 100%, a meta aparece como **Concluída**, o aluno recebe os parabéns e o formulário de aporte some.
 - **O aporte é um valor separado:** não desconta do saldo dos lançamentos (decisão do grupo de 10/11) e não rende XP.
 - **Sem duplicar e sem acesso de outro aluno:** criar meta e aportar levam a chave única do envio, e a meta de outro aluno responde 404.
@@ -175,7 +175,7 @@ EducaInvest/
 │   │   ├── auth_service.py      #   perfis, validação de cadastro/login e hash de senha
 │   │   ├── turma_service.py     #   nome da turma e código de acesso
 │   │   ├── lancamento_service.py#   validar_lancamento()
-│   │   ├── meta_service.py      #   validar_meta(), validar_aporte(), progresso e meta em destaque
+│   │   ├── meta_service.py      #   validar_meta(), validar_aporte(), limite do aporte, progresso e meta em destaque
 │   │   ├── missao_service.py    #   trilha de missões: progresso, conclusão e desbloqueio
 │   │   └── xp_service.py        #   XP por lançamento com teto diário e nível
 │   ├── repositories/            # único lugar com SQL, sempre com parâmetros (?)
