@@ -17,9 +17,10 @@ Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
 | Perfil visível no cadastro, no login e no topo | #9 |
 | Plan mode obrigatório, TDD por seams, skills no AGENTS.md | #10 |
 | Tela inicial do aluno: saldo, sequência de dias (RN-13), XP, nível e missão | #12 |
+| HU2: metas e aportes (aporte fora do saldo), card da meta na tela inicial | #13 (em revisão) |
 
 ## Próximo passo
-**Prazo: 13/11/2026** (2ª avaliação: documento + MVP + pitch). A ordem combinada em 10/11 é **HU2 metas e aportes** (o aporte é um valor separado e não desconta do saldo) → HU5 painel agregado do professor → HU4 quiz, se der tempo.
+**Prazo: 13/11/2026** (2ª avaliação: documento + MVP + pitch). A ordem combinada em 10/11 é HU2 metas e aportes (PR #13) → **HU5 painel agregado do professor** → HU4 quiz, se der tempo.
 Refatoração e arquitetura (camadas ou fatias) só depois da entrega, com o feedback do MVP.
 **Pitch por último:** depois de completar o escopo do MVP, capturar todas as telas no celular, compartilhar com o grupo e só então estruturar a apresentação.
 
@@ -35,4 +36,5 @@ Refatoração e arquitetura (camadas ou fatias) só depois da entrega, com o fee
 - Onde hospedar o protótipo.
 
 ## Em andamento
-Nada. Ao abrir uma branch de trabalho, registre aqui a branch e o link do artefato do plano.
+HU2 no PR #13 (`feature/metas` → `develop`), aguardando revisão e merge.
+Artefato do plano: https://claude.ai/artifact/3cmboRjs6bgsXewE9HTtU7
