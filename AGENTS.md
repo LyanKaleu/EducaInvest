@@ -44,16 +44,25 @@ docs/              especificação do MVP (PDF) e schema de referência em Postg
 - Antes de criar um arquivo, abra o irmão equivalente (ex.: os `lancamento_*`) e siga o padrão dele.
 
 ## Fluxo de trabalho
-- Tarefa em 4 campos: Goal, Context, Constraints e Done when, verificável por máquina.
-- TDD em 3 passos:
-  1. Só os testes: rode e mostre a falha.
-  2. Implementação mínima.
-  3. Sugira refatorações.
+- **Sempre comece pelo plan mode** antes de escrever código, seja funcionalidade nova ou continuação de uma, por menor que seja. Só implemente depois que o plano for aprovado. Mudança só em documentação pode ir direto. Pergunte antes de implementar feature vaga.
+- O plano traz a tarefa em 4 campos (Goal, Context, Constraints e Done when, verificável por máquina), as **seams** a testar (a interface pública de cada teste, com uma linha sobre o que ela pega e o que deixa passar) e as skills que serão usadas.
+- TDD em fatias verticais, uma por vez:
+  1. Um teste numa seam aprovada: rode e mostre a falha.
+  2. A implementação mínima para ele passar. Repita o passo 1 com o próximo teste.
+  3. No fim, sugira refatorações (na revisão, fora do ciclo).
+- Teste pela interface pública, com valor esperado escrito à mão (nunca recalculado do jeito que o código calcula). Mock só em fronteira do sistema (tempo, ambiente, falha de banco simulada).
 - Teste de correção precisa FALHAR se a correção for revertida.
-- Se o diff não cabe numa frase, comece pelo plan mode. Pergunte antes de implementar feature vaga.
 - Antes do PR: revisão pelo subagente `revisor`, em contexto novo. Na triagem, recuse estilo e especulação.
 - PR com a saída real do `bash gate.sh`, os testes novos e os invariantes tocados. Afirmação sem evidência não vale.
 - Saídas curtas: `pytest -q`. Nunca cole log inteiro; use `tail -n 30`.
+
+## Skills
+Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. Se uma skill não estiver instalada, siga a regra resumida aqui.
+- `dev-dirigido-por-ia`: o método deste projeto (tarefa em 4 campos, ciclo de 8 passos, revisão em contexto novo, PR com evidência, uma tarefa por sessão). Exceção: a skill diz para pular o plano quando o diff cabe numa frase; aqui o plan mode é sempre obrigatório.
+- `engenheiro-software-ia`: postura em toda tarefa (recomende um caminho e justifique, questione pedido ambíguo, prefira o simples, diga o que foi verificado e o que não foi).
+- `tdd`: todo código novo ou correção (seams, fatias verticais, anti-padrões de teste).
+- `ui-taste`: toda tela nova ou alterada. Mantenha o visual atual (app.css, sem framework, sem JavaScript) e, antes de dar como pronta, abra a tela no celular (375px) e no desktop e confira os estados (vazio, erro, sucesso).
+- `seo-audit`: não se aplica ao MVP (o app fica atrás de login). Não adicione nada de SEO.
 
 ## Git (regras do grupo)
 - Commit: `tipo(escopo): descrição`, em português, no imperativo ("adiciona", não "adicionei"), minúscula depois dos dois-pontos, sem ponto final.
