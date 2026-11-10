@@ -96,14 +96,19 @@ def criar():
 # Aportar
 # ---------------------------------------------------------------------------
 
+def _aporte_recusado(meta_id, erro: ErroValidacao):
+    # A lista volta com o erro no campo e o valor e a chave preservados (nada foi gravado).
+    flash(MSG_ERRO_APORTE, "erro")
+    return _render_lista({"meta_id": meta_id, "erros": erro.erros, "form": request.form}, 400)
+
+
 @bp.post("/<int:meta_id>/aportes")
 def aportar(meta_id):
     meta = _com_progresso(_buscar_ou_404(meta_id))
     try:
         dados = meta_service.validar_aporte(request.form)
     except ErroValidacao as erro:
-        flash(MSG_ERRO_APORTE, "erro")
-        return _render_lista({"meta_id": meta_id, "erros": erro.erros, "form": request.form}, 400)
+        return _aporte_recusado(meta_id, erro)
     # Valida antes para checar o reenvio com a chave normalizada, a mesma que foi gravada.
     if _repo().aporte_registrado(_aluno_id(), meta_id, dados["chave_idempotencia"]):
         # Reenvio de um aporte já gravado (clique duplo, falha de rede): responde como
@@ -112,6 +117,12 @@ def aportar(meta_id):
     if meta["concluida"]:  # meta cheia fecha: não aceita mais aportes
         flash("Essa meta já foi concluída.", "erro")
         return _render_lista(status=400)
+    try:
+        meta_service.conferir_limite_do_aporte(
+            dados["valor_centavos"], meta["valor_alvo_centavos"], meta["guardado_centavos"]
+        )
+    except ErroValidacao as erro:
+        return _aporte_recusado(meta_id, erro)
 
     with obter_conexao():
         _repo().aportar(_aluno_id(), meta_id, **dados)

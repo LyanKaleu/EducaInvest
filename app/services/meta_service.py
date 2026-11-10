@@ -1,6 +1,7 @@
 """Valida metas e aportes e calcula o progresso percentual (RN-08)."""
 from datetime import date
 
+from app.filtros import reais
 from app.services.erros import ErroValidacao
 from app.services.formulario import converter_chave, converter_valor, ler_data, texto_do_campo
 from app.services.lancamento_service import hoje_no_piaui
@@ -74,6 +75,23 @@ def validar_aporte(dados) -> dict:
     if erros:
         raise ErroValidacao(erros)
     return resultado
+
+
+def conferir_limite_do_aporte(valor_centavos: int, alvo_centavos: int, guardado_centavos: int) -> None:
+    """Recusa o aporte maior do que falta para concluir a meta.
+
+    Sem resgate nem exclusão de aporte, um dígito a mais fecharia a meta para
+    sempre. Fica fora de `validar_aporte` porque a rota checa o reenvio antes:
+    o reenvio do aporte que concluiu a meta (falta zero) é sucesso, não erro.
+
+    Raises:
+        ErroValidacao: em `valor`, com o quanto falta.
+    """
+    falta = alvo_centavos - guardado_centavos
+    if valor_centavos > falta:
+        raise ErroValidacao(
+            {"valor": f"Faltam só {reais(falta)} para concluir esta meta. Guarde até esse valor."}
+        )
 
 
 def progresso(alvo_centavos: int, guardado_centavos: int) -> dict:

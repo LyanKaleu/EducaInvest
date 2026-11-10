@@ -4,7 +4,13 @@ import uuid
 import pytest
 
 from app.services.erros import ErroValidacao
-from app.services.meta_service import mais_perto_de_concluir, progresso, validar_aporte, validar_meta
+from app.services.meta_service import (
+    conferir_limite_do_aporte,
+    mais_perto_de_concluir,
+    progresso,
+    validar_aporte,
+    validar_meta,
+)
 from tests.conftest import HOJE  # 2026-11-04
 
 
@@ -71,6 +77,21 @@ def test_aporte_valido_vira_centavos():
     assert validar_aporte({"valor": "50,00", "chave_idempotencia": chave}) == {
         "valor_centavos": 5000, "chave_idempotencia": chave,
     }
+
+
+# ---------------------------------------------------------------------------
+# conferir_limite_do_aporte: o aporte não passa do que falta
+# ---------------------------------------------------------------------------
+
+def test_aporte_acima_do_que_falta_e_recusado_com_o_valor_restante():
+    erros = erros_de(conferir_limite_do_aporte, 3001, alvo_centavos=20000, guardado_centavos=17000)
+
+    assert erros == {"valor": "Faltam só R$ 30,00 para concluir esta meta. Guarde até esse valor."}
+
+
+def test_aporte_igual_ao_que_falta_e_aceito():
+    # Completar o alvo exato é o caminho para concluir a meta.
+    assert conferir_limite_do_aporte(3000, alvo_centavos=20000, guardado_centavos=17000) is None
 
 
 # ---------------------------------------------------------------------------

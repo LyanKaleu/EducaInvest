@@ -109,6 +109,23 @@ def test_meta_concluida_recusa_novo_aporte(cliente, meta_fone):
     assert "R$ 200,00 de R$ 200,00 · 100%" in lista(cliente)
 
 
+def test_aporte_acima_do_que_falta_retorna_400_e_a_meta_nao_conclui(cliente, meta_fone):
+    # Sem resgate nem exclusão de aporte, um dígito a mais fecharia a meta para sempre.
+    aportar(cliente, meta_fone, "170,00")
+    chave = str(uuid.uuid4())
+
+    resposta = aportar(cliente, meta_fone, "100.000,00", chave=chave)
+
+    assert resposta.status_code == 400
+    html = resposta.get_data(as_text=True)
+    assert (f'<p class="erro-campo" id="erro-valor-{meta_fone}">'
+            "Faltam só R$ 30,00 para concluir esta meta. Guarde até esse valor.</p>") in html
+    # O digitado volta no formulário, com a mesma chave: nada foi gravado.
+    assert 'value="100.000,00"' in html
+    assert f'value="{chave}"' in html
+    assert "R$ 170,00 de R$ 200,00 · 85%" in lista(cliente)
+
+
 @pytest.mark.parametrize("valor", ["0", "-10,00"])
 def test_aporte_zero_ou_negativo_retorna_400_e_o_progresso_nao_muda(cliente, meta_fone, valor):
     aportar(cliente, meta_fone, "50,00")
