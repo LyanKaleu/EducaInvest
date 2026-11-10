@@ -24,6 +24,11 @@ Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
 Refatoração e arquitetura (camadas ou fatias) só depois da entrega, com o feedback do MVP.
 **Pitch por último:** depois de completar o escopo do MVP, capturar todas as telas no celular, compartilhar com o grupo e só então estruturar a apresentação.
 
+## Antes de levar para a `main` (depois do MVP)
+Combinado em 10/11: todo o MVP fica na `develop`. A `main` é a vitrine do repositório. Antes do PR `develop → main`, numa branch própria:
+- Decidir o que faz sentido na `main` e reformular a documentação para quem visita o repositório, não para o processo do grupo. Candidatos: README, os arquivos de processo dos agentes (AGENTS.md, CLAUDE.md, INVARIANTES.md, ESTADO.md, `.claude/`) e os links para artefatos privados.
+- Atenção: o repositório é **público**. A `develop` e as outras branches já são visíveis para qualquer um. O que não pode ser público tem que sair de todas as branches e do histórico, ou o repositório vira privado.
+
 ## Backlog (issues abertas)
 - #5 professor renomeia turma
 - #6 professor exclui turma vazia (bloqueada com alunos; liga `PRAGMA foreign_keys` junto)
