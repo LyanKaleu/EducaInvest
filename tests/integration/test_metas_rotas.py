@@ -174,3 +174,15 @@ def test_reenvio_do_aporte_que_concluiu_a_meta_responde_como_sucesso(cliente, me
 
     assert resposta.status_code == 302
     assert "R$ 200,00 de R$ 200,00 · 100%" in lista(cliente)
+
+
+def test_reenvio_do_aporte_com_a_chave_em_maiusculas_responde_como_sucesso(cliente, meta_fone):
+    # A chave é gravada normalizada (minúsculas): o reenvio precisa ser reconhecido em outra grafia.
+    aportar(cliente, meta_fone, "190,00")
+    chave = str(uuid.uuid4()).upper()
+    aportar(cliente, meta_fone, "10,00", chave=chave)
+
+    resposta = aportar(cliente, meta_fone, "10,00", chave=chave)
+
+    assert resposta.status_code == 302
+    assert "R$ 200,00 de R$ 200,00 · 100%" in lista(cliente)
