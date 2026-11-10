@@ -8,6 +8,8 @@
 {% block conteudo %}
 <h1>Entrar</h1>
 
+<p>Alunos e professores entram por aqui, com o e-mail e a senha do cadastro.</p>
+
 <form method="post" novalidate action="{{ url_for('auth.entrar') }}">
   <div class="campo">
     <label for="email">E-mail</label>

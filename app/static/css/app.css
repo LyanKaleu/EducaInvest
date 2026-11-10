@@ -53,6 +53,15 @@ button.link {
   min-height: 0; padding: 0; background: none; border: 0;
   color: #fff; font-weight: 400; text-decoration: underline; cursor: pointer;
 }
+/* Quem está logado: apelido e perfil, ao lado da marca. */
+.identificacao { color: #fff; font-size: .9rem; }
+
+/* Escolha do tipo de conta no cadastro: a opção atual fica cheia, a outra só com contorno. */
+.escolha-perfil { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+.escolha-perfil .botao { flex: 1; text-align: center; }
+.escolha-perfil .botao[aria-current="false"] {
+  color: var(--primaria); background: var(--fundo); border: 2px solid var(--primaria);
+}
 code.codigo-turma { font-size: 1.1rem; font-weight: 700; letter-spacing: .1em; }
 
 main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
