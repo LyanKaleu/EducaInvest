@@ -30,7 +30,6 @@ tests/unit/        services, sem Flask
 tests/integration/ rotas via test_client com banco temporário (fixtures em tests/conftest.py)
 docs/              especificação do MVP (PDF) e schema de referência em PostgreSQL
 ```
-- `db/schema.sql` e `app/config.py` são reservas vazias. Não use como referência.
 - Missões e XP (HU3) estão implementados: `missao_service`/`xp_service`, `missao_repo`/`xp_repo` e `routes/missoes.py`. O crédito de XP roda dentro da transação do lançamento (`registrar_progresso`).
 - A tela inicial do aluno (`routes/painel.py`) mostra saldo, XP, nível, sequência de dias (`xp_service.sequencia`, com os dias que têm XP em `xp_eventos`), a missão e a meta em andamento.
 - Metas e aportes (HU2) estão implementados: `meta_service`, `meta_repo` e `routes/metas.py`. O aporte não entra no saldo nem rende XP, não passa do que falta (`conferir_limite_do_aporte`, checado depois do reenvio), e "concluída" é calculada (guardado ≥ alvo).
