@@ -1,6 +1,6 @@
 # EducaInvest: instruções para agentes de código
 
-Protótipo (MVP) da disciplina de Empreendedorismo: gestão financeira gamificada para jovens de 16 a 24 anos.
+Protótipo (MVP) de gestão financeira gamificada para jovens de 16 a 24 anos.
 Priorize o núcleo demonstrável. Nada de abstração "para o futuro".
 
 ## Stack
@@ -28,7 +28,7 @@ app/repositories/  SQL com sqlite3. O CREATE TABLE em criar_tabela() é a fonte 
 app/templates/     Jinja: auth/, aluno/, professor/
 tests/unit/        services, sem Flask
 tests/integration/ rotas via test_client com banco temporário (fixtures em tests/conftest.py)
-docs/              especificação do MVP (PDF) e schema de referência em PostgreSQL
+docs/              especificação do MVP (ESPECIFICACAO.md), prints do README (img/) e schema de referência em PostgreSQL
 ```
 - Missões e XP (HU3) estão implementados: `missao_service`/`xp_service`, `missao_repo`/`xp_repo` e `routes/missoes.py`. O crédito de XP roda dentro da transação do lançamento (`registrar_progresso`).
 - A tela inicial do aluno (`routes/painel.py`) mostra saldo, XP, nível, sequência de dias (`xp_service.sequencia`, com os dias que têm XP em `xp_eventos`), a missão e a meta em andamento.
@@ -80,7 +80,7 @@ Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. Se 
 - Instalar dependência sem perguntar (`requirements*.txt`).
 - Alterar CREATE TABLE existente, autenticação/sessão ou `SECRET_KEY` sem aprovação (INVARIANTES, seção operacional).
 - "Consertar" o gate relaxando regra: `noqa`, `ignore` no pyproject, contrato removido, teste ajustado para passar. Corrija a causa.
-- Publicar arquivo de `docs/` além dos liberados no `.gitignore`. Os trabalhos da disciplina são privados.
+- Publicar arquivo de `docs/` além dos liberados no `.gitignore`. Os outros documentos são privados.
 
 ## Decisões pendentes do grupo
 - Lista de categorias e valor máximo do lançamento (marcados "A confirmar" em app/services/lancamento_service.py).
