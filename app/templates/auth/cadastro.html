@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{# Cadastro de aluno (com código da turma e consentimento) ou de professor. #}
+
+{% set titulo_pagina = 'Cadastro de professor' if professor else 'Criar conta' %}
+{% block titulo %}{{ titulo_pagina }}{% endblock %}
+
+{% from "_formulario.html" import erro, invalido with context %}
+
+{% block conteudo %}
+<h1>{{ titulo_pagina }}</h1>
+
+{# O tipo de conta é escolhido aqui, uma vez; o login é o mesmo para todos. #}
+<nav class="escolha-perfil" aria-label="Tipo de conta">
+  <a class="botao" href="{{ url_for('auth.cadastro') }}"
+     aria-current="{{ 'false' if professor else 'page' }}">Sou aluno</a>
+  <a class="botao" href="{{ url_for('auth.cadastro_professor') }}"
+     aria-current="{{ 'page' if professor else 'false' }}">Sou professor</a>
+</nav>
+
+<form method="post" novalidate
+      action="{{ url_for('auth.cadastrar_professor') if professor else url_for('auth.cadastrar_aluno') }}">
+  <div class="campo">
+    <label for="apelido">Apelido <span class="dica">(como você quer ser chamado)</span></label>
+    <input type="text" id="apelido" name="apelido" maxlength="40" autocomplete="nickname"
+           value="{{ form.get('apelido', '') }}" {{ invalido('apelido') }}>
+    {{ erro('apelido') }}
+  </div>
+
+  <div class="campo">
+    <label for="email">E-mail</label>
+    <input type="email" id="email" name="email" autocomplete="email"
+           value="{{ form.get('email', '') }}" {{ invalido('email') }}>
+    {{ erro('email') }}
+  </div>
+
+  <div class="campo">
+    <label for="senha">Senha <span class="dica">(mínimo de 8 caracteres)</span></label>
+    {# A senha nunca volta preenchida. #}
+    <input type="password" id="senha" name="senha" autocomplete="new-password" {{ invalido('senha') }}>
+    {{ erro('senha') }}
+  </div>
+
+  {% if not professor %}
+    <div class="campo">
+      <label for="codigo_turma">Código da turma <span class="dica">(peça ao seu professor)</span></label>
+      <input type="text" id="codigo_turma" name="codigo_turma" maxlength="8" autocapitalize="characters"
+             autocomplete="off" value="{{ form.get('codigo_turma', '') }}" {{ invalido('codigo_turma') }}>
+      {{ erro('codigo_turma') }}
+    </div>
+
+    <div class="campo">
+      <label class="opcao">
+        <input type="checkbox" name="consentimento" value="sim"
+               {{ 'checked' if form.get('consentimento') == 'sim' }} {{ invalido('consentimento') }}>
+        Tenho 18 anos ou mais, ou tenho autorização do meu responsável ou da escola para usar o EducaInvest.
+      </label>
+      {{ erro('consentimento') }}
+    </div>
+  {% endif %}
+
+  <div class="acoes">
+    <button type="submit">Criar conta</button>
+    <a href="{{ url_for('auth.login') }}">Já tenho conta</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,210 @@
+/* Estilo único, leve e mobile-first. Cores com contraste AA sobre o fundo. */
+
+:root {
+  --texto: #1a1a1a;
+  --fundo: #ffffff;
+  --suave: #f3f4f2;
+  --borda: #6b6b6b;          /* contraste 5,3:1, visível em bordas de campo */
+  --primaria: #1b6e3a;       /* verde: entradas e botão principal */
+  --perigo: #b3261e;         /* vermelho: gastos, erros e excluir */
+  --foco: #1a5fb4;
+  --raio: 8px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--texto);
+  background: var(--fundo);
+}
+
+/* ---------- Acessibilidade ---------- */
+
+/* Foco sempre visível para quem navega pelo teclado. */
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+
+/* Some da tela, mas o leitor de tela continua lendo. */
+.oculto {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* "Pular para o conteúdo": escondido até receber foco. */
+.pular { position: absolute; left: -999px; }
+.pular:focus { left: 1rem; top: 1rem; z-index: 10; background: var(--fundo); padding: .5rem 1rem; }
+
+main:focus { outline: none; }
+
+/* ---------- Layout ---------- */
+
+.topo {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: .5rem; padding: .75rem 1rem; background: var(--primaria);
+}
+.topo a { color: #fff; }
+.marca { font-weight: 700; font-size: 1.15rem; text-decoration: none; }
+.topo ul { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: 0; padding: 0; list-style: none; }
+.topo [aria-current="page"] { font-weight: 700; text-decoration-thickness: 3px; }
+/* Botão "Sair" com cara de link (é um formulário POST). */
+.topo form { margin: 0; }
+button.link {
+  min-height: 0; padding: 0; background: none; border: 0;
+  color: #fff; font-weight: 400; text-decoration: underline; cursor: pointer;
+}
+/* Quem está logado: apelido e perfil, ao lado da marca. */
+.identificacao { color: #fff; font-size: .9rem; }
+
+/* Escolha do tipo de conta no cadastro: a opção atual fica cheia, a outra só com contorno. */
+.escolha-perfil { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+.escolha-perfil .botao { flex: 1; text-align: center; }
+.escolha-perfil .botao[aria-current="false"] {
+  color: var(--primaria); background: var(--fundo); border: 2px solid var(--primaria);
+}
+code.codigo-turma { font-size: 1.1rem; font-weight: 700; letter-spacing: .1em; }
+
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
+h1 { font-size: 1.5rem; margin: .5rem 0 1rem; }
+a { color: var(--primaria); }
+
+/* ---------- Avisos (flash) e erros ---------- */
+
+.aviso { padding: .75rem 1rem; border-radius: var(--raio); border-left: 6px solid; }
+.aviso-sucesso { background: #e7f4ea; border-color: var(--primaria); }
+.aviso-erro { background: #fbeaea; border-color: var(--perigo); }
+.erro-campo { color: var(--perigo); font-weight: 600; margin: .25rem 0 0; }
+[aria-invalid="true"] { border-color: var(--perigo); border-width: 2px; }
+
+/* ---------- Formulários ---------- */
+
+.campo, fieldset { margin: 0 0 1rem; }
+fieldset { border: 1px solid var(--borda); border-radius: var(--raio); padding: .5rem 1rem; }
+label { display: block; font-weight: 600; margin-bottom: .25rem; }
+.opcao { display: inline-flex; align-items: center; gap: .4rem; font-weight: 400; margin-right: 1.5rem; min-height: 44px; }
+.dica { font-weight: 400; color: #555; }
+
+input[type="text"], input[type="search"], input[type="date"], select {
+  width: 100%; min-height: 44px;   /* área de toque confortável no celular */
+  padding: .5rem; font: inherit;
+  border: 1px solid var(--borda); border-radius: var(--raio); background: var(--fundo);
+}
+input[type="radio"] { width: 1.25rem; height: 1.25rem; accent-color: var(--primaria); }
+
+button, .botao {
+  display: inline-block; min-height: 44px; padding: .6rem 1.25rem;
+  font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+  color: #fff; background: var(--primaria); border: 0; border-radius: var(--raio);
+}
+button.perigo { background: var(--perigo); }
+
+.acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.busca { margin-bottom: 1.5rem; }
+.busca .linha { display: flex; gap: .5rem; }
+.busca .linha input { flex: 1; }
+
+/* ---------- Lista de lançamentos ---------- */
+
+.lancamentos { list-style: none; margin: 0; padding: 0; }
+.lancamento {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem;
+  padding: .75rem 1rem; margin-bottom: .75rem;
+  background: var(--suave); border-radius: var(--raio); border-left: 6px solid;
+}
+.lancamento.entrada { border-color: var(--primaria); }
+.lancamento.saida { border-color: var(--perigo); }
+.lancamento-info { display: flex; flex-direction: column; }
+.lancamento.entrada .valor { color: var(--primaria); }
+.lancamento.saida .valor { color: var(--perigo); }
+.descricao { color: #444; }
+
+/* ---------- Confirmação de exclusão ---------- */
+
+.resumo { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; }
+.resumo dt { font-weight: 600; }
+.resumo dd { margin: 0; }
+
+/* ---------- Missões e XP ---------- */
+
+.xp { display: flex; flex-direction: column; gap: .25rem; margin-bottom: 1.5rem; }
+.xp-total { font-size: 2rem; color: var(--primaria); }
+.xp ~ h2, #conquistas h2 { font-size: 1.2rem; margin: 1.5rem 0 .75rem; }
+.missoes { list-style: none; margin: 0; padding: 0; }
+.missao {
+  display: flex; flex-direction: column; gap: .25rem;
+  padding: .75rem 1rem; margin-bottom: .75rem;
+  background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--borda);
+}
+.missao[data-status="ATIVA"] { border-color: var(--foco); }
+.missao.concluida { border-color: var(--primaria); }
+.missao label { font-weight: 400; margin: .25rem 0 0; }
+.missao progress { width: 100%; height: 1rem; accent-color: var(--primaria); }
+
+/* ---------- Metas e aportes ---------- */
+
+.metas { list-style: none; margin: 0; padding: 0; }
+.meta {
+  display: flex; flex-direction: column; gap: .4rem;
+  padding: .75rem 1rem; margin-bottom: .75rem;
+  background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--foco);
+}
+.meta.concluida { border-color: var(--primaria); }
+.metas .meta h2 { font-size: 1.1rem; margin: 0; overflow-wrap: anywhere; }
+.meta progress { width: 100%; height: 1rem; accent-color: var(--primaria); }
+.meta-progresso { font-variant-numeric: tabular-nums; }
+.selo { align-self: flex-start; color: var(--primaria); }
+.meta label { font-weight: 400; margin: .25rem 0 0; }
+.aporte .linha { display: flex; gap: .5rem; }
+.aporte .linha input { flex: 1; min-width: 0; }
+
+/* ---------- Quiz ---------- */
+
+.xp-quiz { font-size: 1.4rem; color: var(--primaria); font-variant-numeric: tabular-nums; }
+.xp ~ section h2 { font-size: 1.2rem; margin: 1.5rem 0 .75rem; }
+.perguntas { list-style: none; margin: 0; padding: 0; }
+.pergunta {
+  display: flex; flex-direction: column; gap: .25rem;
+  padding: .75rem 1rem; margin-bottom: .75rem;
+  background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--foco);
+}
+.pergunta[data-status="ACERTOU"] { border-color: var(--primaria); }
+.pergunta[data-status="ERROU"] { border-color: var(--perigo); }
+.pergunta a { font-weight: 600; }
+/* Alternativas longas: uma por linha, com a linha inteira clicável. */
+.alternativas .opcao { display: flex; align-items: flex-start; margin: 0; padding: .5rem 0; }
+.alternativas .opcao input { flex-shrink: 0; margin-top: .1rem; }
+.resultado {
+  padding: .75rem 1rem; margin-bottom: 1.5rem;
+  background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--perigo);
+}
+.resultado[data-acertou="sim"] { border-color: var(--primaria); }
+.resultado h2 { font-size: 1.2rem; margin: 0 0 .5rem; }
+.resultado p { margin: 0 0 .5rem; }
+
+/* ---------- Painel do aluno ---------- */
+
+.rotulo { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #555; margin: 0; }
+.painel-saldo { display: flex; flex-direction: column; gap: .25rem; margin-bottom: 1rem; }
+.saldo { font-size: 2.25rem; line-height: 1.1; color: var(--primaria); font-variant-numeric: tabular-nums; }
+.saldo.negativo { color: var(--perigo); }
+.botao-largo { display: block; text-align: center; }
+.painel-indicadores { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin: 1.5rem 0 .75rem; }
+.indicador {
+  display: flex; flex-direction: column; gap: .25rem;
+  padding: .75rem 1rem; border: 1px solid var(--borda); border-radius: var(--raio);
+}
+.indicador strong { font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+
+/* ---------- Painel da turma (professor) ---------- */
+
+.indicador h3 { line-height: 1.3; }
+/* Quatro números: sempre 2 x 2, para não sobrar um cartão sozinho na segunda linha. */
+.indicadores-turma { grid-template-columns: repeat(2, 1fr); }
+/* No celular estreito a tabela rola sozinha, sem empurrar a página para o lado. */
+.tabela-rolavel { overflow-x: auto; margin-bottom: 1.5rem; }
+.tabela-turma { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.tabela-turma th, .tabela-turma td { padding: .6rem .5rem; text-align: left; border-bottom: 1px solid #d6d6d3; }
+.tabela-turma thead th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #555; }
+.tabela-turma tbody th { font-weight: 600; overflow-wrap: anywhere; }
+.tabela-turma .numero { text-align: right; }
+.tabela-turma .sem-quebra { white-space: nowrap; }

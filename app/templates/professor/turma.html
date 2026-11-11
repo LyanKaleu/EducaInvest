@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{# Uma turma: código de acesso e painel do progresso (HU5). Só apelido, XP, nível e
+   missões: nunca e-mail nem valores em reais (RN-18, INVARIANTES N5). #}
+
+{% block titulo %}{{ turma.nome }}{% endblock %}
+
+{% block conteudo %}
+<h1>{{ turma.nome }}</h1>
+
+<p>Código de acesso: <code class="codigo-turma">{{ turma.codigo_acesso }}</code></p>
+<p class="dica">Passe este código aos alunos para eles se cadastrarem na turma.</p>
+
+<h2>Progresso da turma</h2>
+{% if painel.total_alunos %}
+  <div class="painel-indicadores indicadores-turma">
+    <section class="indicador" aria-labelledby="titulo-total-alunos">
+      <h3 id="titulo-total-alunos" class="rotulo">Alunos</h3>
+      <strong id="total-alunos">{{ painel.total_alunos }}</strong>
+    </section>
+    <section class="indicador" aria-labelledby="titulo-xp-medio">
+      <h3 id="titulo-xp-medio" class="rotulo">XP médio</h3>
+      <strong id="xp-medio">{{ painel.xp_medio }} XP</strong>
+    </section>
+    <section class="indicador" aria-labelledby="titulo-missoes">
+      <h3 id="titulo-missoes" class="rotulo">Missões concluídas</h3>
+      <strong id="missoes-concluidas">{{ painel.missoes_concluidas }}</strong>
+    </section>
+    <section class="indicador" aria-labelledby="titulo-ativos">
+      <h3 id="titulo-ativos" class="rotulo">Ativos em 7 dias</h3>
+      <strong id="ativos-semana">{{ painel.ativos }} de {{ painel.total_alunos }}</strong>
+    </section>
+  </div>
+  <p class="dica">Ativo é quem ganhou XP nos últimos 7 dias, contando hoje.</p>
+
+  <h2>Alunos</h2>
+  <div class="tabela-rolavel">
+    <table class="tabela-turma">
+      <thead>
+        <tr><th scope="col">Aluno</th><th scope="col">Nível</th><th scope="col" class="numero">XP</th>
+            <th scope="col" class="numero">Missões</th><th scope="col">Ativo</th></tr>
+      </thead>
+      <tbody>
+        {% for aluno in painel.alunos %}
+          <tr>
+            <th scope="row">{{ aluno.apelido }}</th>
+            <td class="sem-quebra">{{ aluno.nivel.nome }}</td>
+            <td class="numero">{{ aluno.xp }}</td>
+            <td class="numero">{{ aluno.missoes }}</td>
+            <td>{{ 'Sim' if aluno.ativo else 'Não' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p>Nenhum aluno ainda.</p>
+{% endif %}
+
+<p><a href="{{ url_for('professor.turmas') }}">Voltar para as turmas</a></p>
+{% endblock %}

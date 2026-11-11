@@ -1,0 +1,22 @@
+# Roda o mesmo gate.sh do Stop hook em todo PR e em todo push para develop/main.
+# O ruleset da main e da develop exige este check verde para o merge.
+name: gate
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: python -m pip install -r requirements.txt -r requirements-dev.txt
+      - run: bash gate.sh

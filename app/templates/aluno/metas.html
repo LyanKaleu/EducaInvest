@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{# Metas do aluno com barra de progresso e aportes (HU2). #}
+
+{% block titulo %}Metas{% endblock %}
+
+{% block conteudo %}
+<h1>Metas</h1>
+
+<p><a class="botao" href="{{ url_for('metas.nova') }}">+ Nova meta</a></p>
+
+{% if metas %}
+  <ul class="metas">
+    {% for meta in metas %}
+      <li class="meta{% if meta.concluida %} concluida{% endif %}" data-meta-id="{{ meta.id }}">
+        <header>
+          <h2 id="meta-{{ meta.id }}">{{ meta.nome }}</h2>
+        </header>
+        <progress max="100" value="{{ meta.percentual }}" aria-labelledby="meta-{{ meta.id }}">{{ meta.percentual }}%</progress>
+        <span class="meta-progresso">{{ meta.guardado_centavos | reais }} de {{ meta.valor_alvo_centavos | reais }} · {{ meta.percentual }}%</span>
+        {% if not meta.concluida or meta.prazo %}
+          <span class="dica">
+            {%- if not meta.concluida %}Faltam {{ (meta.valor_alvo_centavos - meta.guardado_centavos) | reais }}{% endif -%}
+            {%- if not meta.concluida and meta.prazo %} · {% endif -%}
+            {%- if meta.prazo %}Prazo: <time datetime="{{ meta.prazo }}">{{ meta.prazo | data_br }}</time>{% endif -%}
+          </span>
+        {% endif %}
+        {% if meta.concluida %}
+          {# O estado vai em texto, não só na cor. #}
+          <strong class="selo">Concluída</strong>
+        {% else %}
+          {# Aporte recusado nesta meta: mostra o erro e preserva o valor e a chave (o reenvio não duplica). #}
+          {% set recusado = aporte_com_erro if aporte_com_erro.get('meta_id') == meta.id else {} %}
+          {% set erros_aporte = recusado.get('erros', {}) %}
+          {% set form_aporte = recusado.get('form', {}) %}
+          {% set mensagem = erros_aporte.get('valor') or erros_aporte.get('chave_idempotencia') %}
+          <form class="aporte" method="post" novalidate action="{{ url_for('metas.aportar', meta_id=meta.id) }}">
+            <label for="valor-{{ meta.id }}">Guardar quanto? (R$)</label>
+            <div class="linha">
+              <input type="text" id="valor-{{ meta.id }}" name="valor" inputmode="decimal"
+                     autocomplete="off" placeholder="10,00" value="{{ form_aporte.get('valor', '') }}"
+                     {% if mensagem %}aria-invalid="true" aria-describedby="erro-valor-{{ meta.id }}"{% endif %}>
+              <button type="submit">Guardar<span class="oculto"> na meta {{ meta.nome }}</span></button>
+            </div>
+            {% if mensagem %}<p class="erro-campo" id="erro-valor-{{ meta.id }}">{{ mensagem }}</p>{% endif %}
+            {# Gerada a cada exibição: se o envio for repetido, o aporte não duplica. #}
+            <input type="hidden" name="chave_idempotencia" value="{{ form_aporte.get('chave_idempotencia') or nova_chave() }}">
+          </form>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Você ainda não tem metas. Que tal criar a primeira?</p>
+{% endif %}
+{% endblock %}

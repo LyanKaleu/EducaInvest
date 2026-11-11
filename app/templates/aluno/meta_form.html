@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{# Formulário de nova meta (HU2): nome, valor-alvo e prazo opcional. #}
+
+{% block titulo %}Nova meta{% endblock %}
+
+{% from "_formulario.html" import erro, invalido with context %}
+
+{% block conteudo %}
+<h1>Nova meta</h1>
+
+{% if erros.get('chave_idempotencia') %}
+  <p class="erro-campo" role="alert">{{ erros['chave_idempotencia'] }}</p>
+{% endif %}
+
+{# novalidate: as mensagens vêm sempre do servidor, iguais em qualquer navegador. #}
+<form method="post" novalidate action="{{ url_for('metas.criar') }}">
+  <div class="campo">
+    <label for="nome">Nome da meta</label>
+    <input type="text" id="nome" name="nome" maxlength="60" autocomplete="off"
+           placeholder="Fone de ouvido" value="{{ form.get('nome', '') }}" {{ invalido('nome') }}>
+    {{ erro('nome') }}
+  </div>
+
+  <div class="campo">
+    <label for="alvo">Quanto quer juntar (R$)</label>
+    <input type="text" id="alvo" name="alvo" inputmode="decimal" autocomplete="off"
+           placeholder="200,00" value="{{ form.get('alvo', '') }}" {{ invalido('alvo') }}>
+    {{ erro('alvo') }}
+  </div>
+
+  <div class="campo">
+    <label for="prazo">Prazo <span class="dica">(opcional)</span></label>
+    <input type="date" id="prazo" name="prazo" value="{{ form.get('prazo', '') }}" {{ invalido('prazo') }}>
+    {{ erro('prazo') }}
+  </div>
+
+  {# Gerada ao abrir o formulário: se o envio for repetido, a meta não duplica. #}
+  <input type="hidden" name="chave_idempotencia" value="{{ form.get('chave_idempotencia', '') }}">
+
+  <div class="acoes">
+    <button type="submit">Criar meta</button>
+    <a href="{{ url_for('metas.listar') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

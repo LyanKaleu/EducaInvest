@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{# Turmas do professor, seus códigos de acesso e o formulário de nova turma. #}
+
+{% from "_formulario.html" import erro, invalido with context %}
+
+{% block titulo %}Minhas turmas{% endblock %}
+
+{% block conteudo %}
+<h1>Minhas turmas</h1>
+
+{% if turmas %}
+  <ul class="lancamentos">
+    {% for turma in turmas %}
+      <li class="lancamento">
+        <div class="lancamento-info">
+          <a href="{{ url_for('professor.turma', turma_id=turma.id) }}"><strong>{{ turma.nome }}</strong></a>
+          <span>Código de acesso: <code class="codigo-turma">{{ turma.codigo_acesso }}</code></span>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Você ainda não criou nenhuma turma.</p>
+{% endif %}
+
+<h2>Nova turma</h2>
+<form method="post" novalidate action="{{ url_for('professor.criar_turma') }}">
+  <div class="campo">
+    <label for="nome">Nome da turma <span class="dica">(ex.: 2º A)</span></label>
+    <input type="text" id="nome" name="nome" maxlength="60" value="{{ form.get('nome', '') }}"
+           {{ invalido('nome') }}>
+    {{ erro('nome') }}
+  </div>
+  <div class="acoes">
+    <button type="submit">Criar turma</button>
+  </div>
+</form>
+{% endblock %}

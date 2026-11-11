@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{# Tela de login por e-mail e senha. #}
+
+{% block titulo %}Entrar{% endblock %}
+
+{% from "_formulario.html" import erro, invalido with context %}
+
+{% block conteudo %}
+<h1>Entrar</h1>
+
+<p>Alunos e professores entram por aqui, com o e-mail e a senha do cadastro.</p>
+
+<form method="post" novalidate action="{{ url_for('auth.entrar') }}">
+  <div class="campo">
+    <label for="email">E-mail</label>
+    <input type="email" id="email" name="email" autocomplete="email"
+           value="{{ form.get('email', '') }}" {{ invalido('email') }}>
+    {{ erro('email') }}
+  </div>
+
+  <div class="campo">
+    <label for="senha">Senha</label>
+    <input type="password" id="senha" name="senha" autocomplete="current-password" {{ invalido('senha') }}>
+    {{ erro('senha') }}
+  </div>
+
+  <div class="acoes">
+    <button type="submit">Entrar</button>
+  </div>
+</form>
+
+<p>Ainda não tem conta? <a href="{{ url_for('auth.cadastro') }}">Criar conta</a>.</p>
+{% endblock %}

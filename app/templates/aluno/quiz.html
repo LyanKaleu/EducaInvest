@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{# Quiz do aluno: perguntas por tema, o que já respondeu e o XP do quiz hoje (HU4). #}
+
+{% block titulo %}Quiz{% endblock %}
+
+{% block conteudo %}
+<h1>Quiz</h1>
+
+<section class="xp" aria-label="XP do quiz hoje">
+  <strong class="xp-quiz">{{ xp_hoje }} de {{ teto }} XP hoje</strong>
+  {% if xp_hoje >= teto %}
+    <span class="dica">Você já ganhou o máximo de hoje. Pode responder para aprender; o XP volta amanhã.</span>
+  {% else %}
+    <span class="dica">Cada acerto vale +{{ xp_por_acerto }} XP. Você responde cada pergunta uma vez só.</span>
+  {% endif %}
+</section>
+
+{% for codigo_tema, nome_tema in temas.items() %}
+  <section aria-labelledby="tema-{{ codigo_tema }}">
+    <h2 id="tema-{{ codigo_tema }}">{{ nome_tema }}</h2>
+    <ul class="perguntas">
+      {% for pergunta in perguntas if pergunta.tema == codigo_tema %}
+        {# O estado vai em texto, não só na cor da borda. #}
+        <li class="pergunta" data-codigo="{{ pergunta.codigo }}" data-status="{{ pergunta.status }}">
+          <a href="{{ url_for('quiz.ver', codigo=pergunta.codigo) }}">{{ pergunta.enunciado }}</a>
+          <span class="dica">
+            {%- if pergunta.status == 'ACERTOU' %}Você acertou
+            {%- elif pergunta.status == 'ERROU' %}Você errou · veja a explicação
+            {%- elif xp_hoje >= teto %}Nova
+            {%- else %}Nova · +{{ xp_por_acerto }} XP{% endif -%}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endfor %}
+{% endblock %}
