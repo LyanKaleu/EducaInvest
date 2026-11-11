@@ -40,7 +40,8 @@ Combinado em 10/11: enquanto o MVP é construído, tudo entra na `develop`. Quan
 - **Discussions e Projects:** ligar só se o grupo for usar de verdade. Wiki e Packages ficam desligados: duplicam os `docs/` e não publicamos nada.
 - **Conquistas** vêm do fluxo normal (Pair Extraordinaire com `Co-authored-by` de um colega, Galaxy Brain com o Discussions). Nada de distorcer o fluxo, como commit vazio ou pular PR, só para ganhar conquista.
 - **CodeQL (code scanning)** e **Dependabot security updates:** ligar depois do merge na `main`, porque os dois olham a branch padrão, e hoje ela só tem o commit inicial.
-- Segurança em 11/11 (*Settings → Advanced Security*, sem arquivo no repositório): a varredura de segredos e o push protection já estavam ligados, e os alertas do Dependabot foram ligados nesse dia.
+- Segurança em 11/11 (*Settings → Advanced Security*, sem arquivo no repositório): a varredura de segredos e o push protection já estavam ligados, e os alertas do Dependabot foram ligados nesse dia. O ruleset `protege-main-develop` (*Settings → Rules*) também entrou em 11/11: `main` e `develop` só recebem mudança por PR com o check `gate` verde, sem force push e sem apagar a branch.
+- Pendência pequena: o comentário do `.github/workflows/gate.yml` ainda diz que o CI "só avisa". Com o ruleset, o gate vermelho bloqueia o merge. É zona O3: atualize junto com o `dependabot.yml`.
 
 ## Backlog (issues abertas)
 - #5 professor renomeia turma
