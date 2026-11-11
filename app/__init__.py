@@ -13,6 +13,7 @@ from app.routes.metas import bp as metas_bp
 from app.routes.missoes import bp as missoes_bp
 from app.routes.painel import bp as painel_bp
 from app.routes.professor import bp as professor_bp
+from app.routes.quiz import bp as quiz_bp
 
 
 def create_app(config: dict | None = None) -> Flask:
@@ -50,6 +51,7 @@ def create_app(config: dict | None = None) -> Flask:
     app.register_blueprint(missoes_bp)
     app.register_blueprint(painel_bp)
     app.register_blueprint(professor_bp)
+    app.register_blueprint(quiz_bp)
 
     @app.get("/")
     def inicio():

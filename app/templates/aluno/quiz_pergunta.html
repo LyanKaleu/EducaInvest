@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{# Uma pergunta do quiz por tela; depois de responder, o resultado e a explicação (HU4). #}
+{% from "_formulario.html" import erro, invalido with context %}
+
+{% block titulo %}Quiz · {{ tema_nome }}{% endblock %}
+
+{% block conteudo %}
+<p class="rotulo">Quiz · {{ tema_nome }}</p>
+<h1>{{ pergunta.enunciado }}</h1>
+
+{% if resposta %}
+  {# O resultado vai em texto, não só na cor, para quem não distingue cores. #}
+  <section class="resultado" data-acertou="{{ 'sim' if resposta.correta else 'nao' }}" aria-labelledby="titulo-resultado">
+    <h2 id="titulo-resultado">{{ 'Você acertou!' if resposta.correta else 'Você errou.' }}</h2>
+    {% if resposta.correta %}
+      <p>Sua resposta: {{ pergunta.alternativas[pergunta.correta] }}</p>
+    {% else %}
+      <p>Sua resposta: {{ pergunta.alternativas[resposta.alternativa] }}</p>
+      <p><strong>Resposta certa: {{ pergunta.alternativas[pergunta.correta] }}</strong></p>
+    {% endif %}
+    <p>{{ pergunta.explicacao }}</p>
+  </section>
+
+  <div class="acoes">
+    {% if proxima %}
+      <a class="botao" href="{{ url_for('quiz.ver', codigo=proxima.codigo) }}">Próxima pergunta</a>
+    {% else %}
+      <p>Você respondeu todas as perguntas. Parabéns!</p>
+    {% endif %}
+    <a href="{{ url_for('quiz.listar') }}">Voltar ao quiz</a>
+  </div>
+{% else %}
+  {% if xp_hoje >= teto %}
+    <p class="dica">Você já ganhou os {{ teto }} XP do quiz hoje. Pode responder para aprender, mas esta pergunta não vai render XP. Amanhã o XP volta.</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('quiz.responder', codigo=pergunta.codigo) }}">
+    <fieldset class="alternativas" {{ invalido('alternativa', grupo=true) }}>
+      <legend>Escolha uma alternativa</legend>
+      {% for letra, texto in pergunta.alternativas.items() %}
+        <label class="opcao">
+          <input type="radio" name="alternativa" value="{{ letra }}"> {{ texto }}
+        </label>
+      {% endfor %}
+      {{ erro('alternativa') }}
+    </fieldset>
+    <div class="acoes">
+      <button type="submit">Responder</button>
+      <a href="{{ url_for('quiz.listar') }}">Voltar ao quiz</a>
+    </div>
+  </form>
+{% endif %}
+{% endblock %}
