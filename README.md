@@ -40,7 +40,7 @@ O aluno registra o próprio dinheiro, cumpre missões e ganha XP. O professor ac
 
 ## Rodar localmente
 
-Precisa de Python 3.10 ou mais novo. O banco SQLite é criado sozinho no primeiro acesso.
+Precisa de Python 3.14. O banco SQLite é criado sozinho no primeiro acesso.
 
 ```bash
 git clone https://github.com/LyanKaleu/EducaInvest.git && cd EducaInvest

@@ -44,7 +44,7 @@ Os valores marcados com *a confirmar* estão no código como constantes e podem 
 **Usuários e acesso**
 - RN-03: o aluno entra pelo código de turma gerado pelo professor e pertence a uma turma só.
 - RN-04: o e-mail é único, sem diferenciar maiúsculas (`Ana@x` = `ana@x`).
-- RN-05: o aluno só é criado com a autorização marcada ("tenho 18 anos ou mais, ou autorização do responsável ou da escola"). O texto ainda precisa de validação jurídica antes do uso com alunos reais.
+- RN-05: o aluno só é criado com a autorização marcada ("Tenho 18 anos ou mais, ou tenho autorização do meu responsável ou da escola para usar o EducaInvest."). O texto ainda precisa de validação jurídica antes do uso com alunos reais.
 
 **Registro financeiro**
 - RN-07: valor maior que zero e até R$ 100.000,00 (*a confirmar*), data não futura no fuso do Piauí (UTC−3) e categoria do mesmo tipo:
