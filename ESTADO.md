@@ -33,6 +33,16 @@ Combinado em 10/11: enquanto o MVP é construído, tudo entra na `develop`. Quan
 - Decidir o que faz sentido na `main` e reformular a documentação para quem visita o repositório, não para o processo do grupo. Candidatos: README, os arquivos de processo dos agentes (AGENTS.md, CLAUDE.md, INVARIANTES.md, ESTADO.md, `.claude/`) e os links para artefatos privados.
 - Atenção: o repositório é **público**. A `develop` e as outras branches já são visíveis para qualquer um. O que não pode ser público tem que sair de todas as branches e do histórico, ou o repositório vira privado.
 
+### Setup do GitHub (combinado em 11/11, só depois do MVP)
+- **Release `v1.0.0`** na `main` depois do merge `develop → main`, com notas do que o MVP entrega.
+- **Dependabot de versões:** `.github/dependabot.yml` (pip e github-actions), com `target-branch: develop` e atualizações agrupadas. Cada PR dele passa pelo gate no CI. É zona O3 (aprovação).
+- **Docker:** só depois de decidir onde hospedar, e se a hospedagem pedir.
+- **Discussions e Projects:** ligar só se o grupo for usar de verdade. Wiki e Packages ficam desligados: duplicam os `docs/` e não publicamos nada.
+- **Conquistas** vêm do fluxo normal (Pair Extraordinaire com `Co-authored-by` de um colega, Galaxy Brain com o Discussions). Nada de distorcer o fluxo, como commit vazio ou pular PR, só para ganhar conquista.
+- **CodeQL (code scanning)** e **Dependabot security updates:** ligar depois do merge na `main`, porque os dois olham a branch padrão, e hoje ela só tem o commit inicial.
+- Segurança em 11/11 (*Settings → Advanced Security*, sem arquivo no repositório): a varredura de segredos e o push protection já estavam ligados, e os alertas do Dependabot foram ligados nesse dia. O ruleset `protege-main-develop` (*Settings → Rules*) também entrou em 11/11: `main` e `develop` só recebem mudança por PR com o check `gate` verde, sem force push e sem apagar a branch.
+- Pendência pequena: o comentário do `.github/workflows/gate.yml` ainda diz que o CI "só avisa". Com o ruleset, o gate vermelho bloqueia o merge. É zona O3: atualize junto com o `dependabot.yml`.
+
 ## Backlog (issues abertas)
 - #5 professor renomeia turma
 - #6 professor exclui turma vazia (bloqueada com alunos; liga `PRAGMA foreign_keys` junto)
