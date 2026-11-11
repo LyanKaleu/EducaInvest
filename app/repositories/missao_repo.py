@@ -39,6 +39,26 @@ class MissaoRepository:
         )
         return cursor.rowcount == 1
 
+    def contar_por_aluno(self, aluno_ids) -> dict[int, int]:
+        """Quantas missões cada aluno concluiu, para o painel da turma (HU5).
+
+        Returns:
+            dict: `{aluno_id: int}`, só de quem concluiu alguma; `{}` se
+            `aluno_ids` vier vazio.
+        """
+        aluno_ids = list(aluno_ids)
+        if not aluno_ids:
+            return {}
+        marcadores = ", ".join("?" * len(aluno_ids))
+        linhas = self.conn.execute(
+            f"""
+            SELECT aluno_id, COUNT(*) AS total FROM missoes_concluidas
+            WHERE aluno_id IN ({marcadores}) GROUP BY aluno_id
+            """,
+            aluno_ids,
+        ).fetchall()
+        return {linha["aluno_id"]: linha["total"] for linha in linhas}
+
     def concluidas(self, aluno_id) -> set[str]:
         """Códigos das missões que o aluno já concluiu."""
         linhas = self.conn.execute(

@@ -82,3 +82,14 @@ def test_dias_ativos_sao_distintos_e_so_do_aluno(repo):
     repo.creditar(aluno_id=2, origem="LANCAMENTO", origem_id="3", pontos=10, dia_ref="2026-11-08")
 
     assert repo.dias_ativos(1) == {date(2026, 11, 9), date(2026, 11, 10)}
+
+
+def test_resumo_por_aluno_soma_o_xp_e_traz_o_ultimo_dia_ativo(repo):
+    repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="1", pontos=10, dia_ref="2026-11-01")
+    repo.creditar(aluno_id=1, origem="MISSAO", origem_id="REG_3_GASTOS", pontos=30, dia_ref="2026-11-09")
+    repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="2", pontos=10, dia_ref="2026-11-05")
+    repo.creditar(aluno_id=3, origem="LANCAMENTO", origem_id="3", pontos=10, dia_ref="2026-11-10")
+
+    # Aluno 3 fica de fora (não pedido) e aluno 2 não aparece (nunca ganhou XP).
+    assert repo.resumo_por_aluno([1, 2]) == {1: {"xp": 50, "ultimo_dia": date(2026, 11, 9)}}
+    assert repo.resumo_por_aluno([]) == {}

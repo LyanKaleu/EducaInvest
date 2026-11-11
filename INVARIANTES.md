@@ -40,9 +40,9 @@ Regra sem enforcement é desejo. Promoção: violou uma vez, reescreva; duas vez
 - **Enforcement:** `test_cadastro_sem_consentimento_e_recusado` (unit) e `test_cadastro_sem_consentimento_retorna_400` (integração).
 
 ### N5 · Professor vê a turma sem dados pessoais do aluno
-- **Invariante:** as telas do professor mostram o apelido e dados agregados, nunca o e-mail. Só a turma do próprio professor; a de outro responde 404.
-- **Caminho seguro:** o repositório da turma devolve só as colunas que a tela usa.
-- **Enforcement:** `test_lista_da_turma_nao_mostra_email_do_aluno` e `test_turma_de_outro_professor_retorna_404`.
+- **Invariante:** as telas do professor mostram o apelido, os agregados da turma e, por aluno, só nível, XP, missões concluídas e se está ativo. Nunca o e-mail nem valores em reais (RN-18). Só a turma do próprio professor; a de outro responde 404.
+- **Caminho seguro:** o repositório da turma devolve só as colunas que a tela usa, e o painel lê XP e missões, nunca `lancamentos` nem `metas`.
+- **Enforcement:** `test_lista_da_turma_nao_mostra_email_do_aluno`, `test_turma_de_outro_professor_retorna_404`, `test_painel_nao_mostra_valores_em_reais` e `test_tabela_mostra_cada_aluno_sem_email`.
 
 ### N6 · XP nunca diminui nem duplica (RN-10 a RN-12)
 - **Invariante:** o XP só entra por INSERT no livro-razão `xp_eventos`, cada origem (lançamento, missão, quiz) pontua uma vez por aluno e o crédito vai junto com a ação que o gerou.

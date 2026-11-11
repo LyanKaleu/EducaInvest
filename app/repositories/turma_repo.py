@@ -84,7 +84,7 @@ class TurmaRepository:
             SELECT u.id, u.apelido
             FROM matriculas m JOIN usuarios u ON u.id = m.aluno_id
             WHERE m.turma_id = ?
-            ORDER BY u.apelido
+            ORDER BY u.apelido COLLATE NOCASE
             """,
             (turma_id,),
         ).fetchall()

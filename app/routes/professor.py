@@ -1,14 +1,17 @@
-"""Rotas do professor: criar turma, ver o código e os alunos da turma (RF02, HU5)."""
+"""Rotas do professor: criar turma, ver o código e o painel da turma (RF02, HU5)."""
 from flask import (
     Blueprint, abort, flash, redirect, render_template, request, session, url_for,
 )
 
 from app.db import obter_conexao
+from app.repositories.missao_repo import MissaoRepository
 from app.repositories.turma_repo import TurmaRepository
+from app.repositories.xp_repo import XpRepository
 from app.routes.acesso import exigir_perfil
 from app.services.auth_service import PERFIL_PROFESSOR
 from app.services.erros import ErroValidacao
-from app.services.turma_service import gerar_codigo_turma, validar_turma
+from app.services.lancamento_service import hoje_no_piaui
+from app.services.turma_service import gerar_codigo_turma, painel_da_turma, validar_turma
 
 bp = Blueprint("professor", __name__, url_prefix="/professor")
 
@@ -62,5 +65,13 @@ def turma(turma_id):
     registro = _repo().buscar_do_professor(session["usuario_id"], turma_id)
     if registro is None:
         abort(404)
+    conn = obter_conexao()
     alunos = _repo().listar_alunos(turma_id)
-    return render_template("professor/turma.html", turma=registro, alunos=alunos)
+    ids = [aluno["id"] for aluno in alunos]
+    painel = painel_da_turma(
+        alunos,
+        XpRepository(conn).resumo_por_aluno(ids),
+        MissaoRepository(conn).contar_por_aluno(ids),
+        hoje_no_piaui(),
+    )
+    return render_template("professor/turma.html", turma=registro, painel=painel)
