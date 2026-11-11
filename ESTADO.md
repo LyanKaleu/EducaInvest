@@ -18,10 +18,10 @@ Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
 | Plan mode obrigatório, TDD por seams, skills no AGENTS.md | #10 |
 | Tela inicial do aluno: saldo, sequência de dias (RN-13), XP, nível e missão | #12 |
 | HU2: metas e aportes (aporte fora do saldo e limitado ao que falta), card da meta na tela inicial | #13 |
-| HU5: painel da turma (XP médio, missões, ativos em 7 dias e linha por aluno, sem reais nem e-mail) | `feature/painel-professor` |
+| HU5: painel da turma (XP médio, missões, ativos em 7 dias e linha por aluno, sem reais nem e-mail) | #16 |
 
 ## Próximo passo
-**Prazo: 13/11/2026** (2ª avaliação: documento + MVP + pitch). A ordem combinada em 10/11 é HU2 metas e aportes (PR #13, pronta) → HU5 painel do professor (pronta) → **HU4 quiz, se der tempo**.
+**Prazo: 13/11/2026** (2ª avaliação: documento + MVP + pitch). A ordem combinada em 10/11 é HU2 metas e aportes (PR #13, pronta) → HU5 painel do professor (PR #16) → **HU4 quiz, se der tempo**.
 Combinado em 11/11: antes das capturas para o pitch, um passe visual (`ui-taste`, só `app.css`, sem JavaScript) e a limpeza das reservas vazias `db/` e `app/config.py`.
 Refatoração e arquitetura (camadas ou fatias) só depois da entrega, com o feedback do MVP.
 As refatorações sem mudança de comportamento já levantadas (11 itens, em ordem, com os testes de cada um) estão em https://claude.ai/artifact/CosbUZ15hganrotte19ggc (artefato privado do Lyan).
@@ -47,5 +47,6 @@ Combinado em 10/11: enquanto o MVP é construído, tudo entra na `develop`. Quan
 - "Dia ativo" e a janela de 7 dias do painel do professor (`JANELA_FREQUENCIA_DIAS` em `turma_service.py`).
 
 ## Em andamento
-HU5 no PR da branch `feature/painel-professor`. Decisões de 11/11: o painel mostra os agregados e uma linha por aluno (ordem de apelido), e "ativo" é quem ganhou XP nos últimos 7 dias (a confirmar pelo grupo).
+HU5 no PR #16, aguardando merge. Decisões de 11/11: o painel mostra os agregados e uma linha por aluno (ordem de apelido), e "ativo" é quem ganhou XP nos últimos 7 dias (a confirmar pelo grupo).
+Artefato da HU5 (decisões, testes e verificação): https://claude.ai/artifact/D4zhtUyWtAwTPpW6Fnsac2
 Artefato da HU2 (plano, decisões e revisão sênior): https://claude.ai/artifact/3cmboRjs6bgsXewE9HTtU7
