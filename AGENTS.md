@@ -34,7 +34,7 @@ docs/              especificação do MVP (PDF) e schema de referência em Postg
 - A tela inicial do aluno (`routes/painel.py`) mostra saldo, XP, nível, sequência de dias (`xp_service.sequencia`, com os dias que têm XP em `xp_eventos`), a missão e a meta em andamento.
 - Metas e aportes (HU2) estão implementados: `meta_service`, `meta_repo` e `routes/metas.py`. O aporte não entra no saldo nem rende XP, não passa do que falta (`conferir_limite_do_aporte`, checado depois do reenvio), e "concluída" é calculada (guardado ≥ alvo).
 - O painel da turma (HU5) fica na rota `professor.turma`: `turma_service.painel_da_turma` calcula os agregados e a linha por aluno a partir de `XpRepository.resumo_por_aluno` e `MissaoRepository.contar_por_aluno`. "Ativo" = ganhou XP nos últimos `JANELA_FREQUENCIA_DIAS` (7, a confirmar). Nunca mostra reais nem e-mail.
-- Quiz (HU4) só tem a docstring. Ainda não está implementado.
+- O quiz (HU4) usa um banco local `PERGUNTAS` em `quiz_service`, no padrão do `MISSOES`, e só grava as respostas em `quiz_repo`, uma por pergunta. O código da pergunta não muda depois de publicado. O XP do acerto (teto diário de 40) entra no mesmo `with conn:` da resposta, em `routes/quiz.py`.
 
 ## Convenções que divergem do padrão
 - Nomes, docstrings, testes e mensagens ao usuário em português.

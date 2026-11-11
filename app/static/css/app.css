@@ -157,6 +157,30 @@ button.perigo { background: var(--perigo); }
 .aporte .linha { display: flex; gap: .5rem; }
 .aporte .linha input { flex: 1; min-width: 0; }
 
+/* ---------- Quiz ---------- */
+
+.xp-quiz { font-size: 1.4rem; color: var(--primaria); font-variant-numeric: tabular-nums; }
+.xp ~ section h2 { font-size: 1.2rem; margin: 1.5rem 0 .75rem; }
+.perguntas { list-style: none; margin: 0; padding: 0; }
+.pergunta {
+  display: flex; flex-direction: column; gap: .25rem;
+  padding: .75rem 1rem; margin-bottom: .75rem;
+  background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--foco);
+}
+.pergunta[data-status="ACERTOU"] { border-color: var(--primaria); }
+.pergunta[data-status="ERROU"] { border-color: var(--perigo); }
+.pergunta a { font-weight: 600; }
+/* Alternativas longas: uma por linha, com a linha inteira clicável. */
+.alternativas .opcao { display: flex; align-items: flex-start; margin: 0; padding: .5rem 0; }
+.alternativas .opcao input { flex-shrink: 0; margin-top: .1rem; }
+.resultado {
+  padding: .75rem 1rem; margin-bottom: 1.5rem;
+  background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--perigo);
+}
+.resultado[data-acertou="sim"] { border-color: var(--primaria); }
+.resultado h2 { font-size: 1.2rem; margin: 0 0 .5rem; }
+.resultado p { margin: 0 0 .5rem; }
+
 /* ---------- Painel do aluno ---------- */
 
 .rotulo { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #555; margin: 0; }

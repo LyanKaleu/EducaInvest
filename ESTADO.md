@@ -20,9 +20,10 @@ Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
 | HU2: metas e aportes (aporte fora do saldo e limitado ao que falta), card da meta na tela inicial | #13 |
 | HU5: painel da turma (XP médio, missões, ativos em 7 dias e linha por aluno, sem reais nem e-mail) | #16 |
 | DESIGN.md: guia visual para gerar telas em ferramentas de design | #15 |
+| HU4: quiz com banco local de 12 perguntas, uma resposta por pergunta, 10 XP por acerto e teto de 40 por dia | (este PR) |
 
 ## Próximo passo
-**Prazo: 13/11/2026** (2ª avaliação: documento + MVP + pitch). A ordem combinada em 10/11 é HU2 metas e aportes (PR #13, pronta) → HU5 painel do professor (PR #16, pronta) → **HU4 quiz, se der tempo**.
+**Prazo: 13/11/2026** (2ª avaliação: documento + MVP + pitch). A ordem combinada em 10/11 (HU2 → HU5 → HU4) está completa: o escopo do MVP fechou com a HU4.
 Combinado em 11/11: antes das capturas para o pitch, um passe visual (`ui-taste`, só `app.css`, sem JavaScript).
 Refatoração e arquitetura (camadas ou fatias) só depois da entrega, com o feedback do MVP.
 As refatorações sem mudança de comportamento já levantadas (11 itens, em ordem, com os testes de cada um) estão em https://claude.ai/artifact/CosbUZ15hganrotte19ggc (artefato privado do Lyan).
@@ -49,15 +50,17 @@ Combinado em 10/11: enquanto o MVP é construído, tudo entra na `develop`. Quan
 - #7 busca/filtro na lista de turmas
 - #14 id gigante na URL responde 500 em vez de 404 (metas e lançamentos)
 - Depois do MVP: aceitar aporte acima da meta junto com "desfazer aporte" (hoje o aporte para no que falta, porque não há como desfazer)
+- Depois do MVP, quiz (combinado em 11/11, plano em https://claude.ai/artifact/2gpEJSod69i9w2chEzKEsJ): **quiz do dia** com perguntas de cálculo parametrizadas (números novos por aluno e por dia, resposta calculada pelo código) e **gerador de perguntas com o Gemini** (comando que pede um lote em JSON com schema, valida e grava no banco; referência: o projeto DietaAI do Lyan). O texto das 12 perguntas atuais precisa de revisão do grupo.
 
 ## Decisões pendentes do grupo
 - Lista de categorias e valor máximo do lançamento ("A confirmar" em `lancamento_service.py`).
-- Valores de XP, teto diário e níveis (hoje são os exemplos da especificação).
+- Valores de XP, teto diário e níveis (hoje são os exemplos da especificação). Quiz: 10 XP por acerto e teto de 40 por dia (`quiz_service.py`).
 - Manter as camadas ou migrar para fatias verticais.
 - Onde hospedar o protótipo.
 - "Dia ativo" e a janela de 7 dias do painel do professor (`JANELA_FREQUENCIA_DIAS` em `turma_service.py`).
 
 ## Em andamento
+HU4 (branch `feature/quiz-banco-local`): plano, decisões e checklist em https://claude.ai/artifact/2gpEJSod69i9w2chEzKEsJ
 Arrumação de 11/11 (branch `feature/limpa-reservas`): PRs #15 e #16 mergeados, reservas vazias `db/` e `app/config.py` removidas. Checklist de verificação: https://claude.ai/artifact/P6pyc5UTeY6N5FFTyuXmTJ
 Artefato da HU5 (decisões, testes e verificação): https://claude.ai/artifact/D4zhtUyWtAwTPpW6Fnsac2
 Artefato da HU2 (plano, decisões e revisão sênior): https://claude.ai/artifact/3cmboRjs6bgsXewE9HTtU7

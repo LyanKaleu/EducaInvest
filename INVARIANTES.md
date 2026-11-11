@@ -47,7 +47,7 @@ Regra sem enforcement é desejo. Promoção: violou uma vez, reescreva; duas vez
 ### N6 · XP nunca diminui nem duplica (RN-10 a RN-12)
 - **Invariante:** o XP só entra por INSERT no livro-razão `xp_eventos`, cada origem (lançamento, missão, quiz) pontua uma vez por aluno e o crédito vai junto com a ação que o gerou.
 - **Caminho seguro:** use `XpRepository.creditar` dentro do mesmo `with conn:` da ação (veja `registrar_progresso` em `app/routes/missoes.py`). Total e nível são calculados, nunca guardados em coluna.
-- **Enforcement:** gatilhos `tr_xp_eventos_sem_update`/`tr_xp_eventos_sem_delete` e `UNIQUE (aluno_id, origem, origem_id)` em `xp_repo.py`, mais `test_banco_recusa_apagar_xp`, `test_mesma_origem_pontua_uma_vez_so`, `test_missao_concluida_nao_paga_de_novo` e `test_falha_ao_creditar_xp_nao_salva_o_lancamento`.
+- **Enforcement:** gatilhos `tr_xp_eventos_sem_update`/`tr_xp_eventos_sem_delete` e `UNIQUE (aluno_id, origem, origem_id)` em `xp_repo.py`, mais `test_banco_recusa_apagar_xp`, `test_mesma_origem_pontua_uma_vez_so`, `test_missao_concluida_nao_paga_de_novo` e `test_falha_ao_creditar_xp_nao_salva_o_lancamento`. No quiz: PK `(aluno_id, pergunta_codigo)` em `quiz_respostas`, mais `test_errar_e_depois_mandar_a_certa_nao_muda_a_resposta_nem_da_xp`, `test_reenviar_o_acerto_nao_paga_xp_de_novo` e `test_falha_ao_creditar_xp_nao_salva_a_resposta`.
 
 ## Operacionais: sempre com aprovação humana explícita
 Valem independentemente de o CI estar verde.

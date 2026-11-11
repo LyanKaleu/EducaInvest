@@ -41,6 +41,10 @@
             <a href="{{ url_for('metas.listar') }}"
                aria-current="{{ 'page' if request.endpoint in ('metas.listar', 'metas.nova', 'metas.criar', 'metas.aportar') else 'false' }}">Metas</a>
           </li>
+          <li>
+            <a href="{{ url_for('quiz.listar') }}"
+               aria-current="{{ 'page' if request.endpoint in ('quiz.listar', 'quiz.ver', 'quiz.responder') else 'false' }}">Quiz</a>
+          </li>
         {% elif session.get('perfil') == 'PROFESSOR' %}
           <li>
             <a href="{{ url_for('professor.turmas') }}"

@@ -71,13 +71,14 @@ Depois de entrar, o aluno cai no **Início**, que mostra:
 - **Privacidade:** o painel nunca mostra valores em reais nem o e-mail do aluno (RN-18). A turma de outro professor responde 404.
 - **Turma vazia:** aparece "Nenhum aluno ainda.", sem os números.
 
-### Em desenvolvimento
+### Prontas: quiz de educação financeira (HU4)
 
-Estes itens têm arquivos reservados na estrutura de pastas, mas **ainda não têm código**:
-
-| Funcionalidade | Situação |
-|---|---|
-| Quizzes (HU4) | Não iniciado |
+- **Banco de 12 perguntas** de múltipla escolha, 3 por tema: juros, crédito, orçamento e inflação. O texto fica em `quiz_service.PERGUNTAS` e ainda será revisado pelo grupo.
+- **Uma pergunta por tela:** o aluno marca uma alternativa e clica em **Responder**. Se enviar sem marcar, a tela volta (status 400) pedindo uma alternativa, e nada é gravado.
+- **Resultado com explicação:** mostra se acertou, a resposta do aluno, a resposta certa (quando errou) e a explicação, com o atalho para a próxima pergunta.
+- **Uma resposta por pergunta:** a primeira vale. Responder de novo, clicar duas vezes ou tentar a certa depois de errar não muda a resposta nem dá XP.
+- **XP equilibrado:** cada acerto vale 10 XP, com **teto de 40 XP por dia** no quiz (fuso do Piauí). O aviso do teto aparece antes de responder. Errar não dá XP. Os valores ainda serão confirmados pelo grupo.
+- **Resposta e XP juntos:** são gravados na mesma transação, ou os dois, ou nenhum.
 
 ---
 
@@ -211,8 +212,6 @@ EducaInvest/
 ├── requirements.txt
 └── pytest.ini
 ```
-
-Os arquivos de **quiz** em `routes/`, `services/`, `repositories/` e `templates/` são **reservas**: por enquanto só têm uma linha de descrição.
 
 ---
 
