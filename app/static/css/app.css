@@ -170,3 +170,17 @@ button.perigo { background: var(--perigo); }
   padding: .75rem 1rem; border: 1px solid var(--borda); border-radius: var(--raio);
 }
 .indicador strong { font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+
+/* ---------- Painel da turma (professor) ---------- */
+
+.indicador h3 { line-height: 1.3; }
+/* Quatro números: sempre 2 x 2, para não sobrar um cartão sozinho na segunda linha. */
+.indicadores-turma { grid-template-columns: repeat(2, 1fr); }
+/* No celular estreito a tabela rola sozinha, sem empurrar a página para o lado. */
+.tabela-rolavel { overflow-x: auto; margin-bottom: 1.5rem; }
+.tabela-turma { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.tabela-turma th, .tabela-turma td { padding: .6rem .5rem; text-align: left; border-bottom: 1px solid #d6d6d3; }
+.tabela-turma thead th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #555; }
+.tabela-turma tbody th { font-weight: 600; overflow-wrap: anywhere; }
+.tabela-turma .numero { text-align: right; }
+.tabela-turma .sem-quebra { white-space: nowrap; }

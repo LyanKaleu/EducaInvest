@@ -90,6 +90,33 @@ class XpRepository:
         ).fetchone()
         return linha[0]
 
+    def resumo_por_aluno(self, aluno_ids) -> dict[int, dict]:
+        """XP total e último dia com XP de cada aluno, para o painel da turma (HU5).
+
+        Args:
+            aluno_ids: ids dos alunos (ex.: os da turma).
+
+        Returns:
+            dict: `{aluno_id: {"xp": int, "ultimo_dia": date}}`, só de quem já
+            ganhou XP; `{}` se `aluno_ids` vier vazio.
+        """
+        aluno_ids = list(aluno_ids)
+        if not aluno_ids:
+            return {}
+        marcadores = ", ".join("?" * len(aluno_ids))
+        linhas = self.conn.execute(
+            f"""
+            SELECT aluno_id, SUM(pontos) AS xp, MAX(dia_ref) AS ultimo_dia
+            FROM xp_eventos WHERE aluno_id IN ({marcadores})
+            GROUP BY aluno_id
+            """,
+            aluno_ids,
+        ).fetchall()
+        return {
+            linha["aluno_id"]: {"xp": linha["xp"], "ultimo_dia": date.fromisoformat(linha["ultimo_dia"])}
+            for linha in linhas
+        }
+
     def dias_ativos(self, aluno_id) -> set[date]:
         """Dias (fuso do Piauí) em que o aluno ganhou algum XP, sem repetição (RN-13)."""
         linhas = self.conn.execute(
