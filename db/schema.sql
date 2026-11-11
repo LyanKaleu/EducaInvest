@@ -1,1 +1,0 @@
--- Versão SQLite de docs/educainvest_schema.sql (a converter).
