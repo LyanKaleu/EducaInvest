@@ -63,6 +63,14 @@ Depois de entrar, o aluno cai no **Início**, que mostra:
 - **O aporte é um valor separado:** não desconta do saldo dos lançamentos (decisão do grupo de 10/11) e não rende XP.
 - **Sem duplicar e sem acesso de outro aluno:** criar meta e aportar levam a chave única do envio, e a meta de outro aluno responde 404.
 
+### Prontas: painel da turma do professor (HU5)
+
+- **Progresso da turma:** ao abrir uma turma, o professor vê o total de alunos, o **XP médio** (arredondado para o inteiro mais próximo), as **missões concluídas** pela turma e quantos alunos estão **ativos nos últimos 7 dias**.
+- **Linha por aluno:** uma tabela, em ordem de apelido (não é ranking), com o nível, o XP, as missões concluídas e se o aluno está ativo.
+- **Dia ativo:** é um dia em que o aluno ganhou XP, a mesma regra da sequência de dias. A janela de 7 dias conta hoje e ainda será confirmada pelo grupo.
+- **Privacidade:** o painel nunca mostra valores em reais nem o e-mail do aluno (RN-18). A turma de outro professor responde 404.
+- **Turma vazia:** aparece "Nenhum aluno ainda.", sem os números.
+
 ### Em desenvolvimento
 
 Estes itens têm arquivos reservados na estrutura de pastas, mas **ainda não têm código**:
@@ -70,7 +78,6 @@ Estes itens têm arquivos reservados na estrutura de pastas, mas **ainda não t�
 | Funcionalidade | Situação |
 |---|---|
 | Quizzes (HU4) | Não iniciado |
-| Painel agregado do professor: XP médio, missões e frequência (HU5) | Não iniciado (hoje a turma mostra só a lista de alunos) |
 
 ---
 
@@ -205,7 +212,7 @@ EducaInvest/
 └── pytest.ini
 ```
 
-Os arquivos de **quiz** em `routes/`, `services/`, `repositories/` e `templates/`, além de `professor/progresso.html`, são **reservas**: por enquanto só têm uma linha de descrição. O mesmo vale para `app/config.py` e `db/schema.sql`.
+Os arquivos de **quiz** em `routes/`, `services/`, `repositories/` e `templates/` são **reservas**: por enquanto só têm uma linha de descrição. O mesmo vale para `app/config.py` e `db/schema.sql`.
 
 ---
 
