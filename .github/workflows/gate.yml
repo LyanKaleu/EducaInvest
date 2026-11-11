@@ -1,5 +1,5 @@
 # Roda o mesmo gate.sh do Stop hook em todo PR e em todo push para develop/main.
-# Só avisa (✅/❌ no PR); bloquear o merge exige ligar a proteção de branch no GitHub.
+# O ruleset da main e da develop exige este check verde para o merge.
 name: gate
 
 on:
