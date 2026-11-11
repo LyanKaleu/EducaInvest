@@ -212,7 +212,7 @@ EducaInvest/
 └── pytest.ini
 ```
 
-Os arquivos de **quiz** em `routes/`, `services/`, `repositories/` e `templates/` são **reservas**: por enquanto só têm uma linha de descrição. O mesmo vale para `app/config.py` e `db/schema.sql`.
+Os arquivos de **quiz** em `routes/`, `services/`, `repositories/` e `templates/` são **reservas**: por enquanto só têm uma linha de descrição.
 
 ---
 
