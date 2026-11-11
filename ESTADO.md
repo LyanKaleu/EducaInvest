@@ -23,7 +23,7 @@ Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
 
 ## Próximo passo
 **Prazo: 13/11/2026** (2ª avaliação: documento + MVP + pitch). A ordem combinada em 10/11 é HU2 metas e aportes (PR #13, pronta) → HU5 painel do professor (PR #16, pronta) → **HU4 quiz, se der tempo**.
-Combinado em 11/11: antes das capturas para o pitch, um passe visual (`ui-taste`, só `app.css` e templates, sem JavaScript). A limpeza das reservas vazias `db/` e `app/config.py` foi feita no PR de arrumação de 11/11.
+Combinado em 11/11: antes das capturas para o pitch, um passe visual (`ui-taste`, só `app.css`, sem JavaScript).
 Refatoração e arquitetura (camadas ou fatias) só depois da entrega, com o feedback do MVP.
 As refatorações sem mudança de comportamento já levantadas (11 itens, em ordem, com os testes de cada um) estão em https://claude.ai/artifact/CosbUZ15hganrotte19ggc (artefato privado do Lyan).
 **Pitch por último:** depois de completar o escopo do MVP, capturar todas as telas no celular, compartilhar com o grupo e só então estruturar a apresentação.
