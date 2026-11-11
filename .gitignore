@@ -27,10 +27,11 @@ instance/
 *.db-shm
 
 # Documentos: só a documentação técnica vai para o repositório público.
-# Trabalhos da disciplina (persona, segmentação, slides etc.) ficam no Drive.
+# Documentos privados ficam fora do repositório.
 # Qualquer arquivo novo em docs/ fica privado por padrão; para publicar, adicione um "!" abaixo.
 docs/*
-!docs/EducaInvest_Especificacao_MVP.pdf
+!docs/ESPECIFICACAO.md
+!docs/img/
 !docs/educainvest_schema.sql
 !docs/code_review.md
 
