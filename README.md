@@ -49,7 +49,7 @@ python -m pip install -r requirements.txt
 python run.py                                        # http://127.0.0.1:5000
 ```
 
-Em produção, use `gunicorn "app:create_app()"` com a variável `SECRET_KEY` definida.
+Em produção, sirva `create_app()` por um servidor WSGI, com a variável `SECRET_KEY` definida. O banco fica em `instance/educainvest.db`, que precisa estar num disco que não se apaga ao reiniciar.
 
 ## Testes
 
