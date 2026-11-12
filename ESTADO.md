@@ -22,12 +22,15 @@ O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACA
 | DESIGN.md: guia visual para gerar telas em ferramentas de design | #15 |
 | HU5: painel da turma (XP médio, missões, ativos em 7 dias e linha por aluno, sem reais nem e-mail) | #16 |
 | HU4: quiz com 12 perguntas, uma resposta por pergunta, 10 XP por acerto e teto de 40 por dia | #19 |
-| Arrumação para a `main`: README curto com prints, especificação v2 em Markdown, PDF v1 fora do repositório | (este PR) |
+| Arrumação para a `main`: README curto com prints, especificação v2 em Markdown, PDF v1 fora do repositório | #20 |
+| MVP completo na `main` | #21 |
+| Deploy interno de teste, só para o grupo (onde está e como atualizar: notas privadas, fora do Git) | (este PR) |
 
 ## Próximo passo
-1. PR `develop → main` com o MVP completo.
-2. **Deploy no Fly.io:** `gunicorn` (zona O3), `Dockerfile`, `fly.toml`, volume para o SQLite, `SECRET_KEY` como secret e contas de demonstração. Depois, o link entra no README ("Experimente online").
-3. Release `v1.0.0` na `main`, com o link do app nas notas.
+1. Ligar CodeQL e Dependabot security updates (a `main` já recebeu o merge; veja "Setup do GitHub" abaixo).
+2. Release `v1.0.0` na `main`. O deploy é interno: nada sobre ele entra no README nem nas notas da release.
+
+Fly e Render foram descartados: a Fly exige cartão e o Render grátis apaga o SQLite quando o app dorme. Container (`gunicorn`, `Dockerfile`) só volta se o banco sair do SQLite local.
 
 Refatoração e arquitetura (camadas ou fatias) ficam para depois do MVP, com o feedback de uso.
 
@@ -52,4 +55,4 @@ Refatoração e arquitetura (camadas ou fatias) ficam para depois do MVP, com o 
 - "Dia ativo" e a janela de 7 dias do painel do professor (`JANELA_FREQUENCIA_DIAS` em `turma_service.py`).
 
 ## Em andamento
-Arrumação para a `main` (branch `feature/arruma-main`).
+Nada. O próximo passo é a release.
