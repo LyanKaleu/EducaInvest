@@ -46,8 +46,12 @@ class TurmaRepository:
         return self.buscar_do_professor(professor_id, cursor.lastrowid)
 
     def listar_do_professor(self, professor_id) -> list[dict]:
+        """Turmas do professor, cada uma com `total_alunos` (quantos alunos estão matriculados)."""
         linhas = self.conn.execute(
-            "SELECT * FROM turmas WHERE professor_id = ? ORDER BY nome",
+            """
+            SELECT t.*, (SELECT COUNT(*) FROM matriculas m WHERE m.turma_id = t.id) AS total_alunos
+            FROM turmas t WHERE t.professor_id = ? ORDER BY t.nome
+            """,
             (professor_id,),
         ).fetchall()
         return [dict(linha) for linha in linhas]

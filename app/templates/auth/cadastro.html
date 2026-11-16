@@ -6,8 +6,18 @@
 
 {% from "_formulario.html" import erro, invalido with context %}
 
+{# Tela de entrada: sem o topo, como no protótipo do pitch. #}
+{% block topo %}{% endblock %}
+
 {% block conteudo %}
-<h1>{{ titulo_pagina }}</h1>
+<div class="cabecalho-voltar">
+  <a class="voltar" href="{{ url_for('auth.login') }}">
+    <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    <span class="oculto">Voltar para o login</span>
+  </a>
+  <h1>{{ titulo_pagina }}</h1>
+</div>
 
 {# O tipo de conta é escolhido aqui, uma vez; o login é o mesmo para todos. #}
 <nav class="escolha-perfil" aria-label="Tipo de conta">
@@ -20,6 +30,7 @@
 <form method="post" novalidate
       action="{{ url_for('auth.cadastrar_professor') if professor else url_for('auth.cadastrar_aluno') }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="cartao">
   <div class="campo">
     <label for="apelido">Apelido <span class="dica">(como você quer ser chamado)</span></label>
     <input type="text" id="apelido" name="apelido" maxlength="40" autocomplete="nickname"
@@ -44,13 +55,13 @@
   {% if not professor %}
     <div class="campo">
       <label for="codigo_turma">Código da turma <span class="dica">(peça ao seu professor)</span></label>
-      <input type="text" id="codigo_turma" name="codigo_turma" maxlength="8" autocapitalize="characters"
+      <input type="text" id="codigo_turma" name="codigo_turma" class="campo-codigo" maxlength="8" autocapitalize="characters"
              autocomplete="off" value="{{ form.get('codigo_turma', '') }}" {{ invalido('codigo_turma') }}>
       {{ erro('codigo_turma') }}
     </div>
 
     <div class="campo">
-      <label class="opcao">
+      <label class="opcao consentimento">
         <input type="checkbox" name="consentimento" value="sim"
                {{ 'checked' if form.get('consentimento') == 'sim' }} {{ invalido('consentimento') }}>
         Tenho 18 anos ou mais, ou tenho autorização do meu responsável ou da escola para usar o EducaInvest.
@@ -58,10 +69,10 @@
       {{ erro('consentimento') }}
     </div>
   {% endif %}
-
-  <div class="acoes">
-    <button type="submit">Criar conta</button>
-    <a href="{{ url_for('auth.login') }}">Já tenho conta</a>
   </div>
+
+  <button type="submit" class="botao-largo">Criar conta</button>
 </form>
+
+<p class="dica centro">Já tem conta? <a href="{{ url_for('auth.login') }}">Entrar</a></p>
 {% endblock %}

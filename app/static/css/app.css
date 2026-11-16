@@ -52,7 +52,7 @@ main:focus { outline: none; }
 /* ---------- Topo ---------- */
 
 .topo {
-  display: flex; flex-wrap: wrap; align-items: center;
+  display: flex; flex-wrap: nowrap; align-items: center;
   gap: .25rem 1rem; padding: .5rem 1rem; min-height: 3.5rem;
   background: var(--fundo); border-bottom: 1px solid var(--divisoria);
 }
@@ -60,8 +60,12 @@ main:focus { outline: none; }
   font-weight: 700; font-size: 1.15rem; text-decoration: none; color: var(--primaria);
   display: inline-flex; align-items: center; min-height: 44px;
 }
-/* Quem está logado: apelido e perfil, ao lado da marca. */
-.identificacao { color: var(--texto-suave); font-size: .9rem; margin-right: auto; }
+/* Quem está logado: apelido e perfil, ao lado da marca. Encolhe com reticências para o topo
+   caber numa linha só no celular. */
+.identificacao {
+  flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--texto-suave); font-size: .9rem;
+}
 .marca + .menu-topo { margin-left: auto; }  /* visitante: sem identificação, menu à direita */
 .menu-topo ul { display: flex; flex-wrap: wrap; gap: 0 1rem; margin: 0; padding: 0; list-style: none; }
 .menu-topo a { display: inline-flex; align-items: center; min-height: 44px; }
@@ -434,22 +438,22 @@ label.alt { cursor: pointer; }
 
 /* ---------- Turmas e painel da turma (professor) ---------- */
 
-code.codigo-turma { font-size: 1.1rem; font-weight: 700; letter-spacing: .1em; color: var(--primaria); }
-.indicador h3 { line-height: 1.3; }
-/* Quatro números: sempre 2 x 2, para não sobrar um cartão sozinho na segunda linha. */
-.indicadores-turma { grid-template-columns: repeat(2, 1fr); }
-/* No celular estreito a tabela rola sozinha, sem empurrar a página para o lado. */
-.tabela-rolavel { overflow-x: auto; margin-bottom: 1.5rem; background: var(--fundo); border: 1px solid var(--divisoria); border-radius: var(--raio); }
-.tabela-turma { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-.tabela-turma th, .tabela-turma td { padding: .6rem .75rem; text-align: left; border-bottom: 1px solid var(--divisoria); }
-.tabela-turma tbody tr:last-child th, .tabela-turma tbody tr:last-child td { border-bottom: 0; }
-.tabela-turma thead th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--texto-suave); }
-.tabela-turma tbody th { font-weight: 600; overflow-wrap: anywhere; }
-.tabela-turma .numero { text-align: right; }
-.tabela-turma .sem-quebra { white-space: nowrap; }
+code.codigo-turma { font-family: ui-monospace, Consolas, monospace; font-size: 1.1rem; font-weight: 700; letter-spacing: .1em; color: var(--primaria); }
+/* Lista de turmas: o cartão inteiro abre a turma; faixa verde como no protótipo. */
+.turmas { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: .625rem; }
+.turma-item {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  padding: .875rem 1rem; color: var(--texto); text-decoration: none;
+  background: var(--fundo); border: 1px solid var(--divisoria); border-left: 6px solid var(--primaria); border-radius: var(--raio);
+}
+a.turma-item:hover { color: var(--texto); background: #fafbfa; }
+.turma-item code.codigo-turma { font-size: 1rem; }
+.form-turma { gap: .75rem; }
+.form-turma .campo { margin: 0; }
+.form-turma .dica { margin: 0; font-size: .9rem; }
 
-.cabecalho-turma { display: flex; flex-direction: column; margin-bottom: 1rem; }
-.cabecalho-turma h1 { margin: 0; overflow-wrap: anywhere; }
+.titulo-turma { display: flex; flex-direction: column; min-width: 0; }
+.titulo-turma h1 { margin: 0; overflow-wrap: anywhere; }
 /* Destaque da turma: cartão verde, como o saldo do aluno. */
 .cartao-turma {
   display: flex; flex-direction: column; gap: .75rem;
@@ -458,20 +462,27 @@ code.codigo-turma { font-size: 1.1rem; font-weight: 700; letter-spacing: .1em; c
 }
 .cartao-turma .rotulo { color: var(--texto-sobre-cor); }
 .ativos-turma { margin: 0; }
-.ativos-turma strong { font-size: 2.25rem; line-height: 1.1; margin-right: .25rem; font-variant-numeric: tabular-nums; }
-.cartao-turma progress { border-color: var(--texto-sobre-cor); background: transparent; color: var(--texto-sobre-cor); }
-.cartao-turma progress::-webkit-progress-bar { background: transparent; }
-.cartao-turma progress::-webkit-progress-value { background: var(--texto-sobre-cor); }
-.cartao-turma progress::-moz-progress-bar { background: var(--texto-sobre-cor); }
-.numeros-turma { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin: 0; font-variant-numeric: tabular-nums; }
-.numeros-turma dt { font-size: .85rem; line-height: 1.3; }
+.ativos-turma strong { font-size: 2.5rem; line-height: 1.1; margin-right: .25rem; font-variant-numeric: tabular-nums; }
+.numeros-turma { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: .25rem 0 0; font-variant-numeric: tabular-nums; }
+.numeros-turma dt { font-size: .9rem; }
 .numeros-turma dd { margin: 0; font-size: 1.3rem; font-weight: 700; }
-.nota-turma { margin: 0; font-size: .85rem; }
-/* Alerta de inativos: fundo de erro, título em vermelho, nomes em texto. */
-.atencao { padding: .75rem 1rem; margin-bottom: .75rem; border-radius: var(--raio); background: var(--erro-fundo); border: 1px solid #ecc0bd; }
-.atencao h2 { margin: 0 0 .25rem; font-size: 1rem; color: var(--perigo); }
+/* Alerta de inativos: fundo de erro, ícone e título em vermelho, nomes em texto. */
+.atencao { display: flex; gap: .75rem; align-items: flex-start; padding: .875rem 1rem; margin-bottom: .75rem; border-radius: var(--raio); background: var(--erro-fundo); }
+.atencao svg { flex: none; margin-top: 2px; color: var(--perigo); }
+.atencao h2 { margin: 0 0 .125rem; font-size: 1rem; color: var(--perigo); }
 .atencao p { margin: 0; overflow-wrap: anywhere; }
-.tabela-turma td.inativo { color: var(--perigo); font-weight: 600; }
+/* Ranking: lista com barra relativa ao maior XP; inativo em cinza e vermelho, escrito. */
+.ranking-cartao { padding: 0; gap: 0; overflow: hidden; }
+.ranking-cartao > .rotulo { padding: .875rem 1rem .5rem; }
+.ranking { list-style: none; margin: 0; padding: 0; }
+.aluno-ranking { display: flex; flex-direction: column; gap: .375rem; padding: .75rem 1rem; border-top: 1px solid var(--divisoria); }
+.aluno-ranking .apelido { overflow-wrap: anywhere; }
+.aluno-ranking progress { height: .5rem; border: 0; }
+.aluno-ranking.inativo progress { color: var(--borda); }
+.aluno-ranking.inativo progress::-webkit-progress-value { background: var(--borda); }
+.aluno-ranking.inativo progress::-moz-progress-bar { background: var(--borda); }
+.situacao { font-size: .9rem; color: var(--texto-suave); }
+.aluno-ranking.inativo .situacao { color: var(--perigo); font-weight: 600; }
 /* Turma por nível: um quadro por nível, o número em cima. */
 .niveis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin: 0; text-align: center; }
 .niveis > div { display: flex; flex-direction: column; padding: .6rem .25rem; border-radius: var(--raio); background: var(--suave); }
@@ -481,14 +492,27 @@ code.codigo-turma { font-size: 1.1rem; font-weight: 700; letter-spacing: .1em; c
 /* Convite: o código em destaque, com contorno tracejado. */
 .convite {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem;
-  padding: .75rem 1rem; margin-bottom: 1rem; border-radius: var(--raio);
+  padding: .875rem 1rem; margin-bottom: .75rem; border-radius: var(--raio);
   background: var(--fundo); border: 1px dashed var(--borda);
 }
 .convite h2 { margin: 0; font-size: 1rem; }
 .convite p { margin: 0; }
-.codigo-grande { font-size: 1.4rem; padding: .5rem 1rem; border: 1px dashed var(--borda); border-radius: var(--raio); }
+.convite code.codigo-turma { font-size: 1.3rem; letter-spacing: .12em; }
 
-/* ---------- Cadastro ---------- */
+/* ---------- Login e cadastro ---------- */
+
+/* Marca grande no lugar do topo, como no protótipo. */
+.marca-entrada { display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 1.75rem 0 1rem; text-align: center; }
+.marca-entrada h1 { margin: .25rem 0 0; }
+.marca-entrada p { margin: 0; }
+.logo { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 18px; background: var(--primaria); color: var(--texto-sobre-cor); }
+form.cartao .campo, .cartao > .campo { margin: 0; }
+form.cartao, .cartao:has(> .campo) { gap: .875rem; }
+form > .cartao + .botao-largo, form.cartao .botao-largo { margin-top: .25rem; }
+form > .cartao + .botao-largo { margin-top: .75rem; }
+.campo-codigo { font-family: ui-monospace, Consolas, monospace; letter-spacing: .12em; text-transform: uppercase; }
+.consentimento { display: flex; align-items: flex-start; margin: 0; }
+.consentimento input { margin-top: .15rem; }
 
 /* Escolha do tipo de conta no cadastro: a opção atual fica cheia, a outra só com contorno. */
 .escolha-perfil { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
