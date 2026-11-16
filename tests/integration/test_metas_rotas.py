@@ -256,3 +256,39 @@ def test_clique_duplo_simultaneo_no_aporte_responde_como_sucesso(monkeypatch, ap
     assert resposta.status_code == 302
     monkeypatch.undo()
     assert "R$ 100,00 de R$ 200,00 · 50%" in lista(cliente)
+
+
+# ---------------------------------------------------------------------------
+# Resumo no topo e metas concluídas separadas
+# ---------------------------------------------------------------------------
+
+def ultima_meta_criada(cliente):
+    return max(int(i) for i in re.findall(r'data-meta-id="(\d+)"', lista(cliente)))
+
+
+def secao(html, id_):
+    """Conteúdo da <section> com `id_`, ou '' se a tela não tem essa seção."""
+    encontrado = re.search(rf'<section[^>]*id="{id_}".*?</section>', html, re.DOTALL)
+    return encontrado.group(0) if encontrado else ""
+
+
+def test_lista_mostra_o_total_guardado_em_todas_as_metas(cliente):
+    criar_meta(cliente, "Fone", "200,00")
+    aportar(cliente, ultima_meta_criada(cliente), "50,00")
+    criar_meta(cliente, "Show", "80,00")
+    aportar(cliente, ultima_meta_criada(cliente), "30,00")
+
+    assert re.search(r'id="guardado-total"[^>]*>R\$ 80,00<', lista(cliente))
+
+
+def test_meta_concluida_fica_separada_das_em_andamento(cliente):
+    criar_meta(cliente, "Show", "80,00")
+    show = ultima_meta_criada(cliente)
+    aportar(cliente, show, "80,00")
+    criar_meta(cliente, "Fone", "200,00")
+    fone = ultima_meta_criada(cliente)
+
+    html = lista(cliente)
+    assert f'data-meta-id="{show}"' in secao(html, "metas-concluidas")
+    assert f'data-meta-id="{fone}"' in secao(html, "metas-em-andamento")
+    assert f'data-meta-id="{show}"' not in secao(html, "metas-em-andamento")

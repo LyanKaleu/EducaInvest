@@ -8,6 +8,7 @@ from app.services.meta_service import (
     conferir_limite_do_aporte,
     mais_perto_de_concluir,
     progresso,
+    resumo,
     validar_aporte,
     validar_meta,
 )
@@ -132,3 +133,21 @@ def test_no_empate_destaca_a_meta_mais_antiga():
 def test_sem_meta_em_andamento_nao_destaca_nenhuma():
     assert mais_perto_de_concluir([]) is None
     assert mais_perto_de_concluir([meta(1, 10000, 10000)]) is None
+
+
+# ---------------------------------------------------------------------------
+# resumo (topo da tela de metas)
+# ---------------------------------------------------------------------------
+
+def test_resumo_soma_o_guardado_e_conta_metas_em_andamento_e_concluidas():
+    metas = [meta(1, 20000, 12000), meta(2, 8000, 8000), meta(3, 50000, 0)]
+
+    assert resumo(metas) == {"guardado": 20000, "em_andamento": 2, "concluidas": 1}
+
+
+def test_meta_que_passou_do_alvo_conta_como_concluida():
+    assert resumo([meta(1, 5000, 6000)]) == {"guardado": 6000, "em_andamento": 0, "concluidas": 1}
+
+
+def test_resumo_sem_metas_e_zerado():
+    assert resumo([]) == {"guardado": 0, "em_andamento": 0, "concluidas": 0}
