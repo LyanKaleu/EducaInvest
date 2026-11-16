@@ -98,36 +98,3 @@ def test_painel_mostra_os_ultimos_7_dias_da_sequencia(cliente_aluno):
 
 def test_aluno_novo_ve_os_7_dias_em_branco(cliente_aluno):
     assert 'aria-label="Ganhou XP em 0 dos últimos 7 dias"' in painel(cliente_aluno)
-
-
-# ---------------------------------------------------------------------------
-# Aporte direto pela tela inicial
-# ---------------------------------------------------------------------------
-
-def test_tela_inicial_oferece_o_aporte_na_meta_em_andamento(cliente_aluno):
-    meta_id = criar_meta_com_aporte(cliente_aluno, "Fone", "200,00", "100,00")
-
-    html = painel(cliente_aluno)
-    assert f'action="/metas/{meta_id}/aportes"' in html
-    assert 'name="voltar" value="painel"' in html
-
-
-def test_aporte_pela_tela_inicial_volta_para_a_tela_inicial(cliente_aluno):
-    meta_id = criar_meta_com_aporte(cliente_aluno, "Fone", "200,00", "100,00")
-
-    resposta = cliente_aluno.post(f"/metas/{meta_id}/aportes", data={
-        "valor": "10,00", "voltar": "painel", "chave_idempotencia": str(uuid.uuid4())})
-
-    assert resposta.status_code == 302
-    assert resposta.headers["Location"].endswith("/painel/")
-    assert valor(painel(cliente_aluno), "meta-progresso") == "Fone: R$ 110,00 de R$ 200,00 · 55%"
-
-
-def test_voltar_desconhecido_vai_para_a_lista_de_metas(cliente_aluno):
-    meta_id = criar_meta_com_aporte(cliente_aluno, "Fone", "200,00", "100,00")
-
-    resposta = cliente_aluno.post(f"/metas/{meta_id}/aportes", data={
-        "valor": "10,00", "voltar": "https://exemplo.com/", "chave_idempotencia": str(uuid.uuid4())})
-
-    assert resposta.status_code == 302
-    assert resposta.headers["Location"].endswith("/metas/")

@@ -1,6 +1,4 @@
 """Rota da tela inicial do aluno: saldo, XP, nível, sequência de dias, missão e meta em andamento."""
-import uuid
-
 from flask import Blueprint, render_template, session
 
 from app.db import obter_conexao
@@ -49,6 +47,4 @@ def ver():
         # A meta em andamento mais perto de concluir; o aporte não entra no saldo.
         meta=meta_service.mais_perto_de_concluir(metas),
         tem_metas=bool(metas),
-        # Chave do aporte feito pela tela inicial: reenviar o mesmo formulário não duplica (N2).
-        chave_aporte=str(uuid.uuid4()),
     )

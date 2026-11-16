@@ -116,15 +116,6 @@ def _recusa_do_aporte(meta: dict, dados: dict):
     return None
 
 
-# Telas que podem pedir para voltar a elas depois do aporte (campo oculto `voltar`).
-# Lista fechada: o endereço nunca vem do formulário, então não há redirect aberto.
-DESTINOS_DO_APORTE = {"painel": "painel.ver"}
-
-
-def _destino_do_aporte() -> str:
-    return url_for(DESTINOS_DO_APORTE.get(request.form.get("voltar"), ".listar"))
-
-
 @bp.post("/<int:meta_id>/aportes")
 def aportar(meta_id):
     meta = _com_progresso(_buscar_ou_404(meta_id))
@@ -136,7 +127,7 @@ def aportar(meta_id):
     if _repo().aporte_registrado(_aluno_id(), meta_id, dados["chave_idempotencia"]):
         # Reenvio de um aporte já gravado (clique duplo, falha de rede): responde como
         # sucesso, mesmo que esse aporte tenha concluído a meta (N2).
-        return redirect(_destino_do_aporte())
+        return redirect(url_for(".listar"))
     recusa = _recusa_do_aporte(meta, dados)
     if recusa:
         return recusa
@@ -150,4 +141,4 @@ def aportar(meta_id):
     flash(f"Aporte de {reais(dados['valor_centavos'])} guardado!", "sucesso")
     if _com_progresso(_repo().buscar(_aluno_id(), meta_id))["concluida"]:
         flash(f"Parabéns, você concluiu a meta {meta['nome']}!", "sucesso")
-    return redirect(_destino_do_aporte())
+    return redirect(url_for(".listar"))

@@ -69,18 +69,7 @@
     <label id="meta-progresso" for="progresso-meta">{{ meta.nome }}: {{ meta.guardado_centavos | reais }} de {{ meta.valor_alvo_centavos | reais }} · {{ meta.percentual }}%</label>
     <progress id="progresso-meta" max="100" value="{{ meta.percentual }}">{{ meta.percentual }}%</progress>
     <span class="dica">Faltam {{ (meta.valor_alvo_centavos - meta.guardado_centavos) | reais }}</span>
-    {# Aporte direto: grava na meta e volta para cá. Com erro, a lista de metas mostra o campo com a mensagem. #}
-    <form class="aporte" method="post" novalidate action="{{ url_for('metas.aportar', meta_id=meta.id) }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="voltar" value="painel">
-      <input type="hidden" name="chave_idempotencia" value="{{ chave_aporte }}">
-      <label for="valor-inicio">Guardar quanto? (R$)</label>
-      <div class="linha">
-        <input type="text" id="valor-inicio" name="valor" inputmode="decimal" autocomplete="off" placeholder="10,00">
-        <button type="submit">Guardar<span class="oculto"> na meta {{ meta.nome }}</span></button>
-      </div>
-    </form>
-    <a class="link-acao" href="{{ url_for('metas.listar') }}">Ver todas as metas</a>
+    <a class="link-acao" href="{{ url_for('metas.listar') }}">Guardar dinheiro na meta</a>
   {% elif tem_metas %}
     <div class="vazio">
       <strong>Todas as metas concluídas</strong>
