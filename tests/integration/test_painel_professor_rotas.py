@@ -53,7 +53,7 @@ def test_painel_nao_mostra_valores_em_reais(cliente_professor, turma, cliente_al
 def test_aluno_de_outra_turma_nao_entra_na_media(app, cliente_professor, turma, cliente_aluno):
     criar_turma(cliente_professor, nome="3º B")
     html_turmas = cliente_professor.get("/professor/turmas").get_data(as_text=True)
-    codigos = re.findall(r'<code class="codigo-turma">([A-Z0-9]{6})</code>', html_turmas)
+    codigos = re.findall(r'<code class="codigo-turma">([A-Z0-9]{6,8})</code>', html_turmas)
     codigo_3b = next(codigo for codigo in codigos if codigo != turma["codigo"])
     de_outra_turma = app.test_client()
     assert cadastrar_aluno(de_outra_turma, codigo_3b, email="caio@escola.br",
