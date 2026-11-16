@@ -25,7 +25,8 @@ O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACA
 | Arrumação para a `main`: README curto com prints, especificação v2 em Markdown, PDF v1 fora do repositório | #20 |
 | MVP completo na `main` | #21 |
 | Deploy interno de teste, só para o grupo (onde está e como atualizar: notas privadas, fora do Git) | #22 |
-| Correções da auditoria de segurança: limite de login por e-mail, CSRF (Flask-WTF), código de turma com 8 caracteres, cookie `Secure`, headers, sessão de 12 h e aporte sem corrida | (este PR) |
+| Correções da auditoria de segurança: limite de login por e-mail, CSRF (Flask-WTF), código de turma com 8 caracteres, cookie `Secure`, headers, sessão de 12 h e aporte sem corrida | #23 |
+| Redesign igual ao protótipo navegável: menu no rodapé, cartões, chips sem JavaScript, sequência de 7 dias, resumo e atalhos nas metas, ranking e inativos no painel da turma | (este PR) |
 
 ## Próximo passo
 1. Ligar CodeQL e Dependabot security updates (a `main` já recebeu o merge; veja "Setup do GitHub" abaixo).
@@ -50,7 +51,8 @@ Refatoração e arquitetura (camadas ou fatias) ficam para depois do MVP, com o 
 - Aceitar aporte acima da meta junto com "desfazer aporte" (hoje o aporte para no que falta, porque não há como desfazer)
 - **Universitários:** usar o app sem entrar numa turma, já que nem sempre há um professor acompanhando. A faixa de 16 a 24 anos já cobre esse público.
 - **Ensino fundamental:** produto à parte, mais lúdico, com outra linguagem. Abaixo de 12 anos a LGPD (art. 14) exige o consentimento específico de um dos pais ou responsável, que o RN-05 de hoje não cobre.
-- **Mascote** próprio para a marca e a divulgação, junto com a retomada do design visual depois do MVP.
+- **Mascote** próprio para a marca e a divulgação.
+- Do protótipo, o que ficou de fora por precisar de JavaScript: avisos que somem sozinhos, comemoração de nível, busca ao digitar e sugestões de nome na nova meta.
 - **Quiz do dia** com perguntas de cálculo parametrizadas (números novos por aluno e por dia, resposta calculada pelo código) e **gerador de perguntas com IA** (comando que pede um lote em JSON com schema, valida e grava no banco). O texto das 12 perguntas atuais precisa de revisão.
 
 ## Decisões pendentes
@@ -60,4 +62,4 @@ Refatoração e arquitetura (camadas ou fatias) ficam para depois do MVP, com o 
 - "Dia ativo" e a janela de 7 dias do painel do professor (`JANELA_FREQUENCIA_DIAS` em `turma_service.py`).
 
 ## Em andamento
-Nada. O próximo passo é a release.
+Redesign (`feature/redesign-v2`) em revisão. Depois, a release.
