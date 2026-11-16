@@ -1,4 +1,5 @@
 """Fluxo HTTP de cadastro com código de turma, login, logout e acesso por perfil (RF01, RNF04, HU5)."""
+from app.services import auth_service
 from tests.conftest import SENHA, cadastrar_aluno, cadastrar_professor, entrar
 
 
@@ -119,6 +120,67 @@ def test_login_com_email_inexistente_da_a_mesma_mensagem(cliente_anonimo):
 
     assert resposta.status_code == 401
     assert "E-mail ou senha incorretos." in resposta.get_data(as_text=True)
+
+
+def errar_a_senha(cliente, email, vezes):
+    for _ in range(vezes):
+        entrar(cliente, email, senha="senha-errada")
+
+
+def test_login_bloqueia_o_email_depois_de_5_senhas_erradas(app, cliente_aluno):
+    cliente = app.test_client()
+    errar_a_senha(cliente, "gabriel@escola.br", 5)
+
+    resposta = entrar(cliente, "gabriel@escola.br")  # agora com a senha certa
+
+    assert resposta.status_code == 429
+    assert "Muitas tentativas para este e-mail" in resposta.get_data(as_text=True)
+    assert cliente.get("/painel/").status_code == 302  # continua sem login
+
+
+def test_bloqueio_vale_para_o_email_em_outra_caixa(app, cliente_aluno):
+    cliente = app.test_client()
+    errar_a_senha(cliente, "gabriel@escola.br", 5)
+
+    assert entrar(cliente, "GABRIEL@escola.br").status_code == 429
+
+
+def test_bloqueio_de_um_email_nao_afeta_outro(app, turma, cliente_aluno):
+    cadastrar_aluno(app.test_client(), turma["codigo"], email="bia@escola.br", apelido="Bia")
+    errar_a_senha(app.test_client(), "gabriel@escola.br", 5)
+
+    assert entrar(app.test_client(), "bia@escola.br").status_code == 302
+
+
+def test_chutes_simultaneos_nao_furam_o_limite(monkeypatch, app, cliente_aluno):
+    # 6 chutes chegam juntos: cada um dispara o próximo enquanto confere a senha (o hash
+    # é lento), então nenhum terminou quando o 6º chega. O 6º, com a senha certa, não entra.
+    original = auth_service.senha_confere
+    disparados = []
+    sexto = {}
+
+    def conferir_enquanto_chega_outro(senha_hash, senha):
+        if len(disparados) < 5:
+            disparados.append(True)
+            if len(disparados) == 5:
+                sexto["resposta"] = entrar(app.test_client(), "gabriel@escola.br")
+            else:
+                entrar(app.test_client(), "gabriel@escola.br", senha="senha-errada")
+        return original(senha_hash, senha)
+
+    monkeypatch.setattr(auth_service, "senha_confere", conferir_enquanto_chega_outro)
+    entrar(app.test_client(), "gabriel@escola.br", senha="senha-errada")
+
+    assert sexto["resposta"].status_code == 429
+
+
+def test_login_certo_zera_as_falhas(app, cliente_aluno):
+    cliente = app.test_client()
+    errar_a_senha(cliente, "gabriel@escola.br", 4)
+    entrar(cliente, "gabriel@escola.br")
+    errar_a_senha(cliente, "gabriel@escola.br", 1)
+
+    assert entrar(app.test_client(), "gabriel@escola.br").status_code == 302
 
 
 def test_login_vazio_retorna_400(cliente_anonimo):

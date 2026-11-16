@@ -24,6 +24,7 @@
 <p>Essa ação não pode ser desfeita.</p>
 
 <form method="post" action="{{ url_for('lancamentos.excluir', lancamento_id=lancamento.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="acoes">
     <button type="submit" class="perigo">Sim, excluir</button>
     <a href="{{ url_for('lancamentos.listar') }}">Não, voltar</a>

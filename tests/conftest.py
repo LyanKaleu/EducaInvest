@@ -36,6 +36,8 @@ def _criar_app(tmp_path, **config):
         "TESTING": True,
         "SECRET_KEY": "chave-de-teste",
         "DATABASE": str(tmp_path / "teste.db"),
+        # CSRF desligado nos testes de regra; tests/integration/test_seguranca.py liga.
+        "WTF_CSRF_ENABLED": False,
         **config,
     })
 
@@ -108,7 +110,7 @@ def turma(cliente_professor):
     """Cria a turma "2º A" e devolve {"id": ..., "codigo": ...} lidos da página de turmas."""
     criar_turma(cliente_professor)
     html = cliente_professor.get("/professor/turmas").get_data(as_text=True)
-    codigo = re.search(r'<code class="codigo-turma">([A-Z0-9]{6})</code>', html)
+    codigo = re.search(r'<code class="codigo-turma">([A-Z0-9]{6,8})</code>', html)
     turma_id = re.search(r'href="/professor/turmas/(\d+)"', html)
     assert codigo and turma_id, "a página de turmas deve mostrar o código e o link da turma"
     return {"id": int(turma_id.group(1)), "codigo": codigo.group(1)}

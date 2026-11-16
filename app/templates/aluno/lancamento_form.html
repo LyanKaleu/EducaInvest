@@ -16,6 +16,7 @@
 {# novalidate: as mensagens vêm sempre do servidor, iguais em qualquer navegador. #}
 <form method="post" novalidate
       action="{{ url_for('lancamentos.atualizar', lancamento_id=lancamento.id) if editando else url_for('lancamentos.criar') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
   {% set tipo = (form.get('tipo') or '') | lower %}
   <fieldset {{ invalido('tipo', grupo=true) }}>

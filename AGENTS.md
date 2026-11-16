@@ -36,6 +36,24 @@ docs/              especificação do MVP (ESPECIFICACAO.md), prints do README (
 - O painel da turma (HU5) fica na rota `professor.turma`: `turma_service.painel_da_turma` calcula os agregados e a linha por aluno a partir de `XpRepository.resumo_por_aluno` e `MissaoRepository.contar_por_aluno`. "Ativo" = ganhou XP nos últimos `JANELA_FREQUENCIA_DIAS` (7, a confirmar). Nunca mostra reais nem e-mail.
 - O quiz (HU4) usa um banco local `PERGUNTAS` em `quiz_service`, no padrão do `MISSOES`, e só grava as respostas em `quiz_repo`, uma por pergunta. O código da pergunta não muda depois de publicado. O XP do acerto (teto diário de 40) entra no mesmo `with conn:` da resposta, em `routes/quiz.py`.
 
+## Arquitetura (decidida em 16/11/2026)
+Monólito Flask em camadas, com HTML renderizado no servidor. Não troque framework, banco ou camada enquanto um gatilho abaixo não tiver acontecido de fato. "Parece melhor" ou "é mais usado" não é gatilho.
+- **Por quê:** o problema é CRUD com regras de integridade (dinheiro, XP, idempotência) para alunos no celular com rede ruim. Um processo, um deploy e páginas leves resolvem isso com o menor número de partes móveis, e o grupo domina Python.
+- **O que ela garante:** regra de negócio testável sem Flask (contratos do import-linter), todo o SQL isolado em `app/repositories/` e reenvio sem duplicar (N2).
+- **Limites conhecidos:** um processo e um arquivo de banco; estado em memória que vale por processo (limite de login); nenhuma migração de schema; nenhuma entidade escola nem papel de gestor; interação só com recarga de página.
+- **Não entra sem gatilho:** ORM, schemas (pydantic, marshmallow), camada de API, framework de JavaScript, Docker/Gunicorn, Redis/Celery, microsserviços, troca para Django ou FastAPI.
+- **Evolução, nesta ordem:**
+  1. Executor de migrações: scripts SQL numerados com `PRAGMA user_version`, sem dependência nova. Entra antes da primeira alteração de tabela com dados reais.
+  2. PWA com JavaScript só como melhoria progressiva: toda tela continua funcionando sem ele. O PR do PWA troca a regra "sem JavaScript" aqui, no DESIGN.md e na especificação.
+  3. PostgreSQL: os repositórios são reescritos com as mesmas assinaturas, e o estado em memória vai para o banco. SQLAlchemy Core e Alembic são avaliados nesse momento, não antes.
+  4. `app/api/` ao lado de `app/routes/`, chamando os mesmos services, só se um cliente nativo for necessário.
+- **Gatilhos, ou quando a arquitetura atual deixa de servir:**
+  - mais de um processo ou servidor escrevendo: PostgreSQL;
+  - várias escolas ou backup automático obrigatório: PostgreSQL e modelo de escola;
+  - app na App Store, câmera, biometria ou widget: API e cliente nativo;
+  - um domínio com mais de uns 5 arquivos por camada, ou duas pessoas se atrapalhando no mesmo diretório: fatias por domínio;
+  - gargalo medido, não suposto: cache ou fila.
+
 ## Convenções que divergem do padrão
 - Nomes, docstrings, testes e mensagens ao usuário em português.
 - Erro de validação: `ErroValidacao({campo: mensagem})` (app/services/erros.py). A rota renderiza o formulário de novo com status 400 e preserva o que foi digitado.
@@ -43,6 +61,7 @@ docs/              especificação do MVP (ESPECIFICACAO.md), prints do README (
 - Registro de outro usuário responde 404, não 403: não revela que o id existe.
 - Rota nova: Blueprint com `before_request(exigir_perfil(...))`. Rota pública só entra pela lista `ROTAS_PUBLICAS` em tests/integration/test_rotas_protegidas.py.
 - Tabela nova: `criar_tabela()` no repositório e chamada em app/db.py.
+- Formulário POST novo leva `<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">` (Flask-WTF). O meta-teste em tests/integration/test_seguranca.py acusa o que faltar. Nos testes o CSRF fica desligado (`WTF_CSRF_ENABLED=False` em tests/conftest.py).
 - Antes de criar um arquivo, abra o irmão equivalente (ex.: os `lancamento_*`) e siga o padrão dele.
 
 ## Fluxo de trabalho
@@ -84,7 +103,7 @@ Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. Se 
 
 ## Decisões pendentes do grupo
 - Lista de categorias e valor máximo do lançamento (marcados "A confirmar" em app/services/lancamento_service.py).
-- Arquitetura: manter as camadas ou migrar para fatias verticais por funcionalidade.
+- Escola como entidade do produto (várias escolas, papel de gestor). Muda o modelo e o controle de acesso, por isso precisa ser decidida antes de expandir.
 
 ## Invariantes
 Ver INVARIANTES.md. Se a tarefa parece exigir violar um deles, PARE e pergunte.

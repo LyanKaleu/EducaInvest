@@ -58,6 +58,7 @@
           <li>
             {# Sair é POST: um link (GET) não pode encerrar a sessão. #}
             <form method="post" action="{{ url_for('auth.sair') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="link">Sair</button>
             </form>
           </li>

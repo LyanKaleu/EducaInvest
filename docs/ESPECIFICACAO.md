@@ -20,7 +20,7 @@ O EducaInvest é um app web para jovens que estão começando a lidar com dinhei
 | ID | Requisito | Como o MVP atende |
 |---|---|---|
 | RF01 | Cadastro e login de aluno e professor; o aluno entra na turma por um código | Login por e-mail e senha. O aluno só conclui o cadastro com um código de turma válido e com a autorização marcada. O professor se cadastra sem código |
-| RF02 | O professor cria turmas com código de acesso | Código de 6 caracteres sem os que se confundem (0/O, 1/I/L). O nome da turma é único por professor, sem diferenciar maiúsculas |
+| RF02 | O professor cria turmas com código de acesso | Código de 8 caracteres sem os que se confundem (0/O, 1/I/L). O nome da turma é único por professor, sem diferenciar maiúsculas |
 | RF03 | O aluno registra entradas e gastos | Tipo, valor, categoria da lista fixa do mesmo tipo, data não futura e descrição opcional. O saldo é calculado na hora. Tem busca, edição e exclusão |
 | RF04 | O aluno cria metas e acompanha o progresso | Nome, valor-alvo e prazo opcional. Aportes mostram o valor guardado e o percentual. A meta aparece como concluída quando o guardado chega ao alvo |
 | RF05 | Missões geradas a partir dos registros | Trilha de missões com critério verificado pelo app. Cada missão é concluída uma vez só e libera a próxima |

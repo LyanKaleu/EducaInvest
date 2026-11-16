@@ -34,6 +34,7 @@
     <p class="dica">Você já ganhou os {{ teto }} XP do quiz hoje. Pode responder para aprender, mas esta pergunta não vai render XP. Amanhã o XP volta.</p>
   {% endif %}
   <form method="post" action="{{ url_for('quiz.responder', codigo=pergunta.codigo) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <fieldset class="alternativas" {{ invalido('alternativa', grupo=true) }}>
       <legend>Escolha uma alternativa</legend>
       {% for letra, texto in pergunta.alternativas.items() %}

@@ -8,7 +8,9 @@ from app.services.xp_service import nivel
 
 # Sem 0/O e 1/I/L, que se confundem ao copiar do quadro ou ditar em sala.
 ALFABETO_CODIGO = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
-TAMANHO_CODIGO = 6
+# 8 caracteres: 31⁸ ≈ 852 bilhões de códigos, inviável de achar por tentativa e erro.
+# Turmas antigas, de 6, continuam valendo (o cadastro e a tabela aceitam 6 a 8).
+TAMANHO_CODIGO = 8
 NOME_MAX = 60
 
 # Frequência no painel do professor: aluno ativo é quem ganhou XP (a mesma regra
