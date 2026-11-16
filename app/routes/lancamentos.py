@@ -83,7 +83,10 @@ def _render_form(form, erros=None, lancamento=None, status=200):
 def listar():
     busca = request.args.get("busca", "").strip()
     lancamentos = _repo().listar(_aluno_id(), busca or None)
-    return render_template("aluno/lancamentos.html", lancamentos=lancamentos, busca=busca)
+    # Os totais do topo valem para todos os lançamentos, com ou sem busca.
+    somas = _repo().somar_por_tipo(_aluno_id())
+    return render_template("aluno/lancamentos.html", lancamentos=lancamentos, busca=busca,
+                           entradas=somas["ENTRADA"], gastos=somas["SAIDA"])
 
 
 # ---------------------------------------------------------------------------

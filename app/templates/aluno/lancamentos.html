@@ -1,19 +1,34 @@
 {% extends "base.html" %}
-{# Lista de lançamentos do aluno, com busca. #}
+{# Lista de lançamentos do aluno (protótipo do pitch): totais, busca e cartões que abrem a edição. #}
 
 {% block titulo %}Lançamentos{% endblock %}
 
 {% block conteudo %}
 <div class="cabecalho-pagina">
   <h1>Lançamentos</h1>
-  <a class="botao" href="{{ url_for('lancamentos.novo') }}">+ Novo lançamento</a>
+  <a class="botao" href="{{ url_for('lancamentos.novo') }}">+ Novo</a>
 </div>
 
+<div class="painel-indicadores">
+  <section class="indicador" aria-labelledby="titulo-entradas">
+    <h2 id="titulo-entradas" class="rotulo">Entradas</h2>
+    <strong id="total-entradas" class="positivo">{{ entradas | reais }}</strong>
+  </section>
+  <section class="indicador" aria-labelledby="titulo-gastos">
+    <h2 id="titulo-gastos" class="rotulo">Gastos</h2>
+    <strong id="total-gastos" class="negativo">{{ gastos | reais }}</strong>
+  </section>
+</div>
+
+{# Sem JavaScript: o Enter envia a busca. O botão fica para o leitor de tela. #}
 <form class="busca" method="get" action="{{ url_for('lancamentos.listar') }}" role="search">
-  <label for="busca">Buscar por categoria ou descrição</label>
-  <div class="linha">
-    <input type="search" id="busca" name="busca" value="{{ busca }}" maxlength="60">
-    <button type="submit">Buscar</button>
+  <label for="busca" class="oculto">Buscar por categoria ou descrição</label>
+  <div class="campo-busca">
+    <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+    <input type="search" id="busca" name="busca" value="{{ busca }}" maxlength="60"
+           placeholder="Buscar por categoria ou descrição">
+    <button type="submit" class="oculto">Buscar</button>
   </div>
   {% if busca %}
     <a href="{{ url_for('lancamentos.listar') }}">Limpar busca</a>
@@ -21,38 +36,33 @@
 </form>
 
 {% if lancamentos %}
+  <h2 class="rotulo titulo-secao">Recentes · toque para editar</h2>
   <ul class="lancamentos">
     {% for lancamento in lancamentos %}
       {% set entrada = lancamento.tipo == 'ENTRADA' %}
-      <li class="lancamento {{ 'entrada' if entrada else 'saida' }}">
-        <div class="lancamento-info">
-          {# O tipo aparece em texto, não só na cor, para quem não distingue cores. #}
+      <li>
+        {# O cartão inteiro abre a edição; excluir fica lá dentro, com confirmação. #}
+        <a class="lancamento {{ 'entrada' if entrada else 'saida' }}"
+           href="{{ url_for('lancamentos.editar', lancamento_id=lancamento.id) }}">
+          <span class="lancamento-info">
+            <strong>{{ lancamento.categoria }}</strong>
+            {# O tipo aparece em texto, não só na cor, para quem não distingue cores. #}
+            <span class="dica"><span class="oculto">{{ 'Entrada' if entrada else 'Gasto' }} · </span><time datetime="{{ lancamento.data_lancamento }}">{{ lancamento.data_lancamento | data_br }}</time>{% if lancamento.descricao %} · <span class="descricao">{{ lancamento.descricao }}</span>{% endif %}</span>
+          </span>
           <strong class="valor">{{ '+' if entrada else '−' }} {{ lancamento.valor_centavos | reais }}</strong>
-          <span>{{ 'Entrada' if entrada else 'Gasto' }} · {{ lancamento.categoria }}</span>
-          <span><time datetime="{{ lancamento.data_lancamento }}">{{ lancamento.data_lancamento | data_br }}</time></span>
-          {% if lancamento.descricao %}<span class="descricao">{{ lancamento.descricao }}</span>{% endif %}
-        </div>
-        <div class="acoes">
-          {% set resumo = (lancamento.valor_centavos | reais) ~ ' em ' ~ lancamento.categoria %}
-          <a href="{{ url_for('lancamentos.editar', lancamento_id=lancamento.id) }}">
-            Editar<span class="oculto"> lançamento de {{ resumo }}</span>
-          </a>
-          <a href="{{ url_for('lancamentos.confirmar_exclusao', lancamento_id=lancamento.id) }}">
-            Excluir<span class="oculto"> lançamento de {{ resumo }}</span>
-          </a>
-        </div>
+        </a>
       </li>
     {% endfor %}
   </ul>
 {% elif busca %}
   <div class="vazio">
     <strong>Nada encontrado para “{{ busca }}”.</strong>
-    <p>Tente outra palavra ou a categoria.</p>
+    <p class="dica">Tente outra palavra, como “lanche” ou “Mesada”.</p>
   </div>
 {% else %}
   <div class="vazio">
     <strong>Você ainda não registrou nada.</strong>
-    <p>Que tal começar pelo gasto de hoje?</p>
+    <p class="dica">Registre seu primeiro gasto e ganhe 10 XP.</p>
     <a class="botao" href="{{ url_for('lancamentos.novo') }}">Registrar gasto</a>
   </div>
 {% endif %}
