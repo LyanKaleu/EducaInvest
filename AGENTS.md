@@ -43,6 +43,7 @@ docs/              especificação do MVP (ESPECIFICACAO.md), prints do README (
 - Registro de outro usuário responde 404, não 403: não revela que o id existe.
 - Rota nova: Blueprint com `before_request(exigir_perfil(...))`. Rota pública só entra pela lista `ROTAS_PUBLICAS` em tests/integration/test_rotas_protegidas.py.
 - Tabela nova: `criar_tabela()` no repositório e chamada em app/db.py.
+- Formulário POST novo leva `<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">` (Flask-WTF). O meta-teste em tests/integration/test_seguranca.py acusa o que faltar. Nos testes o CSRF fica desligado (`WTF_CSRF_ENABLED=False` em tests/conftest.py).
 - Antes de criar um arquivo, abra o irmão equivalente (ex.: os `lancamento_*`) e siga o padrão dele.
 
 ## Fluxo de trabalho

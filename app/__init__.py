@@ -1,8 +1,10 @@
 """Fábrica da aplicação: cria o app Flask, configura, liga o banco e registra as rotas."""
 import os
 import secrets
+from datetime import timedelta
 
-from flask import Flask, redirect, session, url_for
+from flask import Flask, flash, redirect, session, url_for
+from flask_wtf.csrf import CSRFError, CSRFProtect
 
 from app import db
 from app.filtros import registrar_filtros
@@ -29,9 +31,16 @@ def create_app(config: dict | None = None) -> Flask:
         DATABASE=os.path.join(app.instance_path, "educainvest.db"),
         # Cookie de sessão não é enviado em POST vindo de outro site (reduz CSRF).
         SESSION_COOKIE_SAMESITE="Lax",
+        # O Flask recusa cookie de sessão gravado há mais de 12 h (o padrão era 31 dias):
+        # um cookie roubado perde a validade sozinho.
+        PERMANENT_SESSION_LIFETIME=timedelta(hours=12),
+        # O token CSRF vive o mesmo tempo da sessão: formulário aberto há horas não quebra.
+        WTF_CSRF_TIME_LIMIT=None,
     )
     if config:
         app.config.update(config)
+    # Fora do servidor de desenvolvimento (http://127.0.0.1), o cookie só viaja por HTTPS.
+    app.config["SESSION_COOKIE_SECURE"] = not app.config["DEBUG"]
 
     if not app.config["SECRET_KEY"]:
         if not (app.config.get("TESTING") or app.config.get("DEBUG")):
@@ -43,6 +52,8 @@ def create_app(config: dict | None = None) -> Flask:
         app.config["SECRET_KEY"] = secrets.token_hex(32)
 
     os.makedirs(app.instance_path, exist_ok=True)
+    # Todo POST exige o csrf_token do formulário (o SameSite=Lax não barra o CSRF de login).
+    CSRFProtect(app)
     db.init_app(app)
     registrar_filtros(app)
     app.register_blueprint(auth_bp)
@@ -58,5 +69,20 @@ def create_app(config: dict | None = None) -> Flask:
         if "usuario_id" not in session:
             return redirect(url_for("auth.login"))
         return redirect(destino_do_perfil(session["perfil"]))
+
+    @app.after_request
+    def headers_de_seguranca(resposta):
+        # Ninguém carrega o app dentro de outro site (clickjacking), o navegador não
+        # adivinha o tipo do arquivo e só roda o que vem do próprio app (não há script inline).
+        resposta.headers["X-Frame-Options"] = "DENY"
+        resposta.headers["X-Content-Type-Options"] = "nosniff"
+        resposta.headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none'"
+        return resposta
+
+    @app.errorhandler(CSRFError)
+    def token_invalido(_erro):
+        # Token ausente ou de outra sessão (ex.: a sessão expirou com a página aberta).
+        flash("A página expirou. Envie o formulário de novo.", "erro")
+        return redirect(url_for("inicio"))
 
     return app

@@ -34,6 +34,7 @@
           {% set form_aporte = recusado.get('form', {}) %}
           {% set mensagem = erros_aporte.get('valor') or erros_aporte.get('chave_idempotencia') %}
           <form class="aporte" method="post" novalidate action="{{ url_for('metas.aportar', meta_id=meta.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <label for="valor-{{ meta.id }}">Guardar quanto? (R$)</label>
             <div class="linha">
               <input type="text" id="valor-{{ meta.id }}" name="valor" inputmode="decimal"

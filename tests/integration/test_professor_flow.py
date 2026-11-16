@@ -11,9 +11,9 @@ def test_criar_turma_valida_redireciona_para_turmas(cliente_professor):
     assert resposta.headers["Location"].endswith("/professor/turmas")
 
 
-def test_turma_criada_aparece_com_codigo_de_6_caracteres(turma):
+def test_turma_criada_aparece_com_codigo_de_8_caracteres(turma):
     # A fixture `turma` lê o código e o link da turma na página de turmas.
-    assert len(turma["codigo"]) == 6
+    assert len(turma["codigo"]) == 8
 
 
 def test_turma_sem_nome_retorna_400(cliente_professor):
@@ -84,7 +84,7 @@ def test_turma_de_outro_professor_retorna_404(app, turma):
 def test_aluno_de_outra_turma_nao_aparece(app, cliente_professor, turma):
     criar_turma(cliente_professor, nome="3º B")
     html = cliente_professor.get("/professor/turmas").get_data(as_text=True)
-    todos = re.findall(r'<code class="codigo-turma">([A-Z0-9]{6})</code>', html)
+    todos = re.findall(r'<code class="codigo-turma">([A-Z0-9]{6,8})</code>', html)
     codigo_3b = next(codigo for codigo in todos if codigo != turma["codigo"])
     cadastrar_aluno(app.test_client(), codigo_3b, email="bia@escola.br", apelido="Beatriz")
 

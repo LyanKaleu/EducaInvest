@@ -31,8 +31,8 @@ def test_nome_da_turma_com_61_caracteres_e_recusado():
     assert erros_turma("a" * 61) == {"nome": "O nome pode ter no máximo 60 caracteres."}
 
 
-def test_codigo_da_turma_tem_6_caracteres():
-    assert len(turma_service.gerar_codigo_turma()) == 6
+def test_codigo_da_turma_tem_8_caracteres():
+    assert len(turma_service.gerar_codigo_turma()) == 8
 
 
 def test_codigo_da_turma_usa_so_o_alfabeto_sem_caracteres_ambiguos():

@@ -3,7 +3,7 @@
 Ponto de retomada entre sessões e computadores. Atualize no PR que muda a fase ou o próximo passo.
 Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
 
-**Atualizado em:** 11/11/2026 · **Branch de integração:** `develop` · **Vitrine:** `main`
+**Atualizado em:** 16/11/2026 · **Branch de integração:** `develop` · **Vitrine:** `main`
 
 ## Pronto
 O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACAO.md](docs/ESPECIFICACAO.md).
@@ -24,7 +24,8 @@ O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACA
 | HU4: quiz com 12 perguntas, uma resposta por pergunta, 10 XP por acerto e teto de 40 por dia | #19 |
 | Arrumação para a `main`: README curto com prints, especificação v2 em Markdown, PDF v1 fora do repositório | #20 |
 | MVP completo na `main` | #21 |
-| Deploy interno de teste, só para o grupo (onde está e como atualizar: notas privadas, fora do Git) | (este PR) |
+| Deploy interno de teste, só para o grupo (onde está e como atualizar: notas privadas, fora do Git) | #22 |
+| Correções da auditoria de segurança: limite de login por e-mail, CSRF (Flask-WTF), código de turma com 8 caracteres, cookie `Secure`, headers, sessão de 12 h e aporte sem corrida | (este PR) |
 
 ## Próximo passo
 1. Ligar CodeQL e Dependabot security updates (a `main` já recebeu o merge; veja "Setup do GitHub" abaixo).
@@ -45,6 +46,7 @@ Refatoração e arquitetura (camadas ou fatias) ficam para depois do MVP, com o 
 - #6 professor exclui turma vazia (bloqueada com alunos; liga `PRAGMA foreign_keys` junto)
 - #7 busca/filtro na lista de turmas
 - #14 id gigante na URL responde 500 em vez de 404 (metas e lançamentos)
+- Limite de login vale por processo e zera ao reiniciar (`limite_service.py`). Se o deploy passar a ter vários workers, mover a contagem para o banco.
 - Aceitar aporte acima da meta junto com "desfazer aporte" (hoje o aporte para no que falta, porque não há como desfazer)
 - **Quiz do dia** com perguntas de cálculo parametrizadas (números novos por aluno e por dia, resposta calculada pelo código) e **gerador de perguntas com IA** (comando que pede um lote em JSON com schema, valida e grava no banco). O texto das 12 perguntas atuais precisa de revisão.
 
