@@ -4,9 +4,10 @@
 {% block titulo %}Metas{% endblock %}
 
 {% block conteudo %}
-<h1>Metas</h1>
-
-<p><a class="botao" href="{{ url_for('metas.nova') }}">+ Nova meta</a></p>
+<div class="cabecalho-pagina">
+  <h1>Metas</h1>
+  <a class="botao" href="{{ url_for('metas.nova') }}">+ Nova meta</a>
+</div>
 
 {% if metas %}
   <ul class="metas">
@@ -51,6 +52,10 @@
     {% endfor %}
   </ul>
 {% else %}
-  <p>Você ainda não tem metas. Que tal criar a primeira?</p>
+  <div class="vazio">
+    <strong>Você ainda não tem metas.</strong>
+    <p>Junte dinheiro para algo que você quer. Que tal criar a primeira?</p>
+    <a class="botao" href="{{ url_for('metas.nova') }}">+ Nova meta</a>
+  </div>
 {% endif %}
 {% endblock %}
