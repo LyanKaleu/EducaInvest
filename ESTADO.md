@@ -25,15 +25,17 @@ O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACA
 | Arrumação para a `main`: README curto com prints, especificação v2 em Markdown, PDF v1 fora do repositório | #20 |
 | MVP completo na `main` | #21 |
 | Deploy interno de teste, só para o grupo (onde está e como atualizar: notas privadas, fora do Git) | #22 |
-| Correções da auditoria de segurança: limite de login por e-mail, CSRF (Flask-WTF), código de turma com 8 caracteres, cookie `Secure`, headers, sessão de 12 h e aporte sem corrida | (este PR) |
+| Correções da auditoria de segurança: limite de login por e-mail, CSRF (Flask-WTF), código de turma com 8 caracteres, cookie `Secure`, headers, sessão de 12 h e aporte sem corrida | #23 |
 
 ## Próximo passo
 1. Ligar CodeQL e Dependabot security updates (a `main` já recebeu o merge; veja "Setup do GitHub" abaixo).
 2. Release `v1.0.0` na `main`. O deploy é interno: nada sobre ele entra no README nem nas notas da release.
+3. Executor de migrações (scripts SQL numerados com `PRAGMA user_version`), antes da primeira alteração de tabela com dados no deploy.
+4. Redesign e PWA, partindo da v2 do canvas e do design system: tokens como variáveis CSS, navegação inferior, manifest e service worker, com JavaScript só como melhoria progressiva.
 
 Fly e Render foram descartados: a Fly exige cartão e o Render grátis apaga o SQLite quando o app dorme. Container (`gunicorn`, `Dockerfile`) só volta se o banco sair do SQLite local.
 
-Refatoração e arquitetura (camadas ou fatias) ficam para depois do MVP, com o feedback de uso.
+Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem ORM, PWA sobre o Jinja e PostgreSQL só quando um gatilho acontecer. O porquê, os limites e os gatilhos ficam no AGENTS.md, seção "Arquitetura".
 
 ## Setup do GitHub (depois do merge na `main`)
 - **CodeQL** e **Dependabot security updates:** ligar depois do merge na `main`, porque os dois olham a branch padrão.
@@ -48,12 +50,16 @@ Refatoração e arquitetura (camadas ou fatias) ficam para depois do MVP, com o 
 - #14 id gigante na URL responde 500 em vez de 404 (metas e lançamentos)
 - Limite de login vale por processo e zera ao reiniciar (`limite_service.py`). Se o deploy passar a ter vários workers, mover a contagem para o banco.
 - Aceitar aporte acima da meta junto com "desfazer aporte" (hoje o aporte para no que falta, porque não há como desfazer)
+- **Universitários:** usar o app sem entrar numa turma, já que nem sempre há um professor acompanhando. A faixa de 16 a 24 anos já cobre esse público.
+- **Ensino fundamental:** produto à parte, mais lúdico, com outra linguagem. Abaixo de 12 anos a LGPD (art. 14) exige o consentimento específico de um dos pais ou responsável, que o RN-05 de hoje não cobre.
+- **Mascote** próprio para a marca e a divulgação, junto com a retomada do design visual depois do MVP.
 - **Quiz do dia** com perguntas de cálculo parametrizadas (números novos por aluno e por dia, resposta calculada pelo código) e **gerador de perguntas com IA** (comando que pede um lote em JSON com schema, valida e grava no banco). O texto das 12 perguntas atuais precisa de revisão.
 
 ## Decisões pendentes
 - Lista de categorias e valor máximo do lançamento ("A confirmar" em `lancamento_service.py`).
 - Valores de XP, teto diário e níveis. Quiz: 10 XP por acerto e teto de 40 por dia (`quiz_service.py`).
-- Manter as camadas ou migrar para fatias verticais.
+- Escola como entidade do produto (várias escolas, papel de gestor), antes de qualquer expansão.
+- Redesign: tema escuro entra no design system? A faixa lateral dos cartões continua ou vira chip de status?
 - "Dia ativo" e a janela de 7 dias do painel do professor (`JANELA_FREQUENCIA_DIAS` em `turma_service.py`).
 
 ## Em andamento
