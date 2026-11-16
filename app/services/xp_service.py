@@ -33,8 +33,10 @@ def nivel(xp_total: int) -> dict:
         xp_total: soma de todo o XP do aluno.
 
     Returns:
-        dict: `nivel` (int), `nome` (str) e `falta` (XP que falta para o
-        próximo nível, ou None se já está no último).
+        dict: `nivel` (int), `nome` (str), `falta` (XP que falta para o
+        próximo nível, ou None se já está no último) e `percentual` (int de
+        0 a 100: quanto do nível atual já foi feito, arredondado para baixo;
+        100 no último nível).
     """
     atual, proximo = NIVEIS[0], None
     for faixa in NIVEIS:
@@ -47,6 +49,7 @@ def nivel(xp_total: int) -> dict:
         "nivel": atual[0],
         "nome": atual[1],
         "falta": proximo[2] - xp_total if proximo else None,
+        "percentual": (xp_total - atual[2]) * 100 // (proximo[2] - atual[2]) if proximo else 100,
     }
 
 

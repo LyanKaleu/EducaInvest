@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{# Tela inicial do aluno: saldo, atalho para registrar, sequência, XP/nível, missão e meta em andamento. #}
+{# Tela inicial do aluno (protótipo do pitch): saldo, sequência, nível, missão e meta em andamento. #}
 
 {% block titulo %}Início{% endblock %}
 
@@ -11,13 +11,17 @@
   <h2 id="titulo-saldo" class="rotulo">Seu saldo</h2>
   <strong id="saldo" class="saldo">{{ saldo | reais }}</strong>
   <dl class="saldo-detalhe">
-    <div><dt>Entradas</dt><dd>{{ entradas | reais }}</dd></div>
-    <div><dt>Gastos</dt><dd>{{ gastos | reais }}</dd></div>
+    <div><dt>Entradas</dt><dd>+ {{ entradas | reais }}</dd></div>
+    <div><dt>Gastos</dt><dd>− {{ gastos | reais }}</dd></div>
   </dl>
   {% if saldo < 0 %}
     <p class="saldo-aviso">Você gastou mais do que entrou.</p>
   {% endif %}
-  <a class="botao botao-claro botao-largo" href="{{ url_for('lancamentos.novo') }}">Registrar gasto</a>
+  <a class="botao botao-claro botao-largo" href="{{ url_for('lancamentos.novo') }}">
+    <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    Registrar gasto
+  </a>
 </section>
 
 <div class="painel-indicadores">
@@ -39,49 +43,60 @@
   <section class="indicador" aria-labelledby="titulo-nivel">
     <h2 id="titulo-nivel" class="rotulo">Nível {{ nivel.nivel }} · {{ nivel.nome }}</h2>
     <strong id="xp-total">{{ xp_total }} XP</strong>
+    <progress class="fina" max="100" value="{{ nivel.percentual }}" aria-labelledby="titulo-nivel">{{ nivel.percentual }}%</progress>
     <span class="dica">
-      {%- if nivel.falta is not none %}Faltam {{ nivel.falta }} XP para o próximo.
+      {%- if nivel.falta is not none %}Faltam {{ nivel.falta }} XP para o nível {{ nivel.nivel + 1 }}.
       {%- else %}Nível mais alto. Parabéns!{% endif -%}
     </span>
   </section>
 </div>
 
-<section class="cartao missao" aria-labelledby="titulo-missao"{% if missao %} data-status="ATIVA"{% endif %}>
+<section class="cartao missao-inicio" aria-labelledby="titulo-missao">
   <div class="cartao-topo">
     <h2 id="titulo-missao" class="rotulo">Missão em andamento</h2>
     {% if missao %}<span class="selo-xp">+{{ missao.xp }} XP</span>{% endif %}
   </div>
   {% if missao %}
-    <label id="missao-progresso" for="progresso-painel">{{ missao.titulo }}: {{ missao.atual }} de {{ missao.alvo }}</label>
-    <progress id="progresso-painel" max="{{ missao.alvo }}" value="{{ missao.atual }}">
+    <strong class="cartao-titulo">{{ missao.titulo }}</strong>
+    <span>{{ missao.descricao }}</span>
+    {# O rótulo da barra diz a missão e o progresso para o leitor de tela. #}
+    <label id="missao-progresso" class="oculto" for="progresso-painel">{{ missao.titulo }}: {{ missao.atual }} de {{ missao.alvo }}</label>
+    <progress id="progresso-painel" class="azul" max="{{ missao.alvo }}" value="{{ missao.atual }}">
       {{ missao.atual }} de {{ missao.alvo }}
     </progress>
-    <span class="dica">{{ missao.descricao }}</span>
+    <div class="cartao-rodape">
+      <span class="numero">{{ missao.atual }} de {{ missao.alvo }}</span>
+      <a class="link-acao" href="{{ url_for('missoes.listar') }}">Ver missões</a>
+    </div>
   {% else %}
     <p>Você concluiu todas as missões. Novas missões chegam em breve!</p>
+    <a class="link-acao" href="{{ url_for('missoes.listar') }}">Ver missões</a>
   {% endif %}
-  <a class="link-acao" href="{{ url_for('missoes.listar') }}">Ver todas as missões</a>
 </section>
 
-<section class="cartao meta" aria-labelledby="titulo-meta">
-  <h2 id="titulo-meta" class="rotulo">Meta em andamento</h2>
-  {% if meta %}
-    <label id="meta-progresso" for="progresso-meta">{{ meta.nome }}: {{ meta.guardado_centavos | reais }} de {{ meta.valor_alvo_centavos | reais }} · {{ meta.percentual }}%</label>
+{% if meta %}
+  <section class="cartao" aria-labelledby="titulo-meta">
+    <h2 id="titulo-meta" class="rotulo">Meta em andamento</h2>
+    <div class="cartao-topo base">
+      <strong class="cartao-titulo">{{ meta.nome }}</strong>
+      <strong class="percentual">{{ meta.percentual }}%</strong>
+    </div>
+    <label id="meta-progresso" class="oculto" for="progresso-meta">{{ meta.nome }}: {{ meta.guardado_centavos | reais }} de {{ meta.valor_alvo_centavos | reais }} · {{ meta.percentual }}%</label>
     <progress id="progresso-meta" max="100" value="{{ meta.percentual }}">{{ meta.percentual }}%</progress>
-    <span class="dica">Faltam {{ (meta.valor_alvo_centavos - meta.guardado_centavos) | reais }}</span>
-    <a class="link-acao" href="{{ url_for('metas.listar') }}">Guardar dinheiro na meta</a>
-  {% elif tem_metas %}
-    <div class="vazio">
-      <strong>Todas as metas concluídas</strong>
-      <p>Parabéns! Que tal juntar para a próxima?</p>
-      <a class="botao botao-contorno" href="{{ url_for('metas.nova') }}">Criar nova meta</a>
-    </div>
-  {% else %}
-    <div class="vazio">
-      <strong>Nenhuma meta ainda</strong>
-      <p>Junte dinheiro para algo que você quer.</p>
-      <a class="botao botao-contorno" href="{{ url_for('metas.nova') }}">Crie sua primeira meta</a>
-    </div>
-  {% endif %}
-</section>
+    <span class="numero">{{ meta.guardado_centavos | reais }} de {{ meta.valor_alvo_centavos | reais }} · faltam {{ (meta.valor_alvo_centavos - meta.guardado_centavos) | reais }}</span>
+    <a class="link-acao" href="{{ url_for('metas.listar') }}">Ver todas as metas</a>
+  </section>
+{% elif tem_metas %}
+  <div class="vazio">
+    <strong>Todas as metas concluídas</strong>
+    <p class="dica">Parabéns! Que tal juntar para a próxima?</p>
+    <a class="botao" href="{{ url_for('metas.nova') }}">+ Nova meta</a>
+  </div>
+{% else %}
+  <div class="vazio">
+    <strong>Crie sua primeira meta</strong>
+    <p class="dica">Guarde dinheiro para algo que você quer.</p>
+    <a class="botao" href="{{ url_for('metas.nova') }}">+ Nova meta</a>
+  </div>
+{% endif %}
 {% endblock %}

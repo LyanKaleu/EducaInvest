@@ -95,3 +95,23 @@ def test_ultimos_dias_marca_cada_dia_da_janela_ate_hoje(dias, esperado):
     dias_ativos = {date(2026, 11, dia) for dia in dias}
 
     assert xp_service.ultimos_dias(dias_ativos, HOJE) == esperado
+
+
+# ---------------------------------------------------------------------------
+# Progresso dentro do nível (barra do cartão de nível)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize(
+    ("xp_total", "esperado"),
+    [
+        (0, 0),       # começo do Iniciante (0 a 100)
+        (70, 70),     # 70 de 100
+        (100, 0),     # acabou de virar Aprendiz (100 a 300)
+        (250, 75),    # 150 de 200
+        (299, 99),    # arredonda para baixo: só 100 no nível seguinte
+        (300, 100),   # Organizado é o último: barra cheia
+        (900, 100),
+    ],
+)
+def test_percentual_mostra_o_progresso_dentro_do_nivel(xp_total, esperado):
+    assert xp_service.nivel(xp_total)["percentual"] == esperado

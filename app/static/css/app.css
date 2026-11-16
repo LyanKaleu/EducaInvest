@@ -66,6 +66,8 @@ main:focus { outline: none; }
 .menu-topo ul { display: flex; flex-wrap: wrap; gap: 0 1rem; margin: 0; padding: 0; list-style: none; }
 .menu-topo a { display: inline-flex; align-items: center; min-height: 44px; }
 .menu-topo [aria-current="page"] { font-weight: 700; text-decoration-thickness: 3px; }
+/* Atalho com ícone (Quiz do aluno): sem sublinhado, o ícone ajuda a achar. */
+.menu-topo .com-icone { gap: .375rem; text-decoration: none; font-weight: 600; }
 /* Botão "Sair" com cara de link (é um formulário POST). */
 .sair { margin: 0; }
 button.link {
@@ -82,7 +84,7 @@ button.link:hover { color: var(--texto); }
   padding: .25rem max(.25rem, env(safe-area-inset-right, 0px)) calc(.25rem + env(safe-area-inset-bottom, 0px)) max(.25rem, env(safe-area-inset-left, 0px));
 }
 .menu-aluno ul {
-  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
   max-width: 40rem; margin: 0 auto; padding: 0; list-style: none;
 }
 .menu-aluno a {
@@ -124,7 +126,8 @@ p { margin: 0 0 1rem; }
 /* Rótulo de seção: pequeno, em maiúsculas. */
 .rotulo { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--texto-suave); margin: 0; }
 
-/* Cartão base: branco, borda fina, sem faixa colorida. O status vai em texto. */
+/* Cartão base: branco e borda fina. Itens de lista (lançamento, missão, pergunta, turma)
+   ganham a faixa de 6px à esquerda com o tipo ou o status; o status também vai em texto. */
 .cartao, .lancamento, .missao, .meta, .pergunta, .resultado, .indicador, .xp {
   background: var(--fundo); border: 1px solid var(--divisoria); border-radius: var(--raio);
 }
@@ -134,6 +137,11 @@ p { margin: 0 0 1rem; }
 }
 .cartao > p:last-child { margin-bottom: 0; }
 .cartao-topo { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.cartao-topo.base { align-items: baseline; }
+.cartao-titulo { font-size: 1.1rem; overflow-wrap: anywhere; }
+.cartao-rodape { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.percentual { font-size: 1.1rem; color: var(--primaria); font-variant-numeric: tabular-nums; }
+.numero { font-variant-numeric: tabular-nums; }
 .link-acao { display: inline-flex; align-items: center; min-height: 44px; align-self: flex-start; }
 
 /* Selo de XP: "+20 XP". */
@@ -146,18 +154,19 @@ p { margin: 0 0 1rem; }
 .vazio {
   display: flex; flex-direction: column; align-items: center; gap: .5rem;
   padding: 1.5rem 1rem; text-align: center;
-  background: var(--fundo); border: 1px solid var(--divisoria); border-radius: var(--raio);
+  background: var(--fundo); border: 1px dashed var(--borda); border-radius: var(--raio);
   margin-bottom: .75rem;
 }
 .cartao .vazio { border: 0; padding: .5rem 0 0; margin: 0; }
 .vazio strong { font-size: 1.1rem; }
 .vazio p { margin: 0; }
+.vazio .botao { margin-top: .25rem; }
 
 /* ---------- Avisos (flash) e erros ---------- */
 
-.aviso { padding: .75rem 1rem; border-radius: var(--raio); border: 1px solid; }
-.aviso-sucesso { background: var(--sucesso-fundo); border-color: #b9dcc3; }
-.aviso-erro { background: var(--erro-fundo); border-color: #ecc0bd; }
+.aviso { padding: .75rem 1rem; border-radius: var(--raio); border-left: 6px solid; }
+.aviso-sucesso { background: var(--sucesso-fundo); border-color: var(--primaria); }
+.aviso-erro { background: var(--erro-fundo); border-color: var(--perigo); }
 .erro-campo { color: var(--perigo); font-weight: 600; margin: .25rem 0 0; }
 [aria-invalid="true"] { border-color: var(--perigo) !important; border-width: 2px !important; }
 
@@ -213,10 +222,11 @@ progress {
 progress::-webkit-progress-bar { background: var(--suave); border-radius: 999px; }
 progress::-webkit-progress-value { background: var(--primaria); border-radius: 999px; }
 progress::-moz-progress-bar { background: var(--primaria); border-radius: 999px; }
+progress.fina { height: .625rem; }
 /* Missão em andamento: azul, para não confundir com dinheiro guardado. */
-.missao[data-status="ATIVA"] progress { color: var(--foco); }
-.missao[data-status="ATIVA"] progress::-webkit-progress-value { background: var(--foco); }
-.missao[data-status="ATIVA"] progress::-moz-progress-bar { background: var(--foco); }
+progress.azul, .missao[data-status="ATIVA"] progress { color: var(--foco); }
+progress.azul::-webkit-progress-value, .missao[data-status="ATIVA"] progress::-webkit-progress-value { background: var(--foco); }
+progress.azul::-moz-progress-bar, .missao[data-status="ATIVA"] progress::-moz-progress-bar { background: var(--foco); }
 
 /* ---------- Lista de lançamentos ---------- */
 
