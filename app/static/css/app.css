@@ -265,6 +265,12 @@ progress::-moz-progress-bar { background: var(--primaria); border-radius: 999px;
 }
 .meta label { font-weight: 400; margin: .25rem 0 0; }
 .aporte { padding-top: .75rem; border-top: 1px solid var(--divisoria); }
+/* Atalhos de aporte: até três botões de contorno lado a lado. */
+.atalhos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; padding-top: .75rem; border-top: 1px solid var(--divisoria); }
+.atalhos-rotulo { grid-column: 1 / -1; font-weight: 600; }
+.atalho { margin: 0; }
+.atalho button { width: 100%; }
+.atalhos + .aporte { border-top: 0; padding-top: 0; }
 .aporte label { font-weight: 600; }
 .aporte .linha { display: flex; gap: .5rem; }
 .aporte .linha input { flex: 1; min-width: 0; }

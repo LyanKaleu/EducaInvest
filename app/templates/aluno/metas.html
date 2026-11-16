@@ -30,6 +30,24 @@
       {% set erros_aporte = recusado.get('erros', {}) %}
       {% set form_aporte = recusado.get('form', {}) %}
       {% set mensagem = erros_aporte.get('valor') or erros_aporte.get('chave_idempotencia') %}
+      {% set falta = meta.valor_alvo_centavos - meta.guardado_centavos %}
+      {% set cabem = [5, 10, 20] | select('le', falta // 100) | list %}
+      {% if cabem %}
+        {# Um formulário por atalho, cada um com a sua chave: dois cliques em atalhos
+           diferentes gravam os dois, e o clique duplo no mesmo grava uma vez só (N2).
+           Só aparece o atalho que cabe no que falta. #}
+        <div class="atalhos" role="group" aria-labelledby="atalhos-{{ meta.id }}">
+          <span id="atalhos-{{ meta.id }}" class="atalhos-rotulo">Guardar agora</span>
+          {% for reais_inteiros in cabem %}
+            <form class="atalho" method="post" action="{{ url_for('metas.aportar', meta_id=meta.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="valor" value="{{ reais_inteiros }},00">
+              <input type="hidden" name="chave_idempotencia" value="{{ nova_chave() }}">
+              <button type="submit" class="botao-contorno">R$ {{ reais_inteiros }}<span class="oculto"> na meta {{ meta.nome }}</span></button>
+            </form>
+          {% endfor %}
+        </div>
+      {% endif %}
       <form class="aporte" method="post" novalidate action="{{ url_for('metas.aportar', meta_id=meta.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="valor-{{ meta.id }}">Guardar quanto? (R$)</label>
