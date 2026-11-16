@@ -1,8 +1,11 @@
 """Testes das rotas de metas e aportes (HU2) com banco SQLite temporário (tmp_path)."""
 import re
+import sqlite3
 import uuid
 
 import pytest
+
+from app.repositories.meta_repo import MetaRepository
 
 
 def criar_meta(cliente, nome="Fone", alvo="200,00", prazo="", chave=None):
@@ -203,3 +206,53 @@ def test_reenvio_do_aporte_com_a_chave_em_maiusculas_responde_como_sucesso(clien
 
     assert resposta.status_code == 302
     assert "R$ 200,00 de R$ 200,00 · 100%" in lista(cliente)
+
+
+# ---------------------------------------------------------------------------
+# Corrida: outro aporte é gravado entre a conferência da rota e o INSERT (auditoria, achado 7)
+# ---------------------------------------------------------------------------
+
+def aporte_concorrente_depois_da_conferencia(monkeypatch, app, meta_id, centavos, chave):
+    """Na 1ª conferência de reenvio, outra requisição grava e commita um aporte nesta meta.
+
+    Simula a corrida real: a rota já leu o "guardado" e conferiu o limite, mas o
+    INSERT dela ainda não rodou. O outro aporte entra por outra conexão, como
+    entraria por outro processo.
+    """
+    original = MetaRepository.aporte_registrado
+    disparou = []
+
+    def conferir_e_deixar_outro_passar(self, *args):
+        resultado = original(self, *args)
+        if not disparou:
+            disparou.append(True)
+            outra = sqlite3.connect(app.config["DATABASE"])
+            with outra:
+                outra.execute("INSERT INTO aportes_meta (meta_id, valor_centavos, chave_idempotencia)"
+                              " VALUES (?, ?, ?)", (meta_id, centavos, chave))
+            outra.close()
+        return resultado
+
+    monkeypatch.setattr(MetaRepository, "aporte_registrado", conferir_e_deixar_outro_passar)
+
+
+def test_aporte_que_perde_a_corrida_e_passaria_do_alvo_retorna_400(monkeypatch, app, cliente, meta_fone):
+    aporte_concorrente_depois_da_conferencia(monkeypatch, app, meta_fone, 15000, "outro-envio")
+
+    resposta = aportar(cliente, meta_fone, "100,00")
+
+    assert resposta.status_code == 400
+    assert "Faltam só R$ 50,00 para concluir esta meta." in resposta.get_data(as_text=True)
+    monkeypatch.undo()
+    assert "R$ 150,00 de R$ 200,00 · 75%" in lista(cliente)
+
+
+def test_clique_duplo_simultaneo_no_aporte_responde_como_sucesso(monkeypatch, app, cliente, meta_fone):
+    chave = str(uuid.uuid4())
+    aporte_concorrente_depois_da_conferencia(monkeypatch, app, meta_fone, 10000, chave)
+
+    resposta = aportar(cliente, meta_fone, "100,00", chave=chave)
+
+    assert resposta.status_code == 302
+    monkeypatch.undo()
+    assert "R$ 100,00 de R$ 200,00 · 50%" in lista(cliente)

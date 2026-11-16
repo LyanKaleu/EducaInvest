@@ -116,12 +116,15 @@ class MetaRepository:
     def aportar(self, aluno_id, meta_id, valor_centavos, chave_idempotencia) -> bool:
         """Registra um aporte numa meta do aluno. Não faz commit.
 
-        O INSERT só acontece se a meta for do aluno; o reenvio da mesma
-        `chave_idempotencia` não grava de novo.
+        O INSERT só acontece se a meta for do aluno e o aporte couber no que
+        falta para o alvo; o reenvio da mesma `chave_idempotencia` não grava de novo.
+        A conta do que falta fica no próprio INSERT, um comando atômico: dois
+        aportes simultâneos não passam juntos do alvo, mesmo que a rota tenha
+        conferido o limite com um "guardado" desatualizado.
 
         Returns:
-            bool: True se gravou agora; False se a chave já tinha sido usada
-            ou a meta não é do aluno.
+            bool: True se gravou agora; False se a chave já tinha sido usada,
+            a meta não é do aluno ou o aporte passaria do alvo.
 
         Raises:
             sqlite3.IntegrityError: se o valor violar as regras da tabela.
@@ -129,9 +132,12 @@ class MetaRepository:
         cursor = self.conn.execute(
             """
             INSERT INTO aportes_meta (meta_id, valor_centavos, chave_idempotencia)
-            SELECT id, ?, ? FROM metas WHERE id = ? AND aluno_id = ?
+            SELECT m.id, ?, ? FROM metas m
+            WHERE m.id = ? AND m.aluno_id = ?
+              AND (SELECT COALESCE(SUM(a.valor_centavos), 0) FROM aportes_meta a
+                   WHERE a.meta_id = m.id) + ? <= m.valor_alvo_centavos
             ON CONFLICT (meta_id, chave_idempotencia) DO NOTHING
             """,
-            (valor_centavos, chave_idempotencia, meta_id, aluno_id),
+            (valor_centavos, chave_idempotencia, meta_id, aluno_id, valor_centavos),
         )
         return cursor.rowcount == 1

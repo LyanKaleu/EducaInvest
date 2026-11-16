@@ -102,6 +102,20 @@ def _aporte_recusado(meta_id, erro: ErroValidacao):
     return _render_lista({"meta_id": meta_id, "erros": erro.erros, "form": request.form}, 400)
 
 
+def _recusa_do_aporte(meta: dict, dados: dict):
+    """Resposta 400 se a meta já concluiu ou o aporte passa do que falta; None se cabe."""
+    if meta["concluida"]:  # meta cheia fecha: não aceita mais aportes
+        flash("Essa meta já foi concluída.", "erro")
+        return _render_lista(status=400)
+    try:
+        meta_service.conferir_limite_do_aporte(
+            dados["valor_centavos"], meta["valor_alvo_centavos"], meta["guardado_centavos"]
+        )
+    except ErroValidacao as erro:
+        return _aporte_recusado(meta["id"], erro)
+    return None
+
+
 @bp.post("/<int:meta_id>/aportes")
 def aportar(meta_id):
     meta = _com_progresso(_buscar_ou_404(meta_id))
@@ -114,18 +128,16 @@ def aportar(meta_id):
         # Reenvio de um aporte já gravado (clique duplo, falha de rede): responde como
         # sucesso, mesmo que esse aporte tenha concluído a meta (N2).
         return redirect(url_for(".listar"))
-    if meta["concluida"]:  # meta cheia fecha: não aceita mais aportes
-        flash("Essa meta já foi concluída.", "erro")
-        return _render_lista(status=400)
-    try:
-        meta_service.conferir_limite_do_aporte(
-            dados["valor_centavos"], meta["valor_alvo_centavos"], meta["guardado_centavos"]
-        )
-    except ErroValidacao as erro:
-        return _aporte_recusado(meta_id, erro)
+    recusa = _recusa_do_aporte(meta, dados)
+    if recusa:
+        return recusa
 
     with obter_conexao():
-        _repo().aportar(_aluno_id(), meta_id, **dados)
+        gravou = _repo().aportar(_aluno_id(), meta_id, **dados)
+    if not gravou and not _repo().aporte_registrado(_aluno_id(), meta_id, dados["chave_idempotencia"]):
+        # Outro aporte entrou entre a conferência acima e o INSERT, e o banco recusou
+        # este para não passar do alvo. Confere de novo com o guardado atual.
+        return _recusa_do_aporte(_com_progresso(_buscar_ou_404(meta_id)), dados)
     flash(f"Aporte de {reais(dados['valor_centavos'])} guardado!", "sucesso")
     if _com_progresso(_repo().buscar(_aluno_id(), meta_id))["concluida"]:
         flash(f"Parabéns, você concluiu a meta {meta['nome']}!", "sucesso")
