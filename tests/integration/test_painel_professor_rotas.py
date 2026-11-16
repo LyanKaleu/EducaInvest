@@ -83,13 +83,43 @@ def test_tabela_mostra_cada_aluno_sem_email(cliente_professor, turma, cliente_al
     assert "gabriel@escola.br" not in html
 
 
-def test_tabela_fica_em_ordem_de_apelido_sem_diferenciar_maiusculas(app, cliente_professor, turma,
-                                                                    cliente_aluno):
-    # Ordem binária poria "Gabriel" antes de "bruno"; a tabela não é ranking, é alfabética.
-    resposta = cadastrar_aluno(app.test_client(), turma["codigo"], email="bruno@escola.br",
-                               apelido="bruno")
-    assert resposta.status_code == 302
+def test_tabela_fica_em_ordem_de_xp_com_empate_por_apelido(app, cliente_professor, turma,
+                                                          cliente_aluno):
+    # Ranking por XP (decisão do redesign v2). No empate vale o apelido, sem diferenciar
+    # maiúsculas: a ordem binária poria "bruno" depois de "Ana" e de "Gabriel".
+    registrar_gasto(cliente_aluno)  # Gabriel: 10 XP
+    for apelido in ("bruno", "Ana"):
+        resposta = cadastrar_aluno(app.test_client(), turma["codigo"], email=f"{apelido}@escola.br",
+                                   apelido=apelido)
+        assert resposta.status_code == 302
 
     html = painel_da_turma(cliente_professor, turma)
 
-    assert re.findall(r'<th scope="row">([^<]*)</th>', html) == ["bruno", "Gabriel"]
+    assert re.findall(r'<th scope="row">([^<]*)</th>', html) == ["Gabriel", "Ana", "bruno"]
+
+
+def test_painel_aponta_quem_nao_ganha_xp_ha_7_dias(app, cliente_professor, turma, cliente_aluno):
+    registrar_gasto(cliente_aluno)  # Gabriel ativo hoje
+    cadastrar_aluno(app.test_client(), turma["codigo"], email="bruno@escola.br", apelido="Bruno")
+
+    atencao = re.search(r'<section[^>]*id="atencao".*?</section>', painel_da_turma(cliente_professor, turma), re.S)
+
+    assert atencao, "o painel deve ter o bloco de atenção"
+    assert "Bruno" in atencao.group(0)
+    assert "Gabriel" not in atencao.group(0)
+
+
+def test_painel_sem_inativos_nao_mostra_o_bloco_de_atencao(cliente_professor, turma, cliente_aluno):
+    registrar_gasto(cliente_aluno)
+
+    assert 'id="atencao"' not in painel_da_turma(cliente_professor, turma)
+
+
+def test_painel_mostra_a_turma_por_nivel(app, cliente_professor, turma, cliente_aluno):
+    cadastrar_aluno(app.test_client(), turma["codigo"], email="bruno@escola.br", apelido="Bruno")
+
+    html = painel_da_turma(cliente_professor, turma)
+
+    assert valor(html, "nivel-1") == "2"   # Iniciante: Gabriel e Bruno
+    assert valor(html, "nivel-2") == "0"   # Aprendiz
+    assert valor(html, "nivel-3") == "0"   # Organizado

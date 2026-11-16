@@ -4,7 +4,7 @@ from datetime import date, timedelta
 
 from app.services.erros import ErroValidacao
 from app.services.formulario import texto_do_campo
-from app.services.xp_service import nivel
+from app.services.xp_service import NIVEIS, nivel
 
 # Sem 0/O e 1/I/L, que se confundem ao copiar do quadro ou ditar em sala.
 ALFABETO_CODIGO = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
@@ -42,8 +42,12 @@ def painel_da_turma(alunos: list[dict], resumo_xp: dict, missoes: dict, hoje: da
         o inteiro mais próximo (,5 sobe), ou None se a turma está vazia;
         `missoes_concluidas`, a soma da turma; `ativos`, quantos alunos
         ganharam XP nos últimos `JANELA_FREQUENCIA_DIAS` dias contando hoje;
-        e `alunos`, uma linha por aluno com `apelido`, `xp`, `nivel`
-        (de `xp_service.nivel`), `missoes` e `ativo`, na ordem recebida.
+        `alunos`, uma linha por aluno com `apelido`, `xp`, `nivel`
+        (de `xp_service.nivel`), `missoes` e `ativo`, na ordem recebida;
+        `ranking`, as mesmas linhas por XP decrescente (no empate, a ordem
+        recebida); `inativos`, os apelidos de quem não está ativo; e
+        `por_nivel`, `[{"nome", "quantidade"}]` com todos os níveis, na ordem
+        de `xp_service.NIVEIS`, inclusive os que não têm aluno.
     """
     primeiro_dia_da_janela = hoje - timedelta(days=JANELA_FREQUENCIA_DIAS - 1)
     linhas = []
@@ -66,6 +70,13 @@ def painel_da_turma(alunos: list[dict], resumo_xp: dict, missoes: dict, hoje: da
         "missoes_concluidas": sum(linha["missoes"] for linha in linhas),
         "ativos": sum(linha["ativo"] for linha in linhas),
         "alunos": linhas,
+        # sorted é estável: no empate de XP fica a ordem recebida (a do apelido).
+        "ranking": sorted(linhas, key=lambda linha: -linha["xp"]),
+        "inativos": [linha["apelido"] for linha in linhas if not linha["ativo"]],
+        "por_nivel": [
+            {"nome": nome, "quantidade": sum(linha["nivel"]["nome"] == nome for linha in linhas)}
+            for _, nome, _ in NIVEIS
+        ],
     }
 
 
