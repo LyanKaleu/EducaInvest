@@ -50,6 +50,9 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 - #14 id gigante na URL responde 500 em vez de 404 (metas e lançamentos)
 - Limite de login vale por processo e zera ao reiniciar (`limite_service.py`). Se o deploy passar a ter vários workers, mover a contagem para o banco.
 - Aceitar aporte acima da meta junto com "desfazer aporte" (hoje o aporte para no que falta, porque não há como desfazer)
+- **Universitários:** usar o app sem entrar numa turma, já que nem sempre há um professor acompanhando. A faixa de 16 a 24 anos já cobre esse público.
+- **Ensino fundamental:** produto à parte, mais lúdico, com outra linguagem. Abaixo de 12 anos a LGPD (art. 14) exige o consentimento específico de um dos pais ou responsável, que o RN-05 de hoje não cobre.
+- **Mascote** próprio para a marca e a divulgação, junto com a retomada do design visual depois do MVP.
 - **Quiz do dia** com perguntas de cálculo parametrizadas (números novos por aluno e por dia, resposta calculada pelo código) e **gerador de perguntas com IA** (comando que pede um lote em JSON com schema, valida e grava no banco). O texto das 12 perguntas atuais precisa de revisão.
 
 ## Decisões pendentes
