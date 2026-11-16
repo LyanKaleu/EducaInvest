@@ -35,8 +35,10 @@ body {
 
 /* Some da tela, mas o leitor de tela continua lendo. */
 .oculto {
-  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden;
   clip: rect(0 0 0 0); white-space: nowrap;
+  /* Zera o que botões e campos somam à caixa, para nada vazar para o lado. */
+  padding: 0 !important; border: 0 !important; margin: -1px !important; min-height: 0 !important; min-width: 0 !important;
 }
 
 /* "Pular para o conteúdo": escondido até receber foco. */
