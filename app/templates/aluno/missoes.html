@@ -1,60 +1,65 @@
 {% extends "base.html" %}
-{# Missões do aluno: XP, nível, trilha de missões e conquistas (HU3). #}
+{# Missões do aluno (protótipo do pitch): nível e XP, teto do dia, trilha e conquistas (HU3). #}
 
 {% block titulo %}Missões{% endblock %}
 
 {% block conteudo %}
 <h1>Missões</h1>
 
-<section class="xp" aria-label="Seu XP">
+<section class="cartao-saldo" aria-labelledby="titulo-xp">
+  <h2 id="titulo-xp" class="rotulo">Nível {{ nivel.nivel }} · {{ nivel.nome }}</h2>
   <strong class="xp-total">{{ xp_total }} XP</strong>
-  <span>Nível {{ nivel.nivel }} · {{ nivel.nome }}</span>
-  {% if nivel.falta is not none %}
-    <span class="dica">Faltam {{ nivel.falta }} XP para o próximo nível.</span>
-  {% else %}
-    <span class="dica">Você está no nível mais alto. Parabéns!</span>
-  {% endif %}
+  <progress class="fina clara" max="100" value="{{ nivel.percentual }}" aria-labelledby="titulo-xp">{{ nivel.percentual }}%</progress>
+  <span>
+    {%- if nivel.falta is not none %}Faltam {{ nivel.falta }} XP para o nível {{ nivel.nivel + 1 }}.
+    {%- else %}Você está no nível mais alto. Parabéns!{% endif -%}
+  </span>
 </section>
 
-{% set ativas = missoes | rejectattr('status', 'equalto', 'CONCLUIDA') | list %}
-{% set concluidas = missoes | selectattr('status', 'equalto', 'CONCLUIDA') | list %}
+<p class="dica">Cada lançamento vale +{{ xp_por_registro }} XP, até {{ teto_registros }} XP por dia. Hoje: {{ xp_registros_hoje }} de {{ teto_registros }} XP.</p>
 
-<h2>Trilha</h2>
-{% if ativas %}
-  <ul class="missoes">
-    {% for missao in ativas %}
-      {# O estado vai em texto, não só na cor, para quem não distingue cores. #}
-      <li class="missao" data-codigo="{{ missao.codigo }}" data-status="{{ missao.status }}">
-        <strong>{{ missao.titulo }}</strong>
-        <span>{{ missao.descricao }} · +{{ missao.xp }} XP</span>
-        {% if missao.status == 'ATIVA' %}
-          <label for="progresso-{{ missao.codigo }}">Em andamento: {{ missao.atual }} de {{ missao.alvo }}</label>
-          <progress id="progresso-{{ missao.codigo }}" max="{{ missao.alvo }}" value="{{ missao.atual }}">
-            {{ missao.atual }} de {{ missao.alvo }}
-          </progress>
+<h2 class="rotulo titulo-secao">Trilha</h2>
+<ul class="missoes">
+  {% for missao in missoes %}
+    {# O estado vai em texto (selo, "Bloqueada"), não só na cor da faixa. #}
+    <li class="missao{% if missao.status == 'CONCLUIDA' %} concluida{% endif %}" data-codigo="{{ missao.codigo }}" data-status="{{ missao.status }}">
+      <div class="cartao-topo">
+        <strong class="cartao-titulo">{{ missao.titulo }}</strong>
+        {% if missao.status == 'CONCLUIDA' %}
+          <span class="selo">Concluída</span>
         {% else %}
-          <span class="dica">Bloqueada: conclua a missão anterior para liberar.</span>
+          <span class="selo-xp">+{{ missao.xp }} XP</span>
         {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p>Você concluiu todas as missões. Novas missões chegam em breve!</p>
-{% endif %}
+      </div>
+      <span>{{ missao.descricao }}</span>
+      {% if missao.status == 'BLOQUEADA' %}
+        <span class="dica">Bloqueada · conclua “{{ loop.previtem.titulo if loop.previtem else 'a missão anterior' }}” antes.</span>
+      {% else %}
+        <label class="oculto" for="progresso-{{ missao.codigo }}">{{ missao.titulo }}: {{ missao.atual }} de {{ missao.alvo }}</label>
+        <progress id="progresso-{{ missao.codigo }}" max="{{ missao.alvo }}" value="{{ missao.atual }}">
+          {{ missao.atual }} de {{ missao.alvo }}
+        </progress>
+        <span class="dica numero">{% if missao.status == 'ATIVA' %}Em andamento: {% endif %}{{ missao.atual }} de {{ missao.alvo }}</span>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
 
+{% set concluidas = missoes | selectattr('status', 'equalto', 'CONCLUIDA') | list %}
 <section id="conquistas" aria-labelledby="titulo-conquistas">
-  <h2 id="titulo-conquistas">Conquistas</h2>
+  <h2 id="titulo-conquistas" class="rotulo titulo-secao">Conquistas</h2>
   {% if concluidas %}
-    <ul class="missoes">
+    <ul class="conquistas">
       {% for missao in concluidas %}
-        <li class="missao concluida" data-codigo="{{ missao.codigo }}" data-status="{{ missao.status }}">
-          <strong>{{ missao.titulo }}</strong>
-          <span>Concluída · +{{ missao.xp }} XP</span>
+        <li class="selo">
+          <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>
+          {{ missao.titulo }}
         </li>
       {% endfor %}
     </ul>
   {% else %}
-    <p>Nenhuma conquista ainda. Registre seus gastos para ganhar a primeira!</p>
+    <p class="cartao dica">Conclua sua primeira missão para ganhar uma conquista.</p>
   {% endif %}
 </section>
 {% endblock %}

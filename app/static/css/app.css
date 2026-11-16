@@ -128,7 +128,7 @@ p { margin: 0 0 1rem; }
 
 /* Cartão base: branco e borda fina. Itens de lista (lançamento, missão, pergunta, turma)
    ganham a faixa de 6px à esquerda com o tipo ou o status; o status também vai em texto. */
-.cartao, .lancamento, .missao, .meta, .pergunta, .resultado, .indicador, .xp {
+.cartao, .lancamento, .missao, .meta, .pergunta, .resultado, .indicador {
   background: var(--fundo); border: 1px solid var(--divisoria); border-radius: var(--raio);
 }
 .cartao {
@@ -223,6 +223,11 @@ progress::-webkit-progress-bar { background: var(--suave); border-radius: 999px;
 progress::-webkit-progress-value { background: var(--primaria); border-radius: 999px; }
 progress::-moz-progress-bar { background: var(--primaria); border-radius: 999px; }
 progress.fina { height: .625rem; }
+/* Sobre cartão colorido: trilho com borda branca e preenchimento branco. */
+progress.clara { border-color: var(--texto-sobre-cor); background: transparent; color: var(--texto-sobre-cor); }
+progress.clara::-webkit-progress-bar { background: transparent; }
+progress.clara::-webkit-progress-value { background: var(--texto-sobre-cor); }
+progress.clara::-moz-progress-bar { background: var(--texto-sobre-cor); }
 /* Missão em andamento: azul, para não confundir com dinheiro guardado. */
 progress.azul, .missao[data-status="ATIVA"] progress { color: var(--foco); }
 progress.azul::-webkit-progress-value, .missao[data-status="ATIVA"] progress::-webkit-progress-value { background: var(--foco); }
@@ -317,14 +322,13 @@ a.lancamento:hover { color: var(--texto); background: #fafbfa; }
 
 /* ---------- Missões e XP ---------- */
 
-.xp { display: flex; flex-direction: column; gap: .25rem; padding: 1rem; margin-bottom: 1.5rem; }
-.xp-total { font-size: 2rem; line-height: 1.2; color: var(--primaria); font-variant-numeric: tabular-nums; }
-.xp ~ h2, #conquistas h2 { font-size: 1.15rem; margin: 1.5rem 0 .75rem; }
-.missoes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
-.missao { display: flex; flex-direction: column; gap: .25rem; padding: .75rem 1rem; }
-.missoes .missao[data-status="BLOQUEADA"] { background: var(--suave); border-style: dashed; border-color: var(--borda); }
-.missao.concluida { background: var(--sucesso-fundo); border-color: #b9dcc3; }
-.missao label { font-weight: 400; margin: .25rem 0 0; }
+.xp-total { font-size: 2.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.missoes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .625rem; }
+/* Faixa azul (em andamento), verde (concluída) ou cinza (bloqueada); o status também vai em texto. */
+.missao { display: flex; flex-direction: column; gap: .375rem; padding: .875rem 1rem; border-left: 6px solid var(--foco); }
+.missao.concluida { border-left-color: var(--primaria); }
+.missao[data-status="BLOQUEADA"] { border-left-color: var(--borda); background: var(--suave); }
+.conquistas { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
 
 /* ---------- Metas e aportes ---------- */
 
@@ -334,8 +338,9 @@ a.lancamento:hover { color: var(--texto); background: #fafbfa; }
 .meta.concluida { background: var(--sucesso-fundo); border-color: #b9dcc3; }
 .meta-progresso { font-variant-numeric: tabular-nums; }
 .selo {
-  align-self: flex-start; padding: .1rem .6rem; border-radius: 999px;
-  background: var(--primaria); color: var(--texto-sobre-cor); font-size: .9rem;
+  display: inline-flex; align-items: center; gap: .25rem; align-self: flex-start; white-space: nowrap;
+  padding: .1rem .6rem; border-radius: 999px;
+  background: var(--primaria); color: var(--texto-sobre-cor); font-size: .9rem; font-weight: 700;
 }
 .meta label { font-weight: 400; margin: .25rem 0 0; }
 .aporte { padding-top: .75rem; border-top: 1px solid var(--divisoria); }
@@ -357,19 +362,45 @@ a.lancamento:hover { color: var(--texto); background: #fafbfa; }
 
 /* ---------- Quiz ---------- */
 
-.xp-quiz { font-size: 1.4rem; color: var(--primaria); font-variant-numeric: tabular-nums; }
-.xp ~ section h2 { font-size: 1.15rem; margin: 1.5rem 0 .75rem; }
+.cartao-quiz { flex-direction: row; align-items: center; gap: .75rem; padding: .875rem 1rem; }
+.cartao-quiz > div { display: flex; flex-direction: column; }
+.icone-quiz { flex: none; color: var(--primaria); }
+.xp-quiz { font-variant-numeric: tabular-nums; }
 .perguntas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
-.pergunta { display: flex; flex-direction: column; gap: .25rem; padding: .75rem 1rem; }
-.pergunta[data-status="ACERTOU"] { background: var(--sucesso-fundo); border-color: #b9dcc3; }
-.pergunta[data-status="ERROU"] { background: var(--erro-fundo); border-color: #ecc0bd; }
-.pergunta a { font-weight: 600; }
-/* Alternativas longas: uma por linha, com a linha inteira clicável. */
-.alternativas .opcao { display: flex; align-items: flex-start; margin: 0; padding: .5rem 0; }
-.alternativas .opcao input { margin-top: .1rem; }
-.resultado { padding: 1rem; margin-bottom: 1.5rem; background: var(--erro-fundo); border-color: #ecc0bd; }
-.resultado[data-acertou="sim"] { background: var(--sucesso-fundo); border-color: #b9dcc3; }
-.resultado h2 { font-size: 1.2rem; margin: 0 0 .5rem; }
+/* Faixa azul (nova), verde (acertou) ou vermelha (errou). O link cobre o cartão inteiro. */
+.pergunta { position: relative; display: flex; flex-direction: column; gap: .125rem; padding: .75rem .875rem; border-left: 6px solid var(--foco); }
+.pergunta[data-status="ACERTOU"] { border-left-color: var(--primaria); }
+.pergunta[data-status="ERROU"] { border-left-color: var(--perigo); }
+.pergunta a { font-weight: 700; color: var(--texto); text-decoration: none; }
+.pergunta a::after { content: ""; position: absolute; inset: 0; border-radius: var(--raio); }
+.pergunta a:focus-visible { outline: none; }
+.pergunta a:focus-visible::after { outline: 3px solid var(--foco); outline-offset: 2px; }
+.pergunta:hover { background: #fafbfa; }
+.pergunta .dica { font-size: .9rem; }
+.cabecalho-voltar .rotulo { margin: 0; }
+h1.enunciado { font-size: 1.25rem; }
+/* Alternativas em cartões com a letra num círculo. O rádio fica invisível por cima, ainda clicável e focável. */
+.alternativas { display: flex; flex-direction: column; gap: .5rem; border: 0; padding: 0; margin: 0 0 1rem; background: none; }
+.alternativas-respondidas { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.alt {
+  position: relative; display: flex; align-items: flex-start; gap: .625rem; margin: 0;
+  min-height: 48px; padding: .75rem .875rem; font-weight: 400;
+  border: 1px solid var(--borda); border-radius: var(--raio); background: var(--fundo);
+}
+label.alt { cursor: pointer; }
+.alt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.alt:has(input:checked) { border: 2px solid var(--foco); background: #eef3fb; }
+.alt:has(input:focus-visible) { outline: 3px solid var(--foco); outline-offset: 2px; }
+.alt.certa { border: 2px solid var(--primaria); background: var(--sucesso-fundo); }
+.alt.errada { border: 2px solid var(--perigo); background: var(--erro-fundo); }
+.letra {
+  flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--borda); background: var(--fundo); font-weight: 700; font-size: .85rem;
+}
+.resultado { padding: 1rem; margin-bottom: 1rem; background: var(--erro-fundo); border: 0; }
+.resultado[data-acertou="sim"] { background: var(--sucesso-fundo); }
+.resultado h2 { font-size: 1.15rem; margin: 0 0 .5rem; color: var(--perigo); }
+.resultado[data-acertou="sim"] h2 { color: var(--primaria); }
 .resultado p { margin: 0 0 .5rem; }
 .resultado p:last-child { margin-bottom: 0; }
 
@@ -383,6 +414,7 @@ a.lancamento:hover { color: var(--texto); background: #fafbfa; }
 }
 .cartao-saldo.negativo { background: var(--perigo); }
 .cartao-saldo .rotulo { color: var(--texto-sobre-cor); }
+.cartao-saldo .xp-total { color: var(--texto-sobre-cor); }
 .saldo { font-size: 2.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .saldo-detalhe { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: 0; font-variant-numeric: tabular-nums; }
 .saldo-detalhe dt { font-size: .9rem; }

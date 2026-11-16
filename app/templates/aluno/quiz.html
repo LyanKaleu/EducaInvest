@@ -1,26 +1,30 @@
 {% extends "base.html" %}
-{# Quiz do aluno: perguntas por tema, o que já respondeu e o XP do quiz hoje (HU4). #}
+{# Quiz do aluno (protótipo do pitch): XP do quiz hoje e perguntas por tema (HU4). #}
 
 {% block titulo %}Quiz{% endblock %}
 
 {% block conteudo %}
 <h1>Quiz</h1>
 
-<section class="xp" aria-label="XP do quiz hoje">
-  <strong class="xp-quiz">{{ xp_hoje }} de {{ teto }} XP hoje</strong>
-  {% if xp_hoje >= teto %}
-    <span class="dica">Você já ganhou o máximo de hoje. Pode responder para aprender; o XP volta amanhã.</span>
-  {% else %}
-    <span class="dica">Cada acerto vale +{{ xp_por_acerto }} XP. Você responde cada pergunta uma vez só.</span>
-  {% endif %}
+<section class="cartao cartao-quiz" aria-label="XP do quiz hoje">
+  <svg class="icone-quiz" aria-hidden="true" focusable="false" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg>
+  <div>
+    <strong class="xp-quiz">{{ xp_hoje }} de {{ teto }} XP hoje</strong>
+    {% if xp_hoje >= teto %}
+      <span class="dica">Você já ganhou o máximo de hoje. Pode responder para aprender; o XP volta amanhã.</span>
+    {% else %}
+      <span class="dica">Cada acerto vale +{{ xp_por_acerto }} XP. Uma resposta por pergunta.</span>
+    {% endif %}
+  </div>
 </section>
 
 {% for codigo_tema, nome_tema in temas.items() %}
   <section aria-labelledby="tema-{{ codigo_tema }}">
-    <h2 id="tema-{{ codigo_tema }}">{{ nome_tema }}</h2>
+    <h2 id="tema-{{ codigo_tema }}" class="rotulo titulo-secao">{{ nome_tema }}</h2>
     <ul class="perguntas">
       {% for pergunta in perguntas if pergunta.tema == codigo_tema %}
-        {# O estado vai em texto, não só na cor da borda. #}
+        {# O estado vai em texto, não só na cor da faixa. O cartão inteiro abre a pergunta. #}
         <li class="pergunta" data-codigo="{{ pergunta.codigo }}" data-status="{{ pergunta.status }}">
           <a href="{{ url_for('quiz.ver', codigo=pergunta.codigo) }}">{{ pergunta.enunciado }}</a>
           <span class="dica">

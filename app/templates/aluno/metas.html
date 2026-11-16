@@ -10,21 +10,24 @@
       <h2 id="meta-{{ meta.id }}">{{ meta.nome }}</h2>
       {% if meta.concluida %}
         {# O estado vai em texto, não só na cor. #}
-        <strong class="selo">Concluída</strong>
+        <strong class="selo">
+          <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>
+          Concluída
+        </strong>
       {% else %}
         <strong class="meta-percentual">{{ meta.percentual }}%</strong>
       {% endif %}
     </div>
-    <progress max="100" value="{{ meta.percentual }}" aria-labelledby="meta-{{ meta.id }}">{{ meta.percentual }}%</progress>
-    <span class="meta-progresso">{{ meta.guardado_centavos | reais }} de {{ meta.valor_alvo_centavos | reais }} · {{ meta.percentual }}%</span>
-    {% if not meta.concluida or meta.prazo %}
-      <span class="dica">
-        {%- if not meta.concluida %}Faltam {{ (meta.valor_alvo_centavos - meta.guardado_centavos) | reais }}{% endif -%}
-        {%- if not meta.concluida and meta.prazo %} · {% endif -%}
-        {%- if meta.prazo %}Prazo: <time datetime="{{ meta.prazo }}">{{ meta.prazo | data_br }}</time>{% endif -%}
-      </span>
-    {% endif %}
+    {# Na concluída a barra cheia some da tela (o selo já diz), mas o leitor de tela ainda ouve o progresso. #}
+    <progress max="100" value="{{ meta.percentual }}"{% if meta.concluida %} class="oculto"{% endif %}
+              aria-label="{{ meta.nome }}: {{ meta.guardado_centavos | reais }} de {{ meta.valor_alvo_centavos | reais }} · {{ meta.percentual }}%">{{ meta.percentual }}%</progress>
+    <span class="meta-progresso">{{ meta.guardado_centavos | reais }} de {{ meta.valor_alvo_centavos | reais }}</span>
     {% if not meta.concluida %}
+      <span class="dica">
+        Faltam {{ (meta.valor_alvo_centavos - meta.guardado_centavos) | reais }}
+        {%- if meta.prazo %} · até <time datetime="{{ meta.prazo }}">{{ meta.prazo | data_br }}</time>{% endif -%}
+      </span>
       {# Aporte recusado nesta meta: mostra o erro e preserva o valor e a chave (o reenvio não duplica). #}
       {% set recusado = aporte_com_erro if aporte_com_erro.get('meta_id') == meta.id else {} %}
       {% set erros_aporte = recusado.get('erros', {}) %}
@@ -50,7 +53,7 @@
       {% endif %}
       <form class="aporte" method="post" novalidate action="{{ url_for('metas.aportar', meta_id=meta.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <label for="valor-{{ meta.id }}">Guardar quanto? (R$)</label>
+        <label for="valor-{{ meta.id }}">{{ 'Outro valor (R$)' if cabem else 'Guardar quanto? (R$)' }}</label>
         <div class="linha">
           <input type="text" id="valor-{{ meta.id }}" name="valor" inputmode="decimal"
                  autocomplete="off" placeholder="10,00" value="{{ form_aporte.get('valor', '') }}"
@@ -96,9 +99,9 @@
       </ul>
     {% else %}
       <div class="vazio">
-        <strong>Todas as metas concluídas.</strong>
-        <p>Parabéns! Que tal juntar para a próxima?</p>
-        <a class="botao botao-contorno" href="{{ url_for('metas.nova') }}">Criar nova meta</a>
+        <strong>Nenhuma meta em andamento</strong>
+        <p class="dica">Crie uma meta e guarde aos poucos.</p>
+        <a class="botao" href="{{ url_for('metas.nova') }}">+ Nova meta</a>
       </div>
     {% endif %}
   </section>
@@ -114,7 +117,7 @@
 {% else %}
   <div class="vazio">
     <strong>Você ainda não tem metas.</strong>
-    <p>Junte dinheiro para algo que você quer. Que tal criar a primeira?</p>
+    <p class="dica">Junte dinheiro para algo que você quer. Que tal criar a primeira?</p>
     <a class="botao" href="{{ url_for('metas.nova') }}">+ Nova meta</a>
   </div>
 {% endif %}
