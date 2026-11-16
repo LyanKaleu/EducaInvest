@@ -36,6 +36,8 @@ def _criar_app(tmp_path, **config):
         "TESTING": True,
         "SECRET_KEY": "chave-de-teste",
         "DATABASE": str(tmp_path / "teste.db"),
+        # CSRF desligado nos testes de regra; tests/integration/test_seguranca.py liga.
+        "WTF_CSRF_ENABLED": False,
         **config,
     })
 

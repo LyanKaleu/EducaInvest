@@ -19,6 +19,7 @@
 
 <form method="post" novalidate
       action="{{ url_for('auth.cadastrar_professor') if professor else url_for('auth.cadastrar_aluno') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="campo">
     <label for="apelido">Apelido <span class="dica">(como você quer ser chamado)</span></label>
     <input type="text" id="apelido" name="apelido" maxlength="40" autocomplete="nickname"

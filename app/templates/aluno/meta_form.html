@@ -14,6 +14,7 @@
 
 {# novalidate: as mensagens vêm sempre do servidor, iguais em qualquer navegador. #}
 <form method="post" novalidate action="{{ url_for('metas.criar') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="campo">
     <label for="nome">Nome da meta</label>
     <input type="text" id="nome" name="nome" maxlength="60" autocomplete="off"
