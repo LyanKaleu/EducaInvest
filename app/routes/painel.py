@@ -41,6 +41,7 @@ def ver():
         nivel=xp_service.nivel(xp_total),
         sequencia=xp_service.sequencia(dias_ativos, hoje),
         ativo_hoje=hoje in dias_ativos,
+        ultimos_dias=xp_service.ultimos_dias(dias_ativos, hoje),
         # A próxima missão a cumprir; None quando a trilha foi concluída.
         missao=next((m for m in missoes if m["status"] == "ATIVA"), None),
         # A meta em andamento mais perto de concluir; o aporte não entra no saldo.

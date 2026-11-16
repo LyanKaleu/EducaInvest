@@ -311,6 +311,10 @@ progress::-moz-progress-bar { background: var(--primaria); border-radius: 999px;
 .indicador { display: flex; flex-direction: column; gap: .25rem; padding: .75rem 1rem; }
 .indicador strong { font-size: 1.4rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
 .indicador .dica { font-size: .9rem; }
+/* Sequência: 7 marcas, do mais antigo até hoje. Cheia = ganhou XP no dia. */
+.dias { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: .25rem 0; }
+.dia { height: .625rem; border-radius: 3px; border: 1px solid var(--borda); }
+.dia.ativo { background: var(--primaria); border-color: var(--primaria); }
 
 /* ---------- Turmas e painel da turma (professor) ---------- */
 

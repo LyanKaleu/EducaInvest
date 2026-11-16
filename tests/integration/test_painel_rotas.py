@@ -88,3 +88,13 @@ def test_aporte_na_meta_nao_muda_o_saldo(cliente_aluno):
     criar_meta_com_aporte(cliente_aluno, "Fone", "200,00", "30,00")
 
     assert valor(painel(cliente_aluno), "saldo") == "R$ 50,00"
+
+
+def test_painel_mostra_os_ultimos_7_dias_da_sequencia(cliente_aluno):
+    registrar(cliente_aluno, "saida", "Alimentação", "5,00")
+
+    assert 'aria-label="Ganhou XP em 1 dos últimos 7 dias"' in painel(cliente_aluno)
+
+
+def test_aluno_novo_ve_os_7_dias_em_branco(cliente_aluno):
+    assert 'aria-label="Ganhou XP em 0 dos últimos 7 dias"' in painel(cliente_aluno)

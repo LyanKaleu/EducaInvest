@@ -75,3 +75,23 @@ def test_sequencia_conta_dias_seguidos_ate_hoje(dias, esperado):
     dias_ativos = {date(2026, 11, dia) for dia in dias}
 
     assert xp_service.sequencia(dias_ativos, HOJE) == esperado
+
+
+# ---------------------------------------------------------------------------
+# Os últimos 7 dias da sequência (tela inicial): do mais antigo até hoje
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize(
+    ("dias", "esperado"),
+    [
+        (set(), [False] * 7),                                        # nunca teve atividade
+        ({10}, [False, False, False, False, False, False, True]),    # hoje é o último
+        ({4}, [True, False, False, False, False, False, False]),     # 04 é o primeiro da janela
+        ({3, 11}, [False] * 7),                                      # antes da janela e depois de hoje não contam
+        ({5, 8, 9}, [False, True, False, False, True, True, False]),
+    ],
+)
+def test_ultimos_dias_marca_cada_dia_da_janela_ate_hoje(dias, esperado):
+    dias_ativos = {date(2026, 11, dia) for dia in dias}
+
+    assert xp_service.ultimos_dias(dias_ativos, HOJE) == esperado

@@ -69,3 +69,19 @@ def sequencia(dias_ativos: set[date], hoje: date) -> int:
         total += 1
         dia -= timedelta(days=1)
     return total
+
+
+def ultimos_dias(dias_ativos: set[date], hoje: date, quantidade: int = 7) -> list[bool]:
+    """Se o aluno ganhou XP em cada um dos últimos dias, do mais antigo até hoje.
+
+    Alimenta as marcas da sequência na tela inicial.
+
+    Args:
+        dias_ativos: dias (fuso do Piauí) em que o aluno ganhou XP.
+        hoje: dia de hoje no fuso do Piauí; é o último da lista.
+        quantidade: tamanho da janela, contando hoje.
+
+    Returns:
+        list[bool]: `quantidade` itens; True no dia em que houve XP.
+    """
+    return [hoje - timedelta(days=atras) in dias_ativos for atras in range(quantidade - 1, -1, -1)]

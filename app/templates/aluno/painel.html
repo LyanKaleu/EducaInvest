@@ -24,6 +24,11 @@
   <section class="indicador" aria-labelledby="titulo-sequencia">
     <h2 id="titulo-sequencia" class="rotulo">Sequência</h2>
     <strong id="sequencia">{{ sequencia }} {{ 'dia' if sequencia == 1 else 'dias' }}</strong>
+    {# Uma marca por dia, do mais antigo até hoje. O leitor de tela ouve o resumo. #}
+    {% set com_xp = ultimos_dias | select | list | length %}
+    <span class="dias" role="img" aria-label="Ganhou XP em {{ com_xp }} dos últimos {{ ultimos_dias | length }} dias">
+      {%- for ativo in ultimos_dias %}<span class="dia{% if ativo %} ativo{% endif %}"></span>{% endfor -%}
+    </span>
     <span class="dica">
       {%- if sequencia == 0 %}Registre algo hoje para começar.
       {%- elif not ativo_hoje %}Registre hoje para manter.
