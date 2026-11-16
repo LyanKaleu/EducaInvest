@@ -1,19 +1,34 @@
 """Rotas de cadastro (aluno com código de turma, professor), login e logout (RF01)."""
 from datetime import datetime, timezone
 
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import (Blueprint, current_app, flash, redirect, render_template, request, session,
+                   url_for)
 
 from app.db import obter_conexao
 from app.repositories.turma_repo import TurmaRepository
 from app.repositories.usuario_repo import UsuarioRepository
 from app.services import auth_service
 from app.services.erros import ErroValidacao
+from app.services.limite_service import LimiteDeTentativas
 
 bp = Blueprint("auth", __name__)
 
 MSG_ERRO_FORM = "Não foi possível continuar. Confira os campos destacados."
 MSG_LOGIN_INVALIDO = "E-mail ou senha incorretos."
 MSG_EMAIL_EM_USO = "Este e-mail já está cadastrado."
+MSG_MUITAS_TENTATIVAS = "Muitas tentativas para este e-mail. Espere 15 minutos e tente de novo."
+
+# Contra senha por tentativa e erro: 5 senhas erradas bloqueiam o e-mail por 15 min.
+# Conta por e-mail, não por IP: a turma inteira sai pelo mesmo Wi-Fi da escola.
+FALHAS_DE_LOGIN = 5
+JANELA_DE_LOGIN_SEGUNDOS = 15 * 60
+
+
+def _limite_de_login() -> LimiteDeTentativas:
+    """Um contador por app (os testes criam um app novo a cada teste)."""
+    return current_app.extensions.setdefault(
+        "limite_de_login", LimiteDeTentativas(FALHAS_DE_LOGIN, JANELA_DE_LOGIN_SEGUNDOS)
+    )
 
 
 def destino_do_perfil(perfil: str) -> str:
@@ -117,11 +132,19 @@ def entrar():
     except ErroValidacao as erro:
         return render_template("auth/login.html", form=request.form, erros=erro.erros), 400
 
+    limite = _limite_de_login()
+    # A tentativa conta antes de conferir a senha: chutes simultâneos não furam o teto.
+    if not limite.tentar(dados["email"]):
+        # Bloqueia mesmo com a senha certa: senão o chute continuaria até acertar.
+        flash(MSG_MUITAS_TENTATIVAS, "erro")
+        return render_template("auth/login.html", form=request.form, erros={}), 429
+
     usuario = UsuarioRepository(obter_conexao()).buscar_por_email(dados["email"])
     if usuario is None or not auth_service.senha_confere(usuario["senha_hash"], dados["senha"]):
         # Mesma mensagem nos dois casos: não revela quais e-mails estão cadastrados.
         flash(MSG_LOGIN_INVALIDO, "erro")
         return render_template("auth/login.html", form=request.form, erros={}), 401
+    limite.limpar(dados["email"])
     return _iniciar_sessao(usuario)
 
 
