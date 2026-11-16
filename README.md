@@ -35,7 +35,7 @@ O aluno registra o próprio dinheiro, cumpre missões e ganha XP. O professor ac
 - **Quiz:** perguntas sobre juros, crédito, orçamento e inflação, sempre com explicação.
 
 **Professor**
-- **Turmas:** cada turma tem um código de 6 caracteres para os alunos entrarem.
+- **Turmas:** cada turma tem um código de 8 caracteres para os alunos entrarem.
 - **Painel da turma:** XP médio, missões concluídas, alunos ativos em 7 dias e uma linha por aluno.
 
 ## Rodar localmente
@@ -49,7 +49,9 @@ python -m pip install -r requirements.txt
 python run.py                                        # http://127.0.0.1:5000
 ```
 
-Em produção, sirva `create_app()` por um servidor WSGI, com a variável `SECRET_KEY` definida. O banco fica em `instance/educainvest.db`, que precisa estar num disco que não se apaga ao reiniciar.
+O `run.py` liga o modo debug: use só na sua máquina e nunca com `host="0.0.0.0"`, porque o depurador deixa executar código no servidor.
+
+Em produção, sirva `create_app()` por um servidor WSGI, com a variável `SECRET_KEY` definida e HTTPS (fora do debug, o cookie de sessão só viaja por HTTPS). O banco fica em `instance/educainvest.db`, que precisa estar num disco que não se apaga ao reiniciar.
 
 ## Testes
 
