@@ -29,7 +29,9 @@ button.link {
   min-height: 44px; padding: 0; background: none; border: 0;
   color: var(--texto-suave); font-weight: 400; text-decoration: underline; cursor: pointer;
 }
-button.link:hover { color: var(--texto); }
+/* Sem fundo também no hover: o button:hover da base não pode pintar o "Sair" de verde
+   (antes da divisão do CSS ele pintava, com texto escuro sobre verde escuro). */
+button.link:hover { color: var(--texto); background: none; }
 
 /* ---------- Menu do aluno: rodapé no celular, linha no desktop ---------- */
 
