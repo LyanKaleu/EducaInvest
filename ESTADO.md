@@ -62,6 +62,10 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 - **Supabase (só o Postgres, sem o Supabase Auth)** junto com a troca de deploy, nunca antes. Tirar o banco do servidor libera um host que dorme ou serverless (Render, Koyeb, Cloud Run, Vercel) e vários workers. Também leva o limite de login para o banco, porque em serverless a contagem por processo deixa de proteger.
   - Custo: `psycopg` (dependência nova), `CREATE TABLE` reescritos (O1), `COLLATE NOCASE` (N3) virando `citext` ou índice em `lower()`, gatilhos do XP (N6) em outra sintaxe e banco de teste para a suíte.
   - Ponto de partida: o schema PostgreSQL de referência em `docs/`. Antes de decidir, conferir se o plano grátis ainda pausa o projeto parado.
+- **Paperclip (orquestrador de agentes, open source)**, avaliado em 17/11/2026 e adiado. Ele comanda Claude Code, Codex e Gemini CLI por heartbeat, com organograma, orçamento e aprovações. O Antigravity não entra, porque é uma IDE, não um CLI.
+  - Por que não agora: os adaptadores rodam em modo automático (sem plan mode aprovado nem TDD com o teste vermelho), o hook `protege.py` e o Stop hook só valem para o Claude, o adaptador do Gemini não isola a árvore de trabalho, a documentação não cita Windows e cada heartbeat gasta a cota das assinaturas. Também não há tarefa paralela em volume: o próximo passo é sequencial.
+  - Quando reavaliar: tarefa recorrente e autônoma com revisão no PR (ex.: o gerador de perguntas do quiz), sempre com o check `gate` como rede comum.
+  - Enquanto isso: Claude Code implementa, Codex dá a segunda opinião na revisão do PR e Antigravity/Gemini ficam com protótipo de tela e teste no navegador, cada um na sua branch ou worktree, todos lendo o `AGENTS.md`.
 
 ## Decisões pendentes
 - Lista de categorias e valor máximo do lançamento ("A confirmar" em `lancamento_service.py`).
