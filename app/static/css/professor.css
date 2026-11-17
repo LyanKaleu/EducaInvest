@@ -10,7 +10,10 @@ code.codigo-turma { font-family: ui-monospace, Consolas, monospace; font-size: 1
   padding: .875rem 1rem; color: var(--texto); text-decoration: none;
   background: var(--fundo); border: 1px solid var(--divisoria); border-left: 6px solid var(--primaria); border-radius: var(--raio);
 }
-a.turma-item:hover { color: var(--texto); background: #fafbfa; }
+/* Hover só com mouse: no celular o toque dispara um falso hover que fica preso no cartão. */
+@media (hover: hover) and (pointer: fine) {
+  a.turma-item:hover { color: var(--texto); background: #fafbfa; }
+}
 .turma-item code.codigo-turma { font-size: 1rem; }
 .form-turma { gap: .75rem; }
 .form-turma .campo { margin: 0; }

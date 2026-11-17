@@ -86,20 +86,24 @@ Texto branco sobre `--primaria`, `--perigo` e `--foco` passa de 6:1.
 9. **Turma:** cartão verde com os ativos nos últimos 7 dias, XP médio e missões; "Precisa de atenção" com quem não ganhou XP nos últimos 7 dias; ranking por XP com barra; turma por nível; convite com o código. **Sem valores em reais e sem e-mail.**
 
 ## 7a. Movimento
-Tudo em `app/static/css/movimento.css`, dentro de `@media (prefers-reduced-motion: no-preference)`. Quem pediu menos movimento no sistema vê a tela parada, que é o estado base dos outros arquivos.
+Tudo em `app/static/css/movimento.css`. O movimento completo fica dentro de `@media (prefers-reduced-motion: no-preference)`. Quem pede menos movimento recebe a versão suave: o aviso aparecendo, a troca de cor dos botões e um esmaecimento de 150ms entre páginas, sem deslocamento, escala, salto, confete nem barra se desenhando. Menos movimento não é zero.
 - **Por que animar:** retorno ao toque, continuidade entre telas e comemoração de conquista. Nada anima "porque fica bonito". Ação repetida muitas vezes por dia anima pouco ou nada.
 - **Curva e tempo** (tokens em `tokens.css`):
   - `--ease-out` é `cubic-bezier(0.23, 1, 0.32, 1)`: começa rápido e assenta devagar. Nunca `ease-in` em interface.
-  - Toque: 160ms. Troca de cor: 150ms. Troca de página: 240ms (abaixo de 300ms, porque a página fica inerte durante a troca). Aviso: 300ms.
+  - Toque: 160ms. Troca de cor: 150ms. Troca de página: 240ms (abaixo de 300ms, porque a página fica inerte durante a troca). Aviso: 200ms. Barra: 280ms.
   - A comemoração é a exceção: até ~1,4s, uma vez só.
 - **O que anima:**
   - **Troca de página:** `@view-transition { navigation: auto; }`. O topo e o menu ficam parados; o conteúdo sai num fade e entra subindo 8px. Onde o navegador não suporta, a página só carrega normal.
   - **Avisos:** entram descendo 6px.
   - **Conquista** (missão, nível, meta concluída): o cartão verde dá um pequeno salto, o troféu balança e um confete de CSS cai uma vez.
-  - **Toque:** botões, chips e alternativas afundam (`scale(.97)`); cartões-link afundam menos (`scale(.985)`).
+  - **Toque:** botões, chips e alternativas afundam (`scale(.97)`); cartões-link e ícones do menu afundam menos (`scale(.985)` e `scale(.95)`).
   - **Barras:** se desenham da esquerda com `clip-path`. O navegador não anima o preenchimento do `<progress>`.
-  - **Sequência:** a marca de hoje pulsa duas vezes e para.
-- **O que não anima:** layout (`width`, `height`, `margin`, `top`); nada parte de `scale(0)`; nada fica em loop; nenhuma informação vem só do movimento.
+- **O que não anima:**
+  - layout (`width`, `height`, `margin`, `top`);
+  - nada parte de `scale(0)` e nada fica em loop;
+  - nenhuma informação vem só do movimento;
+  - nada só para chamar atenção em tela frequente: a marca de hoje na sequência não pulsa;
+  - hover de cartão só com mouse (`@media (hover: hover) and (pointer: fine)`), porque no celular o toque deixa o hover preso.
 
 ## 8. Faça e não faça
 **Faça**

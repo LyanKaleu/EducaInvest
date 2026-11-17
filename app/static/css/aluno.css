@@ -8,7 +8,10 @@
   display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem;
   padding: .75rem .875rem; color: var(--texto); text-decoration: none; border-left: 6px solid var(--borda);
 }
-a.lancamento:hover { color: var(--texto); background: #fafbfa; }
+/* Hover só com mouse: no celular o toque dispara um falso hover que fica preso no cartão. */
+@media (hover: hover) and (pointer: fine) {
+  a.lancamento:hover { color: var(--texto); background: #fafbfa; }
+}
 .lancamento.entrada { border-left-color: var(--primaria); }
 .lancamento.saida { border-left-color: var(--perigo); }
 .lancamento-info { display: flex; flex-direction: column; min-width: 0; }
@@ -142,7 +145,9 @@ a.lancamento:hover { color: var(--texto); background: #fafbfa; }
 .pergunta a::after { content: ""; position: absolute; inset: 0; border-radius: var(--raio); }
 .pergunta a:focus-visible { outline: none; }
 .pergunta a:focus-visible::after { outline: 3px solid var(--foco); outline-offset: 2px; }
-.pergunta:hover { background: #fafbfa; }
+@media (hover: hover) and (pointer: fine) {
+  .pergunta:hover { background: #fafbfa; }
+}
 .pergunta .dica { font-size: .9rem; }
 .cabecalho-voltar .rotulo { margin: 0; }
 h1.enunciado { font-size: 1.25rem; }

@@ -25,6 +25,6 @@
   --duracao-toque: 160ms;    /* botão, chip e cartão afundando ao toque */
   --duracao-cor: 150ms;      /* troca de cor e fundo */
   --duracao-pagina: 240ms;   /* troca de página: abaixo de 300ms, a página fica inerte durante a troca */
-  --duracao-aviso: 300ms;
+  --duracao-aviso: 200ms;    /* o aviso aparece a cada lançamento salvo */
   --confete-dourado: #f5c542; /* decorativo, só no confete */
 }

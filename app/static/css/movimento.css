@@ -1,6 +1,7 @@
 /* Movimento: troca de página, entrada dos avisos, comemoração, toque e barras. Só CSS, sem JavaScript.
-   Tudo fica dentro de prefers-reduced-motion: no-preference. Quem pediu menos movimento no sistema vê
-   a tela parada, que é o estado base em todos os outros arquivos. Só transform e opacity se movem. */
+   O movimento completo fica em prefers-reduced-motion: no-preference. Quem pede menos movimento recebe
+   a versão suave no fim do arquivo: só opacidade e cor, sem deslocamento, salto nem confete.
+   Fora desses dois blocos, a tela é parada. Só transform e opacity se movem (clip-path só na barra). */
 
 @media (prefers-reduced-motion: no-preference) {
 
@@ -23,17 +24,17 @@
 
   /* ---------- Avisos ---------- */
 
-  /* Entram depois da troca de página começar, para os dois movimentos não brigarem. */
-  .aviso { animation: entra-aviso var(--duracao-aviso) var(--ease-out) 120ms backwards; }
+  /* O aviso aparece a cada lançamento salvo (dezenas de vezes por dia): entrada curta e sem espera. */
+  .aviso { animation: entra-aviso var(--duracao-aviso) var(--ease-out) backwards; }
 
   /* Comemoração (missão, nível, meta concluída): evento raro, então pode encantar.
      O cartão dá um pequeno salto, o troféu balança e o confete cai uma vez só. */
-  .aviso-conquista { animation: salta-conquista 450ms var(--ease-salto) 120ms backwards; }
-  .aviso-conquista .trofeu { animation: balanca-trofeu 700ms var(--ease-out) 450ms backwards; transform-origin: 50% 85%; }
+  .aviso-conquista { animation: salta-conquista 450ms var(--ease-salto) backwards; }
+  .aviso-conquista .trofeu { animation: balanca-trofeu 700ms var(--ease-out) 300ms backwards; transform-origin: 50% 85%; }
   .aviso-conquista::before,
   .aviso-conquista::after {
     content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-    opacity: 0; animation: confete 1100ms var(--ease-out) 250ms forwards;
+    opacity: 0; animation: confete 1100ms var(--ease-out) 150ms forwards;
   }
   .aviso-conquista::before {
     background:
@@ -46,7 +47,7 @@
       radial-gradient(circle at 92% 34%, var(--sucesso-fundo) 0 2.5px, transparent 3px);
   }
   .aviso-conquista::after {
-    animation-delay: 380ms;
+    animation-delay: 280ms;
     background:
       radial-gradient(circle at 14% 50%, var(--confete-dourado) 0 2.5px, transparent 3px),
       radial-gradient(circle at 28% 12%, var(--texto-sobre-cor) 0 2px, transparent 2.5px),
@@ -70,17 +71,32 @@
   a.lancamento:active, a.turma-item:active, .pergunta:active { transform: scale(.985); }
   .pergunta { transition: transform var(--duracao-toque) var(--ease-out), background-color var(--duracao-cor) ease; }
   .menu-aluno .icone { transition: transform var(--duracao-toque) var(--ease-out), background-color var(--duracao-cor) ease; }
-  .menu-aluno a:active .icone { transform: scale(.9); }
+  .menu-aluno a:active .icone { transform: scale(.95); }
 
   /* ---------- Barras: a barra se desenha da esquerda ao abrir a tela ---------- */
 
   /* O navegador não anima o preenchimento (::-webkit-progress-value), então a barra inteira se
-     revela com clip-path, a exceção aceita a "só transform e opacity" para revelar elemento. */
-  progress { animation: revela-barra 600ms var(--ease-out) 120ms backwards; }
+     revela com clip-path, a exceção aceita a "só transform e opacity" para revelar elemento.
+     Curta e sem espera: as barras estão em telas abertas muitas vezes por dia. */
+  progress { animation: revela-barra 280ms var(--ease-out) backwards; }
+}
 
-  /* ---------- Sequência: a marca de hoje pulsa duas vezes e para ---------- */
+/* ---------- Versão suave para quem pede menos movimento ---------- */
 
-  .dias .dia.ativo:last-child { animation: pulsa-dia 500ms var(--ease-out) 450ms 2; }
+/* Menos movimento não é zero: fica o que ajuda a entender (o aviso aparecendo, a troca de cor do
+   botão e o esmaecimento entre páginas), sem deslocamento, escala, salto, confete nem barra se desenhando. */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 150ms; }
+
+  .aviso { animation: aparece 200ms ease backwards; }
+
+  button, .botao, .chip, .segmento-opcao, label.alt {
+    transition:
+      background-color var(--duracao-cor) ease,
+      border-color var(--duracao-cor) ease,
+      color var(--duracao-cor) ease;
+  }
 }
 
 @keyframes sai-pagina { to { opacity: 0; } }
@@ -103,4 +119,4 @@
   100% { opacity: 0; transform: translateY(45%); }
 }
 @keyframes revela-barra { from { clip-path: inset(0 100% 0 0); } }
-@keyframes pulsa-dia { 50% { transform: scale(1.35); } }
+@keyframes aparece { from { opacity: 0; } }

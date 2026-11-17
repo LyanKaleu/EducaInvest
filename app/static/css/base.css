@@ -27,10 +27,7 @@ body {
 .pular:focus { left: 1rem; top: 1rem; z-index: 30; background: var(--fundo); padding: .5rem 1rem; }
 
 main:focus { outline: none; }
-
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; animation: none !important; }
-}
+/* Movimento, inclusive a versão suave para quem pede menos movimento: em movimento.css. */
 
 /* ---------- Layout ---------- */
 
