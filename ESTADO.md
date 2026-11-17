@@ -55,7 +55,13 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 - **Ensino fundamental:** produto à parte, mais lúdico, com outra linguagem. Abaixo de 12 anos a LGPD (art. 14) exige o consentimento específico de um dos pais ou responsável, que o RN-05 de hoje não cobre.
 - **Mascote** próprio para a marca e a divulgação.
 - Do protótipo, o que ficou de fora por precisar de JavaScript: avisos que somem sozinhos, comemoração de nível, busca ao digitar e sugestões de nome na nova meta.
-- **Quiz do dia** com perguntas de cálculo parametrizadas (números novos por aluno e por dia, resposta calculada pelo código) e **gerador de perguntas com IA** (comando que pede um lote em JSON com schema, valida e grava no banco). O texto das 12 perguntas atuais precisa de revisão.
+- **Quiz do dia** com perguntas de cálculo parametrizadas (números novos por aluno e por dia, resposta calculada pelo código, sem IA) e **gerador de perguntas com IA**. O texto das 12 perguntas atuais precisa de revisão.
+  - O gerador é um comando Python que chama a API de IA direto, sem n8n nem Zapier (seria mais um serviço e uma credencial fora do gate). Ele pede um lote em JSON com schema e valida com as regras do `quiz_service`.
+  - O lote vai para um arquivo no repositório, ao lado do `PERGUNTAS`, e não para o banco: o PR é a revisão humana, e o código da pergunta continua imutável depois de publicado.
+  - A geração é offline, em lote, nunca na hora da resposta, e nenhum dado de aluno vai para a API.
+- **Supabase (só o Postgres, sem o Supabase Auth)** junto com a troca de deploy, nunca antes. Tirar o banco do servidor libera um host que dorme ou serverless (Render, Koyeb, Cloud Run, Vercel) e vários workers. Também leva o limite de login para o banco, porque em serverless a contagem por processo deixa de proteger.
+  - Custo: `psycopg` (dependência nova), `CREATE TABLE` reescritos (O1), `COLLATE NOCASE` (N3) virando `citext` ou índice em `lower()`, gatilhos do XP (N6) em outra sintaxe e banco de teste para a suíte.
+  - Ponto de partida: o schema PostgreSQL de referência em `docs/`. Antes de decidir, conferir se o plano grátis ainda pausa o projeto parado.
 
 ## Decisões pendentes
 - Lista de categorias e valor máximo do lançamento ("A confirmar" em `lancamento_service.py`).
