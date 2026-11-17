@@ -83,7 +83,7 @@ Texto branco sobre `--primaria`, `--perigo` e `--foco` passa de 6:1.
 6. **Metas:** "+ Nova meta", resumo (guardado em todas as metas, em andamento e concluídas), metas em andamento com atalhos de aporte (R$ 5, R$ 10 e R$ 20, só os que cabem no que falta) e "Outro valor", e as concluídas separadas, com selo.
 7. **Quiz:** XP do quiz hoje, perguntas por tema com faixa de status e, na pergunta, as alternativas em cartões. Depois de responder, a certa e a escolhida ficam marcadas e o resultado traz a explicação.
 8. **Turmas do professor:** cada turma com o número de alunos e o código, e o cartão "Criar turma".
-9. **Turma:** cartão verde com os ativos nos últimos 7 dias, XP médio e missões; "Precisa de atenção" com quem não ganha XP há mais de 7 dias; ranking por XP com barra; turma por nível; convite com o código. **Sem valores em reais e sem e-mail.**
+9. **Turma:** cartão verde com os ativos nos últimos 7 dias, XP médio e missões; "Precisa de atenção" com quem não ganhou XP nos últimos 7 dias; ranking por XP com barra; turma por nível; convite com o código. **Sem valores em reais e sem e-mail.**
 
 ## 8. Faça e não faça
 **Faça**

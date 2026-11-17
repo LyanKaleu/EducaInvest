@@ -487,7 +487,7 @@ a.turma-item:hover { color: var(--texto); background: #fafbfa; }
 .aluno-ranking.inativo .situacao { color: var(--perigo); font-weight: 600; }
 /* Turma por nível: um quadro por nível, o número em cima. */
 .niveis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin: 0; text-align: center; }
-.niveis > div { display: flex; flex-direction: column; padding: .6rem .25rem; border-radius: var(--raio); background: var(--suave); }
+.niveis > div { display: flex; flex-direction: column-reverse; padding: .6rem .25rem; border-radius: var(--raio); background: var(--suave); }
 .niveis > div.com-alunos { background: var(--sucesso-fundo); }
 .niveis dd { margin: 0; font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .niveis dt { font-size: .9rem; }

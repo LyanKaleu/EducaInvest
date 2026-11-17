@@ -48,7 +48,7 @@
            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg>
       <div>
         <h2 id="titulo-atencao">Precisa de atenção</h2>
-        <p><strong>{{ painel.inativos | join(', ') }}</strong> {{ 'não ganham' if varios else 'não ganha' }} XP há mais de 7 dias.</p>
+        <p><strong>{{ painel.inativos | join(', ') }}</strong> {{ 'não ganharam' if varios else 'não ganhou' }} XP nos últimos 7 dias.</p>
       </div>
     </section>
   {% endif %}
@@ -76,8 +76,9 @@
     <dl class="niveis">
       {% for faixa in painel.por_nivel %}
         <div{% if faixa.quantidade and not loop.first %} class="com-alunos"{% endif %}>
-          <dd id="nivel-{{ loop.index }}">{{ faixa.quantidade }}</dd>
+          {# <dt> antes do <dd> (HTML válido); o CSS põe o número em cima. #}
           <dt>{{ faixa.nome }}</dt>
+          <dd id="nivel-{{ loop.index }}">{{ faixa.quantidade }}</dd>
         </div>
       {% endfor %}
     </dl>
