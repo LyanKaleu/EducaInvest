@@ -186,3 +186,37 @@ def test_missoes_mostra_o_xp_de_registros_de_hoje_e_o_teto(cliente):
     registrar(cliente, vezes=2)
 
     assert "Hoje: 20 de 50 XP." in tela_missoes(cliente)
+
+
+# ---------------------------------------------------------------------------
+# Comemoração: conquista e nível vêm num aviso próprio, que o CSS anima
+# ---------------------------------------------------------------------------
+
+def categoria_do_aviso(html, trecho):
+    """Categoria (sucesso, erro, conquista) do aviso que contém `trecho`, ou None."""
+    for categoria, corpo in re.findall(r'<p class="aviso aviso-(\w+)"[^>]*>(.*?)</p>', html, re.DOTALL):
+        if trecho in corpo:
+            return categoria
+    return None
+
+
+def test_missao_concluida_aparece_como_comemoracao(cliente):
+    registrar(cliente, vezes=2)
+
+    html = registrar(cliente).get_data(as_text=True)
+
+    assert categoria_do_aviso(html, "Conquista desbloqueada: Primeiros passos!") == "conquista"
+
+
+def test_subida_de_nivel_aparece_como_comemoracao(cliente):
+    registrar(cliente, vezes=6)
+
+    html = registrar(cliente).get_data(as_text=True)
+
+    assert categoria_do_aviso(html, "Você subiu para o nível 2 (Aprendiz)!") == "conquista"
+
+
+def test_registro_comum_continua_como_sucesso(cliente):
+    html = registrar(cliente).get_data(as_text=True)
+
+    assert categoria_do_aviso(html, "Lançamento salvo") == "sucesso"

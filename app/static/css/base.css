@@ -85,6 +85,14 @@ p { margin: 0 0 1rem; }
 .aviso { padding: .75rem 1rem; border-radius: var(--raio); border-left: 6px solid; }
 .aviso-sucesso { background: var(--sucesso-fundo); border-color: var(--primaria); }
 .aviso-erro { background: var(--erro-fundo); border-color: var(--perigo); }
+/* Comemoração (missão, nível, meta concluída): cartão verde com troféu. O movimento fica em movimento.css. */
+.aviso-conquista {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: flex; align-items: center; gap: .75rem;
+  background: var(--primaria); border-color: var(--primaria-escura);
+  color: var(--texto-sobre-cor); font-weight: 700;
+}
+.aviso-conquista .trofeu { flex: none; }
 .erro-campo { color: var(--perigo); font-weight: 600; margin: .25rem 0 0; }
 [aria-invalid="true"] { border-color: var(--perigo) !important; border-width: 2px !important; }
 

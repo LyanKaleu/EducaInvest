@@ -89,9 +89,12 @@ def registrar_progresso(conn: sqlite3.Connection, aluno_id: int, lancamento_id=N
 
 
 def avisar_conquistas(progresso: dict) -> None:
-    """Mostra (flash) as conquistas e a subida de nível do `registrar_progresso`."""
+    """Mostra (flash) as conquistas e a subida de nível do `registrar_progresso`.
+
+    Usam a categoria "conquista", que o CSS mostra como comemoração.
+    """
     for missao in progresso["conquistas"]:
-        flash(f"Conquista desbloqueada: {missao['titulo']}! +{missao['xp']} XP", "sucesso")
+        flash(f"Conquista desbloqueada: {missao['titulo']}! +{missao['xp']} XP", "conquista")
     if progresso["novo_nivel"]:
         nivel = progresso["novo_nivel"]
-        flash(f"Você subiu para o nível {nivel['nivel']} ({nivel['nome']})!", "sucesso")
+        flash(f"Você subiu para o nível {nivel['nivel']} ({nivel['nome']})!", "conquista")

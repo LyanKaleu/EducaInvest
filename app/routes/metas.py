@@ -140,5 +140,5 @@ def aportar(meta_id):
         return _recusa_do_aporte(_com_progresso(_buscar_ou_404(meta_id)), dados)
     flash(f"Aporte de {reais(dados['valor_centavos'])} guardado!", "sucesso")
     if _com_progresso(_repo().buscar(_aluno_id(), meta_id))["concluida"]:
-        flash(f"Parabéns, você concluiu a meta {meta['nome']}!", "sucesso")
+        flash(f"Parabéns, você concluiu a meta {meta['nome']}!", "conquista")  # comemoração no CSS
     return redirect(url_for(".listar"))
