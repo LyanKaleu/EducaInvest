@@ -1,14 +1,13 @@
 <div align="center">
 
-<img src="docs/img/hero.gif" width="100%" alt="EducaInvest: finanças na prática, com cara de jogo. Um celular passa pela tela inicial do aluno, pelo registro de um gasto, pelas missões, pelas metas, pelo quiz e pelo painel do professor.">
-
-<br>
-
 <a href="https://github.com/LyanKaleu/EducaInvest/actions/workflows/gate.yml"><img src="https://img.shields.io/github/actions/workflow/status/LyanKaleu/EducaInvest/gate.yml?branch=main&label=gate" alt="Gate do CI"></a>
 <img src="https://img.shields.io/badge/python-3.14-1d6b3f?logo=python&logoColor=white" alt="Python 3.14">
 <img src="https://img.shields.io/badge/flask-3.1-1d6b3f?logo=flask&logoColor=white" alt="Flask 3.1">
 <img src="https://img.shields.io/badge/sqlite-3-1d6b3f?logo=sqlite&logoColor=white" alt="SQLite">
-<img src="https://img.shields.io/badge/JavaScript-nenhum-1d6b3f" alt="Sem JavaScript">
+
+<br><br>
+
+<img src="docs/img/hero.gif" width="100%" alt="EducaInvest: finanças na prática, com cara de jogo. Um celular passa pela tela inicial do aluno, pelo registro de um gasto, pelas missões, pelas metas, pelo quiz e pelo painel do professor.">
 
 **Educação financeira na prática para jovens de 16 a 24 anos.**
 O aluno registra o próprio dinheiro, cumpre missões e ganha XP. O professor acompanha a turma sem ver valores.
