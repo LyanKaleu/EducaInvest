@@ -31,10 +31,12 @@ O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACA
 ## Próximo passo
 1. Ligar CodeQL e Dependabot security updates (a `main` já recebeu o merge; veja "Setup do GitHub" abaixo).
 2. Release `v1.0.0` na `main`. O deploy é interno: nada sobre ele entra no README nem nas notas da release.
+3. Executor de migrações (scripts SQL numerados com `PRAGMA user_version`), antes da primeira alteração de tabela com dados no deploy.
+4. PWA sobre o visual novo (o redesign já seguiu o protótipo navegável): manifest e service worker, com JavaScript só como melhoria progressiva.
 
 Fly e Render foram descartados: a Fly exige cartão e o Render grátis apaga o SQLite quando o app dorme. Container (`gunicorn`, `Dockerfile`) só volta se o banco sair do SQLite local.
 
-Refatoração e arquitetura (camadas ou fatias) ficam para depois do MVP, com o feedback de uso.
+Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem ORM, PWA sobre o Jinja e PostgreSQL só quando um gatilho acontecer. O porquê, os limites e os gatilhos ficam no AGENTS.md, seção "Arquitetura".
 
 ## Setup do GitHub (depois do merge na `main`)
 - **CodeQL** e **Dependabot security updates:** ligar depois do merge na `main`, porque os dois olham a branch padrão.
@@ -58,7 +60,8 @@ Refatoração e arquitetura (camadas ou fatias) ficam para depois do MVP, com o 
 ## Decisões pendentes
 - Lista de categorias e valor máximo do lançamento ("A confirmar" em `lancamento_service.py`).
 - Valores de XP, teto diário e níveis. Quiz: 10 XP por acerto e teto de 40 por dia (`quiz_service.py`).
-- Manter as camadas ou migrar para fatias verticais.
+- Escola como entidade do produto (várias escolas, papel de gestor), antes de qualquer expansão.
+- Tema escuro entra no design system? (A faixa lateral ficou, nos itens de lista, como no protótipo.)
 - "Dia ativo" e a janela de 7 dias do painel do professor (`JANELA_FREQUENCIA_DIAS` em `turma_service.py`).
 
 ## Em andamento
