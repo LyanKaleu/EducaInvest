@@ -7,7 +7,7 @@
   <title>{% block titulo %}EducaInvest{% endblock %} · EducaInvest</title>
   {# Um arquivo por assunto, nesta ordem (a ordem importa na cascata). Sem @import nem build:
      os <link> baixam em paralelo e ficam no cache. #}
-  {% for folha in ('tokens', 'base', 'navegacao', 'aluno', 'professor', 'entrada') %}
+  {% for folha in ('tokens', 'base', 'navegacao', 'aluno', 'professor', 'entrada', 'movimento') %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/' ~ folha ~ '.css') }}">
   {% endfor %}
 </head>

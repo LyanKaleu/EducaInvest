@@ -17,4 +17,14 @@
   --texto-sobre-cor: #ffffff; /* sobre --primaria, --perigo e --foco passa de 6:1 */
   --raio: 8px;
   --altura-menu: 4.25rem;    /* barra do rodapé do aluno no celular */
+
+  /* Movimento (usado só em movimento.css). Curvas fortes de ease-out: começam rápido e
+     assentam devagar, então a tela responde na hora. Nada de ease-in em interface. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-salto: cubic-bezier(0.34, 1.4, 0.64, 1);  /* leve passada do ponto, só na comemoração */
+  --duracao-toque: 160ms;    /* botão, chip e cartão afundando ao toque */
+  --duracao-cor: 150ms;      /* troca de cor e fundo */
+  --duracao-pagina: 240ms;   /* troca de página: abaixo de 300ms, a página fica inerte durante a troca */
+  --duracao-aviso: 300ms;
+  --confete-dourado: #f5c542; /* decorativo, só no confete */
 }
