@@ -89,16 +89,16 @@ def test_ranking_mostra_cada_aluno_sem_email(cliente_professor, turma, cliente_a
 def test_ranking_fica_em_ordem_de_xp_com_empate_por_apelido(app, cliente_professor, turma,
                                                           cliente_aluno):
     # Ranking por XP (decisão do redesign v2). No empate vale o apelido, sem diferenciar
-    # maiúsculas: a ordem binária poria "bruno" depois de "Ana" e de "Gabriel".
-    registrar_gasto(cliente_aluno)  # Gabriel: 10 XP
-    for apelido in ("bruno", "Ana"):
-        resposta = cadastrar_aluno(app.test_client(), turma["codigo"], email=f"{apelido}@escola.br",
-                                   apelido=apelido)
-        assert resposta.status_code == 302
+    # maiúsculas: "bruno" e "Gabriel" empatam em 0 XP, e a ordem binária poria "Gabriel" antes.
+    ana = app.test_client()
+    assert cadastrar_aluno(ana, turma["codigo"], email="ana@escola.br", apelido="Ana").status_code == 302
+    registrar_gasto(ana)  # Ana: 10 XP
+    resposta = cadastrar_aluno(app.test_client(), turma["codigo"], email="bruno@escola.br", apelido="bruno")
+    assert resposta.status_code == 302
 
     html = painel_da_turma(cliente_professor, turma)
 
-    assert re.findall(r'<strong class="apelido">([^<]*)</strong>', html) == ["Gabriel", "Ana", "bruno"]
+    assert re.findall(r'<strong class="apelido">([^<]*)</strong>', html) == ["Ana", "bruno", "Gabriel"]
 
 
 def test_painel_aponta_quem_nao_ganha_xp_ha_7_dias(app, cliente_professor, turma, cliente_aluno):
