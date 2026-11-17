@@ -1,0 +1,64 @@
+/* Telas do professor: lista de turmas e painel da turma. */
+
+/* ---------- Turmas e painel da turma (professor) ---------- */
+
+code.codigo-turma { font-family: ui-monospace, Consolas, monospace; font-size: 1.1rem; font-weight: 700; letter-spacing: .1em; color: var(--primaria); }
+/* Lista de turmas: o cartão inteiro abre a turma; faixa verde como no protótipo. */
+.turmas { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: .625rem; }
+.turma-item {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  padding: .875rem 1rem; color: var(--texto); text-decoration: none;
+  background: var(--fundo); border: 1px solid var(--divisoria); border-left: 6px solid var(--primaria); border-radius: var(--raio);
+}
+a.turma-item:hover { color: var(--texto); background: #fafbfa; }
+.turma-item code.codigo-turma { font-size: 1rem; }
+.form-turma { gap: .75rem; }
+.form-turma .campo { margin: 0; }
+.form-turma .dica { margin: 0; font-size: .9rem; }
+
+.titulo-turma { display: flex; flex-direction: column; min-width: 0; }
+.titulo-turma h1 { margin: 0; overflow-wrap: anywhere; }
+/* Destaque da turma: cartão verde, como o saldo do aluno. */
+.cartao-turma {
+  display: flex; flex-direction: column; gap: .75rem;
+  padding: 1.25rem; margin-bottom: .75rem; border-radius: var(--raio);
+  background: var(--primaria); color: var(--texto-sobre-cor);
+}
+.cartao-turma .rotulo { color: var(--texto-sobre-cor); }
+.ativos-turma { margin: 0; }
+.ativos-turma strong { font-size: 2.5rem; line-height: 1.1; margin-right: .25rem; font-variant-numeric: tabular-nums; }
+.numeros-turma { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: .25rem 0 0; font-variant-numeric: tabular-nums; }
+.numeros-turma dt { font-size: .9rem; }
+.numeros-turma dd { margin: 0; font-size: 1.3rem; font-weight: 700; }
+/* Alerta de inativos: fundo de erro, ícone e título em vermelho, nomes em texto. */
+.atencao { display: flex; gap: .75rem; align-items: flex-start; padding: .875rem 1rem; margin-bottom: .75rem; border-radius: var(--raio); background: var(--erro-fundo); }
+.atencao svg { flex: none; margin-top: 2px; color: var(--perigo); }
+.atencao h2 { margin: 0 0 .125rem; font-size: 1rem; color: var(--perigo); }
+.atencao p { margin: 0; overflow-wrap: anywhere; }
+/* Ranking: lista com barra relativa ao maior XP; inativo em cinza e vermelho, escrito. */
+.ranking-cartao { padding: 0; gap: 0; overflow: hidden; }
+.ranking-cartao > .rotulo { padding: .875rem 1rem .5rem; }
+.ranking { list-style: none; margin: 0; padding: 0; }
+.aluno-ranking { display: flex; flex-direction: column; gap: .375rem; padding: .75rem 1rem; border-top: 1px solid var(--divisoria); }
+.aluno-ranking .apelido { overflow-wrap: anywhere; }
+.aluno-ranking progress { height: .5rem; border: 0; }
+.aluno-ranking.inativo progress { color: var(--borda); }
+.aluno-ranking.inativo progress::-webkit-progress-value { background: var(--borda); }
+.aluno-ranking.inativo progress::-moz-progress-bar { background: var(--borda); }
+.situacao { font-size: .9rem; color: var(--texto-suave); }
+.aluno-ranking.inativo .situacao { color: var(--perigo); font-weight: 600; }
+/* Turma por nível: um quadro por nível, o número em cima. */
+.niveis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin: 0; text-align: center; }
+.niveis > div { display: flex; flex-direction: column-reverse; padding: .6rem .25rem; border-radius: var(--raio); background: var(--suave); }
+.niveis > div.com-alunos { background: var(--sucesso-fundo); }
+.niveis dd { margin: 0; font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.niveis dt { font-size: .9rem; }
+/* Convite: o código em destaque, com contorno tracejado. */
+.convite {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem;
+  padding: .875rem 1rem; margin-bottom: .75rem; border-radius: var(--raio);
+  background: var(--fundo); border: 1px dashed var(--borda);
+}
+.convite h2 { margin: 0; font-size: 1rem; }
+.convite p { margin: 0; }
+.convite code.codigo-turma { font-size: 1.3rem; letter-spacing: .12em; }

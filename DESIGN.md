@@ -1,7 +1,7 @@
 # DESIGN.md · EducaInvest
 
 Guia visual do EducaInvest para gerar telas em ferramentas de design (Claude Design, Google Stitch, Gemini).
-Descreve o visual que existe hoje em `app/static/css/app.css` (o do protótipo navegável, aplicado em 16/11/2026) e as restrições do código. A fonte da verdade continua sendo o `app.css`.
+Descreve o visual que existe hoje nos arquivos de `app/static/css/` (o do protótipo navegável, aplicado em 16/11/2026) e as restrições do código. A fonte da verdade continua sendo o CSS.
 Se uma proposta nova for aprovada, atualize este arquivo junto com o CSS.
 
 ## 1. Produto e público
@@ -13,7 +13,7 @@ Se uma proposta nova for aprovada, atualize este arquivo junto com o CSS.
 ## 2. Restrições técnicas (obrigatórias)
 O design precisa caber nestas regras. Proposta que depende de algo fora delas não é implementável.
 - **HTML renderizado no servidor (Jinja), sem JavaScript.** Nada de modal, drawer, carrossel, abas dinâmicas, tooltip, drag and drop, toast que some sozinho ou gráfico interativo. Toda ação é um link ou um formulário que recarrega a página.
-- **CSS puro num arquivo só**, sem framework (sem Tailwind, sem Bootstrap) e sem fonte externa. Animação só em CSS e discreta, respeitando `prefers-reduced-motion`. Sem `style` inline: a política de segurança (CSP) bloqueia.
+- **CSS puro, um arquivo por assunto** em `app/static/css/` (`tokens`, `base`, `navegacao`, `aluno`, `professor`, `entrada`), carregados em ordem pelo `base.html`, sem `@import` e sem etapa de build. Sem framework (sem Tailwind, sem Bootstrap) e sem fonte externa. Animação só em CSS e discreta, respeitando `prefers-reduced-motion`. Sem `style` inline: a política de segurança (CSP) bloqueia.
 - **Gráficos:** só o que dá para fazer com HTML e CSS: `<progress>`, barras com largura em %, números grandes. Sem bibliotecas de gráfico.
 - **Ícones:** SVG inline de traço, sempre acompanhados de texto. Nada de emoji. Nenhuma informação só no ícone.
 - **Mobile-first:** tudo funciona em 375px de largura. O conteúdo fica numa coluna de no máximo 40rem (640px) centralizada, também no desktop.

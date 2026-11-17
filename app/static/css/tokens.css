@@ -1,0 +1,20 @@
+/* Tokens do visual: cores, raio e medidas. Todo o resto usa estas variáveis. */
+
+:root {
+  --texto: #1a1a1a;
+  --texto-suave: #555555;    /* rótulos e dicas: 7,0:1 no branco, 6,3:1 no --suave */
+  --texto-descricao: #444444;
+  --fundo: #ffffff;          /* cartões e campos */
+  --suave: #f3f4f2;          /* fundo da página */
+  --divisoria: #d6d6d3;      /* borda dos cartões (decorativa) */
+  --borda: #6b6b6b;          /* borda de campos e barras: contraste 5,3:1 */
+  --primaria: #1b6e3a;       /* verde: marca, entradas, botão principal, XP */
+  --primaria-escura: #14532b;
+  --perigo: #b3261e;         /* vermelho: gastos, erros e excluir */
+  --foco: #1a5fb4;           /* azul: foco do teclado e missão em andamento */
+  --sucesso-fundo: #e7f4ea;
+  --erro-fundo: #fbeaea;
+  --texto-sobre-cor: #ffffff; /* sobre --primaria, --perigo e --foco passa de 6:1 */
+  --raio: 8px;
+  --altura-menu: 4.25rem;    /* barra do rodapé do aluno no celular */
+}

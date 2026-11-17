@@ -5,7 +5,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}EducaInvest{% endblock %} · EducaInvest</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  {# Um arquivo por assunto, nesta ordem (a ordem importa na cascata). Sem @import nem build:
+     os <link> baixam em paralelo e ficam no cache. #}
+  {% for folha in ('tokens', 'base', 'navegacao', 'aluno', 'professor', 'entrada') %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/' ~ folha ~ '.css') }}">
+  {% endfor %}
 </head>
 {% set e_aluno = session.get('perfil') == 'ALUNO' %}
 <body{% if e_aluno %} class="com-menu-aluno"{% endif %}>
