@@ -92,6 +92,24 @@
   .menu-aluno .icone { transition: transform var(--duracao-toque) var(--ease-out), background-color var(--duracao-cor) ease; }
   .menu-aluno a:active .icone { transform: scale(.95); }
 
+  /* ---------- Erros e escolhas nos formulários ---------- */
+
+  /* Campo (ou grupo de chips) que voltou com erro treme uma vez, logo depois da troca de página
+     (transitions.dev: error state shake, 80/60/80/60 ms). A mensagem entra junto. */
+  [aria-invalid="true"], fieldset[aria-describedby^="erro-"] { animation: treme-erro 280ms linear 250ms; }
+  .erro-campo { animation: entra-erro var(--duracao-curta) var(--ease-out) 200ms backwards; }
+
+  /* Chip e alternativa marcados assentam com uma pequena mola. */
+  .chip:has(input:checked), .alternativas label.alt:has(input:checked) { animation: marca-escolha var(--duracao-curta) var(--ease-mola); }
+
+  /* Pílula do Gasto/Entrada deslizando (transitions.dev: tabs sliding). Posição e largura vêm do JS. */
+  .js .segmento .pilula {
+    transition:
+      transform var(--duracao-curta) var(--ease-out),
+      width var(--duracao-curta) var(--ease-out),
+      background-color var(--duracao-curta) ease;
+  }
+
   /* ---------- Barras: a barra se desenha da esquerda ao abrir a tela ---------- */
 
   /* O navegador não anima o preenchimento (::-webkit-progress-value), então a barra inteira se
@@ -109,6 +127,7 @@
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 150ms; }
 
   .aviso { animation: aparece 200ms ease backwards; }
+  .erro-campo { animation: aparece 200ms ease backwards; }
   /* O toast continua saindo sozinho, só com esmaecimento. */
   .aviso-sucesso { animation: aparece 200ms ease backwards, some 200ms ease var(--tempo-do-toast) forwards; }
 
@@ -151,6 +170,30 @@
 @keyframes aparece-check { from { opacity: 0; transform: rotate(80deg); filter: blur(4px); } }
 @keyframes assenta-check { from { translate: 0 6px; } }
 @keyframes desenha-traco { to { stroke-dashoffset: 0; } }
+/* Paradas = durações acumuladas dos 4 trechos (80, 60, 80, 60 ms de 280 ms). */
+@keyframes treme-erro {
+  0%     { transform: translateX(0);    animation-timing-function: var(--ease-out); }
+  28.57% { transform: translateX(6px);  animation-timing-function: var(--ease-out); }
+  57.14% { transform: translateX(-6px); animation-timing-function: var(--ease-out); }
+  78.57% { transform: translateX(4px);  animation-timing-function: var(--ease-out); }
+  100%   { transform: translateX(0); }
+}
+@keyframes entra-erro { from { opacity: 0; transform: translateY(-4px); } }
+@keyframes marca-escolha { from { transform: scale(.94); } }
+
+/* ---------- Estrutura que só existe com JavaScript (movimento.js) ---------- */
+
+/* Gasto/Entrada: com JS, a cor da opção marcada sai do rótulo e vai para uma pílula que desliza
+   por baixo dele. Sem JS, a opção marcada pinta o próprio fundo (aluno.css). */
+.js .segmento { position: relative; }
+.js .segmento .segmento-opcao,
+.js .segmento .segmento-opcao:has(input:checked) { z-index: 1; background: transparent; }
+.js .segmento .pilula {
+  position: absolute; top: 0; left: 0; z-index: 0; pointer-events: none;
+  border-radius: var(--raio); background: var(--primaria);
+}
+.js .segmento[data-marcada="gasto"] .pilula { background: var(--perigo); }
+.js .segmento:not([data-marcada]) .pilula { opacity: 0; }
 
 /* Pausa a saída do toast enquanto o aluno lê com o mouse em cima ou navega por ele (WCAG 2.2.1). */
 .aviso-sucesso:hover, .aviso-sucesso:focus-within { animation-play-state: paused; }
