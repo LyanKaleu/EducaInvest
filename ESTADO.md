@@ -32,13 +32,14 @@ O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACA
 | Redesign igual ao protótipo navegável: menu no rodapé, cartões, chips sem JavaScript, sequência de 7 dias, resumo e atalhos nas metas, ranking e inativos no painel da turma | #26 |
 | Animações só em CSS (troca de página, avisos, comemoração, toque, barras) e CSS dividido em um arquivo por assunto | #29 |
 | PEP 8 a 79 colunas com `ruff format`, lint amplo, docstrings em `app/` e anotação de tipo em todo o código | #32 |
-| `main` atualizada com os PRs #26 a #32 | (este PR e o seguinte) |
+| `main` atualizada com os PRs #26 a #32 | #34 e o seguinte |
+| Tema escuro automático pelo tema do sistema (sem botão e sem JavaScript), cores só nos tokens e contraste AA testado nos dois temas | (este PR) |
 
 ## Próximo passo
 1. Ligar CodeQL e Dependabot security updates (a `main` já recebeu o merge; veja "Setup do GitHub" abaixo).
 2. Release `v1.0.0` na `main`. O deploy é interno: nada sobre ele entra no README nem nas notas da release.
 3. Executor de migrações (scripts SQL numerados com `PRAGMA user_version`), antes da primeira alteração de tabela com dados no deploy.
-4. PWA sobre o visual novo (o redesign já seguiu o protótipo navegável): manifest e service worker, com JavaScript só como melhoria progressiva.
+4. PWA sobre o visual novo (o redesign já seguiu o protótipo navegável): manifest e service worker, com JavaScript só como melhoria progressiva. O botão de troca de tema entra junto (veja o backlog).
 
 Fly e Render foram descartados: a Fly exige cartão e o Render grátis apaga o SQLite quando o app dorme. Container (`gunicorn`, `Dockerfile`) só volta se o banco sair do SQLite local.
 
@@ -61,7 +62,8 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 - **Universitários:** usar o app sem entrar numa turma, já que nem sempre há um professor acompanhando. A faixa de 16 a 24 anos já cobre esse público.
 - **Ensino fundamental:** produto à parte, mais lúdico, com outra linguagem. Abaixo de 12 anos a LGPD (art. 14) exige o consentimento específico de um dos pais ou responsável, que o RN-05 de hoje não cobre.
 - **Mascote** próprio para a marca e a divulgação.
-- Do protótipo, o que ficou de fora por precisar de JavaScript: avisos que somem sozinhos, comemoração de nível, busca ao digitar e sugestões de nome na nova meta.
+- **Botão de troca de tema** (claro, escuro ou o do sistema), junto com o PWA. Hoje o tema escuro segue o tema do sistema, sem botão; a escolha manual precisa ser guardada (cookie ou JavaScript), e no celular o tema do sistema já resolve.
+- Do protótipo, o que ficou de fora por precisar de JavaScript: avisos que somem sozinhos, busca ao digitar e sugestões de nome na nova meta. A comemoração de conquista entrou só com CSS.
 - **Quiz do dia** com perguntas de cálculo parametrizadas (números novos por aluno e por dia, resposta calculada pelo código, sem IA) e **gerador de perguntas com IA**. O texto das 12 perguntas atuais precisa de revisão.
   - O gerador é um comando Python que chama a API de IA direto, sem n8n nem Zapier (seria mais um serviço e uma credencial fora do gate). Ele pede um lote em JSON com schema e valida com as regras do `quiz_service`.
   - O lote vai para um arquivo no repositório, ao lado do `PERGUNTAS`, e não para o banco: o PR é a revisão humana, e o código da pergunta continua imutável depois de publicado.
@@ -78,11 +80,10 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 - Lista de categorias e valor máximo do lançamento ("A confirmar" em `lancamento_service.py`).
 - Valores de XP, teto diário e níveis. Quiz: 10 XP por acerto e teto de 40 por dia (`quiz_service.py`).
 - Escola como entidade do produto (várias escolas, papel de gestor), antes de qualquer expansão.
-- Tema escuro entra no design system? (A faixa lateral ficou, nos itens de lista, como no protótipo.)
 - "Dia ativo" e a janela de 7 dias do painel do professor (`JANELA_FREQUENCIA_DIAS` em `turma_service.py`).
 
 ## Riscos de segurança aceitos (MVP)
 - **Enumeração de e-mail no cadastro:** `/cadastro` responde "e-mail já cadastrado" para e-mail existente, então dá para descobrir quais e-mails têm conta. Aceito: o dado é de baixo valor (apelido, contexto escolar), sem envio de e-mail não dá para o "cadastro silencioso", e limitar por IP brigaria com a turma saindo pelo mesmo Wi-Fi (por isso o login limita por e-mail). Revisitar só se entrar verificação por e-mail. Achado da auditoria de 17/11 (BugHunter); o resto veio limpo.
 
 ## Em andamento
-Nada. A `main` recebe a `develop` (PRs #26 a #32); a release `v1.0.0` fica para depois.
+Tema escuro (`feature/tema-escuro`) em revisão. A `main` recebe a `develop` (PRs #26 a #32); a release `v1.0.0` fica para depois.

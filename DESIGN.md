@@ -23,21 +23,32 @@ O design precisa caber nestas regras. Proposta que depende de algo fora delas n�
 ## 3. Cores
 Paleta curta. Verde é a cor da marca e do dinheiro que entra; vermelho é gasto, erro e excluir; azul é foco e "em andamento".
 
-| Token | Hex | Uso |
-|---|---|---|
-| `--texto` | `#1a1a1a` | texto principal |
-| `--texto-suave` | `#555555` | rótulos, dicas e itens inativos do menu |
-| `--fundo` | `#ffffff` | cartões e campos |
-| `--suave` | `#f3f4f2` | fundo da página e trilho das barras |
-| `--divisoria` | `#d6d6d3` | borda fina dos cartões (decorativa) |
-| `--borda` | `#6b6b6b` | borda de campos, de barras e do estado vazio (contraste 5,3:1) |
-| `--primaria` | `#1b6e3a` | marca, botão principal, cartão do saldo, entradas, XP, concluído |
-| `--perigo` | `#b3261e` | gastos, saldo negativo, erros, botão de excluir |
-| `--foco` | `#1a5fb4` | contorno de foco, missão em andamento, pergunta nova |
-| `--sucesso-fundo` | `#e7f4ea` | aviso de sucesso, meta concluída, selo de XP |
-| `--erro-fundo` | `#fbeaea` | aviso de erro, alerta de inativos, confirmação de exclusão |
+O app tem tema claro e escuro e segue o tema do sistema (`prefers-color-scheme`), sem botão e sem JavaScript. Só as cores mudam; forma, espaço e movimento são os mesmos. Todas as cores ficam em `tokens.css`, e nenhum outro arquivo de CSS tem cor fixa (o teste `tests/unit/test_css_tokens.py` confere isso e calcula o contraste de cada par de texto e fundo nos dois temas).
 
-Texto branco sobre `--primaria`, `--perigo` e `--foco` passa de 6:1.
+**Verde e vermelho têm dois papéis.** O token base (`--primaria`, `--perigo`) é **fundo** com texto branco, faixa ou borda decorativa. O `-texto` (`--primaria-texto`, `--perigo-texto`) é **texto e contorno** sobre fundo neutro: links, valores, mensagens de erro, borda do campo com erro e da resposta do quiz. No claro os dois têm o mesmo valor; no escuro o `-texto` clareia para aparecer sobre o fundo escuro.
+
+| Token | Claro | Escuro | Uso |
+|---|---|---|---|
+| `--texto` | `#1a1a1a` | `#e6ece8` | texto principal |
+| `--texto-suave` | `#555555` | `#a9b4ae` | rótulos, dicas e itens inativos do menu |
+| `--fundo` | `#ffffff` | `#1b2320` | cartões e campos |
+| `--suave` | `#f3f4f2` | `#111715` | fundo da página e trilho das barras |
+| `--divisoria` | `#d6d6d3` | `#2e3a35` | borda fina dos cartões (decorativa) |
+| `--borda` | `#6b6b6b` | `#7d8a84` | borda de campos, de barras e do estado vazio (pelo menos 3:1) |
+| `--cartao-hover` | `#fafbfa` | `#222c28` | cartão-link com o mouse em cima |
+| `--primaria` | `#1b6e3a` | `#1d7340` | fundo verde: botão principal, cartão do saldo, selo, faixa de entrada |
+| `--primaria-escura` | `#14532b` | `#165c33` | botão principal no hover |
+| `--primaria-texto` | `#1b6e3a` | `#6fd09a` | texto verde: marca, links, entradas, XP, contorno da resposta certa |
+| `--perigo` | `#b3261e` | `#c2362c` | fundo vermelho: botão de excluir, saldo negativo, faixa de gasto |
+| `--perigo-escura` | `#8f1e18` | `#a12a21` | botão de excluir no hover |
+| `--perigo-texto` | `#b3261e` | `#ff8f85` | texto vermelho: gastos, erros, borda do campo com erro |
+| `--foco` | `#1a5fb4` | `#7ab3f5` | contorno de foco, missão em andamento, pergunta nova |
+| `--foco-fundo` | `#eef3fb` | `#1c2a3b` | alternativa do quiz marcada |
+| `--sucesso-fundo` | `#e7f4ea` | `#173323` | aviso de sucesso, meta concluída, selo de XP |
+| `--sucesso-borda` | `#b9dcc3` | `#2c5a3e` | borda da meta concluída |
+| `--erro-fundo` | `#fbeaea` | `#3a1d1b` | aviso de erro, alerta de inativos, confirmação de exclusão |
+
+Texto branco (`--texto-sobre-cor`) sobre `--primaria` e `--perigo` passa de 5:1 nos dois temas. Cor nova entra no `tokens.css` com a versão clara e a escura, e o par dela vai para a lista do teste de contraste.
 
 ## 4. Tipografia
 - **Família:** fonte do sistema (`system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`). Sem webfont.
@@ -54,22 +65,22 @@ Texto branco sobre `--primaria`, `--perigo` e `--foco` passa de 6:1.
 ## 5. Forma, espaço e profundidade
 - **Raio:** 8px em cartões, campos, botões e avisos; selos em pílula.
 - **Espaçamento:** múltiplos de 0,25rem. Padding de cartão 1rem. Distância entre cartões 0,75rem. Padding da página 1rem.
-- **Profundidade:** sem sombras. A página tem fundo `--suave`; os cartões são brancos com borda fina `--divisoria`.
+- **Profundidade:** sem sombras. A página tem fundo `--suave`; os cartões têm fundo `--fundo` (branco no claro) e borda fina `--divisoria`.
 - **Faixa de 6px na borda esquerda:** só nos itens de lista, para o tipo ou o status: lançamento (verde entrada, vermelho gasto), missão (azul em andamento, verde concluída, cinza bloqueada), pergunta do quiz (azul nova, verde acertou, vermelho errou), turma (verde) e avisos. O status também vai em texto.
 
 ## 6. Componentes
-- **Topo:** fundo branco. À esquerda a marca "EducaInvest" em verde e o apelido com o perfil ("Ana · Aluno", que encolhe com reticências no celular). À direita, o aluno tem o atalho "Quiz" (ícone + texto) e "Sair"; o professor tem "Turmas" e "Sair". Login e cadastro não têm topo: a marca aparece grande, num quadrado verde com o ícone de gráfico.
+- **Topo:** fundo `--fundo`. À esquerda a marca "EducaInvest" em verde e o apelido com o perfil ("Ana · Aluno", que encolhe com reticências no celular). À direita, o aluno tem o atalho "Quiz" (ícone + texto) e "Sair"; o professor tem "Turmas" e "Sair". Login e cadastro não têm topo: a marca aparece grande, num quadrado verde com o ícone de gráfico.
 - **Menu do aluno:** barra fixa no rodapé com 5 itens (Início, Lançamentos, Novo, Missões, Metas), ícone + texto. "Novo" é um círculo verde. O item atual fica verde, em negrito e com fundo claro no ícone. A partir de 48rem a barra vira uma linha abaixo do topo.
 - **Botão principal:** fundo verde, texto branco 600, altura mínima de 44px. Versão larga (100%) para a ação principal da tela.
 - **Botão de perigo:** fundo vermelho (excluir). Versão de contorno vermelho para "Excluir lançamento".
-- **Botão secundário:** contorno verde de 2px com fundo branco (atalhos de aporte, "Cancelar").
+- **Botão secundário:** contorno verde de 2px com fundo `--fundo` (atalhos de aporte, "Cancelar").
 - **Voltar:** seta à esquerda do título nas telas de formulário, quiz e turma.
 - **Campo de formulário:** rótulo em negrito acima, campo com 100% de largura, borda `--borda`, altura de 44px. Com erro, a borda fica vermelha de 2px e a mensagem aparece em vermelho, embaixo do campo. Valores em reais usam um campo maior (1,6rem, negrito).
 - **Botões de escolha (sem JavaScript):** rádios com cara de botão. Tipo do lançamento em dois botões (Gasto em vermelho, Entrada em verde), categoria em chips (o marcado fica escuro) e alternativas do quiz em cartões com a letra num círculo. O CSS (`:has`) mostra só as categorias do tipo marcado.
 - **Barra de progresso:** `<progress>` com trilho claro e preenchimento verde; azul na missão em andamento; branca sobre cartão colorido.
 - **Aviso (flash):** fundo claro e faixa esquerda de 6px: verde para sucesso, vermelha para erro.
-- **Cartão de destaque:** verde, texto branco, número grande (saldo do aluno, nível em Missões, alunos ativos no painel da turma). O saldo negativo pinta o cartão de vermelho e diz "Você gastou mais do que entrou."
-- **Indicador:** cartão branco com rótulo em maiúsculas, número grande e uma dica curta, em grade de 2 colunas.
+- **Cartão de destaque:** verde, texto branco, número grande (saldo do aluno, nível em Missões, alunos ativos no painel da turma). Dentro dele o anel de foco é branco, porque o azul some sobre o verde. O saldo negativo pinta o cartão de vermelho e diz "Você gastou mais do que entrou."
+- **Indicador:** cartão `--fundo` com rótulo em maiúsculas, número grande e uma dica curta, em grade de 2 colunas.
 - **Selo:** pílula verde clara com "+50 XP", ou verde cheia com "Concluída" e o ícone de visto.
 - **Estado vazio:** caixa com borda tracejada, frase em negrito, dica e o botão que resolve.
 - **Código da turma:** monoespaçado, negrito, verde, com letras espaçadas; no convite, numa caixa tracejada.
