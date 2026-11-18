@@ -23,21 +23,32 @@ O design precisa caber nestas regras. Proposta que depende de algo fora delas n�
 ## 3. Cores
 Paleta curta. Verde é a cor da marca e do dinheiro que entra; vermelho é gasto, erro e excluir; azul é foco e "em andamento".
 
-| Token | Hex | Uso |
-|---|---|---|
-| `--texto` | `#1a1a1a` | texto principal |
-| `--texto-suave` | `#555555` | rótulos, dicas e itens inativos do menu |
-| `--fundo` | `#ffffff` | cartões e campos |
-| `--suave` | `#f3f4f2` | fundo da página e trilho das barras |
-| `--divisoria` | `#d6d6d3` | borda fina dos cartões (decorativa) |
-| `--borda` | `#6b6b6b` | borda de campos, de barras e do estado vazio (contraste 5,3:1) |
-| `--primaria` | `#1b6e3a` | marca, botão principal, cartão do saldo, entradas, XP, concluído |
-| `--perigo` | `#b3261e` | gastos, saldo negativo, erros, botão de excluir |
-| `--foco` | `#1a5fb4` | contorno de foco, missão em andamento, pergunta nova |
-| `--sucesso-fundo` | `#e7f4ea` | aviso de sucesso, meta concluída, selo de XP |
-| `--erro-fundo` | `#fbeaea` | aviso de erro, alerta de inativos, confirmação de exclusão |
+O app tem tema claro e escuro e segue o tema do sistema (`prefers-color-scheme`), sem botão e sem JavaScript. Só as cores mudam; forma, espaço e movimento são os mesmos. Todas as cores ficam em `tokens.css`, e nenhum outro arquivo de CSS tem cor fixa (o teste `tests/unit/test_css_tokens.py` confere isso e calcula o contraste de cada par de texto e fundo nos dois temas).
 
-Texto branco sobre `--primaria`, `--perigo` e `--foco` passa de 6:1.
+**Verde e vermelho têm dois papéis.** O token base (`--primaria`, `--perigo`) é **fundo** com texto branco, faixa ou borda decorativa. O `-texto` (`--primaria-texto`, `--perigo-texto`) é **texto e contorno** sobre fundo neutro: links, valores, mensagens de erro, borda do campo com erro e da resposta do quiz. No claro os dois têm o mesmo valor; no escuro o `-texto` clareia para aparecer sobre o fundo escuro.
+
+| Token | Claro | Escuro | Uso |
+|---|---|---|---|
+| `--texto` | `#1a1a1a` | `#e6ece8` | texto principal |
+| `--texto-suave` | `#555555` | `#a9b4ae` | rótulos, dicas e itens inativos do menu |
+| `--fundo` | `#ffffff` | `#1b2320` | cartões e campos |
+| `--suave` | `#f3f4f2` | `#111715` | fundo da página e trilho das barras |
+| `--divisoria` | `#d6d6d3` | `#2e3a35` | borda fina dos cartões (decorativa) |
+| `--borda` | `#6b6b6b` | `#7d8a84` | borda de campos, de barras e do estado vazio (pelo menos 3:1) |
+| `--cartao-hover` | `#fafbfa` | `#222c28` | cartão-link com o mouse em cima |
+| `--primaria` | `#1b6e3a` | `#1d7340` | fundo verde: botão principal, cartão do saldo, selo, faixa de entrada |
+| `--primaria-escura` | `#14532b` | `#165c33` | botão principal no hover |
+| `--primaria-texto` | `#1b6e3a` | `#6fd09a` | texto verde: marca, links, entradas, XP, contorno da resposta certa |
+| `--perigo` | `#b3261e` | `#c2362c` | fundo vermelho: botão de excluir, saldo negativo, faixa de gasto |
+| `--perigo-escura` | `#8f1e18` | `#a12a21` | botão de excluir no hover |
+| `--perigo-texto` | `#b3261e` | `#ff8f85` | texto vermelho: gastos, erros, borda do campo com erro |
+| `--foco` | `#1a5fb4` | `#7ab3f5` | contorno de foco, missão em andamento, pergunta nova |
+| `--foco-fundo` | `#eef3fb` | `#1c2a3b` | alternativa do quiz marcada |
+| `--sucesso-fundo` | `#e7f4ea` | `#173323` | aviso de sucesso, meta concluída, selo de XP |
+| `--sucesso-borda` | `#b9dcc3` | `#2c5a3e` | borda da meta concluída |
+| `--erro-fundo` | `#fbeaea` | `#3a1d1b` | aviso de erro, alerta de inativos, confirmação de exclusão |
+
+Texto branco (`--texto-sobre-cor`) sobre `--primaria` e `--perigo` passa de 5:1 nos dois temas. Cor nova entra no `tokens.css` com a versão clara e a escura, e o par dela vai para a lista do teste de contraste.
 
 ## 4. Tipografia
 - **Família:** fonte do sistema (`system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`). Sem webfont.
