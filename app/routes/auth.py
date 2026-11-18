@@ -15,6 +15,9 @@ bp = Blueprint("auth", __name__)
 
 MSG_ERRO_FORM = "Não foi possível continuar. Confira os campos destacados."
 MSG_LOGIN_INVALIDO = "E-mail ou senha incorretos."
+# Esta mensagem revela se um e-mail já tem conta (enumeração). Risco ACEITO no MVP
+# (ver ESTADO.md): sem envio de e-mail não dá para o "cadastro silencioso", e limitar
+# por IP brigaria com a turma saindo pelo mesmo Wi-Fi da escola. A UX de mandar logar vale mais.
 MSG_EMAIL_EM_USO = "Este e-mail já está cadastrado."
 MSG_MUITAS_TENTATIVAS = "Muitas tentativas para este e-mail. Espere 15 minutos e tente de novo."
 

@@ -39,13 +39,13 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 
 ## Setup do GitHub (depois do merge na `main`)
 - **CodeQL** e **Dependabot security updates:** ligar depois do merge na `main`, porque os dois olham a branch padrão.
-- **Dependabot de versões:** `.github/dependabot.yml` (pip e github-actions), com `target-branch: develop` e atualizações agrupadas. É zona O3.
+- **Dependabot de versões:** `.github/dependabot.yml` criado (pip e github-actions, toda segunda, PR para a `develop`, minor e patch agrupados, major em PR separado). Só passa a valer depois do merge na `main`. É zona O3.
 - **Discussions e Projects:** só se a equipe for usar de verdade. Wiki e Packages ficam desligados.
 - Já ligados em 11/11: varredura de segredos, push protection, alertas do Dependabot e o ruleset `protege-main-develop` (`main` e `develop` só recebem mudança por PR com o check `gate` verde, sem force push e sem apagar a branch).
 
 ## Backlog (issues abertas)
 - #5 professor renomeia turma
-- #6 professor exclui turma vazia (bloqueada com alunos; liga `PRAGMA foreign_keys` junto)
+- #6 professor exclui turma vazia (bloqueada com alunos). `PRAGMA foreign_keys` já fica ligado na conexão (`app/db.py`), então o `ON DELETE CASCADE` de `matriculas` já funciona: falta só a rota de exclusão.
 - #7 busca/filtro na lista de turmas
 - #14 id gigante na URL responde 500 em vez de 404 (metas e lançamentos)
 - Limite de login vale por processo e zera ao reiniciar (`limite_service.py`). Se o deploy passar a ter vários workers, mover a contagem para o banco.
@@ -61,6 +61,9 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 - Escola como entidade do produto (várias escolas, papel de gestor), antes de qualquer expansão.
 - Redesign: tema escuro entra no design system? A faixa lateral dos cartões continua ou vira chip de status?
 - "Dia ativo" e a janela de 7 dias do painel do professor (`JANELA_FREQUENCIA_DIAS` em `turma_service.py`).
+
+## Riscos de segurança aceitos (MVP)
+- **Enumeração de e-mail no cadastro:** `/cadastro` responde "e-mail já cadastrado" para e-mail existente, então dá para descobrir quais e-mails têm conta. Aceito: o dado é de baixo valor (apelido, contexto escolar), sem envio de e-mail não dá para o "cadastro silencioso", e limitar por IP brigaria com a turma saindo pelo mesmo Wi-Fi (por isso o login limita por e-mail). Revisitar só se entrar verificação por e-mail. Achado da auditoria de 17/11 (BugHunter); o resto veio limpo.
 
 ## Em andamento
 Nada. O próximo passo é a release.
