@@ -24,12 +24,17 @@ def listar():
     aluno_id = session["usuario_id"]
     contagens = LancamentoRepository(conn).contar_por_tipo(aluno_id)
     concluidas = MissaoRepository(conn).concluidas(aluno_id)
-    xp_total = XpRepository(conn).total(aluno_id)
+    xp_repo = XpRepository(conn)
+    xp_total = xp_repo.total(aluno_id)
     return render_template(
         "aluno/missoes.html",
         missoes=missao_service.situacao(contagens, concluidas),
         xp_total=xp_total,
         nivel=xp_service.nivel(xp_total),
+        # XP de registros ganho hoje, para o aluno ver quanto falta do teto diário (RN-11).
+        xp_registros_hoje=xp_repo.pontos_no_dia(aluno_id, "LANCAMENTO", hoje_no_piaui().isoformat()),
+        teto_registros=xp_service.TETO_DIARIO_LANCAMENTOS,
+        xp_por_registro=xp_service.XP_POR_LANCAMENTO,
     )
 
 

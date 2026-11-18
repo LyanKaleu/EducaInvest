@@ -1,5 +1,7 @@
 {% extends "base.html" %}
-{# Formulário de criar (lancamento vazio) ou editar um lançamento. #}
+{# Formulário de criar (lancamento vazio) ou editar um lançamento, no formato do protótipo navegável:
+   tipo em botões, valor grande e categoria em chips. Sem JavaScript: são rádios estilizados, e o CSS
+   (:has) mostra só as categorias do tipo marcado. #}
 
 {% set editando = lancamento is not none %}
 {% block titulo %}{{ 'Editar lançamento' if editando else 'Novo lançamento' }}{% endblock %}
@@ -7,72 +9,88 @@
 {% from "_formulario.html" import erro, invalido with context %}
 
 {% block conteudo %}
-<h1>{{ 'Editar lançamento' if editando else 'Novo lançamento' }}</h1>
+<div class="cabecalho-voltar">
+  <a class="voltar" href="{{ url_for('lancamentos.listar') if editando else url_for('painel.ver') }}">
+    <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    <span class="oculto">Voltar</span>
+  </a>
+  <h1>{{ 'Editar lançamento' if editando else 'Novo lançamento' }}</h1>
+</div>
 
 {% if erros.get('chave_idempotencia') %}
   <p class="erro-campo" role="alert">{{ erros['chave_idempotencia'] }}</p>
 {% endif %}
 
 {# novalidate: as mensagens vêm sempre do servidor, iguais em qualquer navegador. #}
-<form method="post" novalidate
+<form class="form-lancamento" method="post" novalidate
       action="{{ url_for('lancamentos.atualizar', lancamento_id=lancamento.id) if editando else url_for('lancamentos.criar') }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-  {% set tipo = (form.get('tipo') or '') | lower %}
-  <fieldset {{ invalido('tipo', grupo=true) }}>
-    <legend>Tipo</legend>
-    <label class="opcao">
-      <input type="radio" name="tipo" value="saida" {{ 'checked' if tipo == 'saida' }}> Gasto
-    </label>
-    <label class="opcao">
-      <input type="radio" name="tipo" value="entrada" {{ 'checked' if tipo == 'entrada' }}> Entrada
-    </label>
-    {{ erro('tipo') }}
-  </fieldset>
+  <div class="cartao">
+    {# Lançamento novo começa em "Gasto", como no protótipo. #}
+    {% set tipo = (form.get('tipo') or ('' if editando else 'saida')) | lower %}
+    <fieldset class="segmento" {{ invalido('tipo', grupo=true) }}>
+      <legend class="oculto">Tipo</legend>
+      <label class="segmento-opcao gasto">
+        <input type="radio" name="tipo" value="saida" {{ 'checked' if tipo == 'saida' }}> Gasto
+      </label>
+      <label class="segmento-opcao">
+        <input type="radio" name="tipo" value="entrada" {{ 'checked' if tipo == 'entrada' }}> Entrada
+      </label>
+      {{ erro('tipo') }}
+    </fieldset>
 
-  <div class="campo">
-    <label for="valor">Valor (R$)</label>
-    <input type="text" id="valor" name="valor" inputmode="decimal" autocomplete="off"
-           placeholder="25,50" value="{{ form.get('valor', '') }}" {{ invalido('valor') }}>
-    {{ erro('valor') }}
-  </div>
+    <div class="campo">
+      <label for="valor">Valor (R$)</label>
+      <input type="text" id="valor" name="valor" class="valor-grande" inputmode="decimal" autocomplete="off"
+             placeholder="0,00" value="{{ form.get('valor', '') }}" {{ invalido('valor') }}>
+      {{ erro('valor') }}
+    </div>
 
-  <div class="campo">
-    <label for="categoria">Categoria</label>
-    <select id="categoria" name="categoria" {{ invalido('categoria') }}>
-      <option value="">Escolha…</option>
+    <fieldset class="chips-categoria" {{ invalido('categoria', grupo=true) }}>
+      <legend>Categoria</legend>
       {% for grupo, chave in (('Gastos', 'SAIDA'), ('Entradas', 'ENTRADA')) %}
-        <optgroup label="{{ grupo }}">
+        <div class="chips categorias-{{ chave | lower }}" role="group" aria-label="Categorias de {{ grupo | lower }}">
           {% for nome in categorias[chave] %}
-            <option value="{{ nome }}" {{ 'selected' if form.get('categoria') == nome }}>{{ nome }}</option>
+            <label class="chip">
+              <input type="radio" name="categoria" value="{{ nome }}" {{ 'checked' if form.get('categoria') == nome }}> {{ nome }}
+            </label>
           {% endfor %}
-        </optgroup>
+        </div>
       {% endfor %}
-    </select>
-    {{ erro('categoria') }}
-  </div>
+      {{ erro('categoria') }}
+    </fieldset>
 
-  <div class="campo">
-    <label for="data">Data</label>
-    <input type="date" id="data" name="data" value="{{ form.get('data', '') }}" {{ invalido('data') }}>
-    {{ erro('data') }}
-  </div>
+    <div class="campo">
+      <label for="descricao">Descrição <span class="dica">(opcional)</span></label>
+      <input type="text" id="descricao" name="descricao" maxlength="140" placeholder="Ex.: açaí com os amigos"
+             value="{{ form.get('descricao', '') }}" {{ invalido('descricao') }}>
+      {{ erro('descricao') }}
+    </div>
 
-  <div class="campo">
-    <label for="descricao">Descrição <span class="dica">(opcional)</span></label>
-    <input type="text" id="descricao" name="descricao" maxlength="140"
-           value="{{ form.get('descricao', '') }}" {{ invalido('descricao') }}>
-    {{ erro('descricao') }}
+    <div class="campo">
+      <label for="data">Data</label>
+      <input type="date" id="data" name="data" value="{{ form.get('data', '') }}" {{ invalido('data') }}>
+      {{ erro('data') }}
+    </div>
   </div>
 
   {% if not editando %}
     {# Gerada ao abrir o formulário: se o envio for repetido, o lançamento não duplica. #}
     <input type="hidden" name="chave_idempotencia" value="{{ form.get('chave_idempotencia', '') }}">
+    <button type="submit" class="botao-largo botao-registrar">
+      <span class="se-gasto">Registrar gasto</span><span class="se-entrada">Registrar entrada</span> · +10 XP
+    </button>
+  {% else %}
+    <button type="submit" class="botao-largo">Salvar alterações</button>
   {% endif %}
-
-  <div class="acoes">
-    <button type="submit">Salvar</button>
-    <a href="{{ url_for('lancamentos.listar') }}">Cancelar</a>
-  </div>
 </form>
+
+{% if editando %}
+  <a class="botao botao-largo botao-contorno-perigo" href="{{ url_for('lancamentos.confirmar_exclusao', lancamento_id=lancamento.id) }}">
+    Excluir lançamento
+  </a>
+  <p class="dica centro">Editar não rende XP.</p>
+{% endif %}
 {% endblock %}

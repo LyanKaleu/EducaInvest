@@ -129,6 +129,26 @@ def mais_perto_de_concluir(metas: list[dict]) -> dict | None:
     return min(em_andamento, key=lambda meta: (-meta["percentual"], meta["id"]))
 
 
+def resumo(metas: list[dict]) -> dict:
+    """Números do topo da tela de metas.
+
+    Args:
+        metas: metas do aluno, cada uma com `valor_alvo_centavos` e `guardado_centavos`.
+
+    Returns:
+        dict: `guardado` (soma em centavos do que está em todas as metas),
+        `em_andamento` e `concluidas` (quantas metas de cada tipo).
+    """
+    concluidas = sum(
+        progresso(meta["valor_alvo_centavos"], meta["guardado_centavos"])["concluida"] for meta in metas
+    )
+    return {
+        "guardado": sum(meta["guardado_centavos"] for meta in metas),
+        "em_andamento": len(metas) - concluidas,
+        "concluidas": concluidas,
+    }
+
+
 def _converter_nome(texto):
     if not texto:
         raise ValueError("Dê um nome para a meta.")

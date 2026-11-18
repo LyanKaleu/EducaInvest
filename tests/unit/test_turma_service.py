@@ -111,3 +111,35 @@ def test_linha_do_aluno_traz_nivel_xp_e_missoes():
     ana, beatriz = resultado["alunos"]
     assert (ana["apelido"], ana["nivel"]["nome"], ana["xp"], ana["missoes"]) == ("Ana", "Aprendiz", 120, 2)
     assert (beatriz["nivel"]["nome"], beatriz["xp"], beatriz["missoes"]) == ("Iniciante", 0, 0)
+
+
+# ---------------------------------------------------------------------------
+# Ranking, inativos e turma por nível (painel v2)
+# ---------------------------------------------------------------------------
+
+def test_ranking_ordena_por_xp_e_mantem_a_ordem_recebida_no_empate():
+    turma = alunos("Ana", "Bia", "Caio", "Duda")  # já em ordem de apelido, como o repositório devolve
+
+    resultado = painel(turma, {1: xp(10), 2: xp(50), 3: xp(10)})
+
+    assert [aluno["apelido"] for aluno in resultado["ranking"]] == ["Bia", "Ana", "Caio", "Duda"]
+
+
+def test_inativos_inclui_quem_nunca_ganhou_xp():
+    turma = alunos("Ana", "Beatriz", "Caio")
+
+    resultado = painel(turma, {1: xp(10), 2: xp(10, date(2026, 11, 4))})  # Beatriz: hoje - 7
+
+    assert resultado["inativos"] == ["Beatriz", "Caio"]
+
+
+def test_por_nivel_conta_todos_os_niveis_inclusive_os_vazios():
+    turma = alunos("Ana", "Beatriz", "Caio")
+
+    resultado = painel(turma, {1: xp(0), 2: xp(320)})
+
+    assert resultado["por_nivel"] == [
+        {"nome": "Iniciante", "quantidade": 2},
+        {"nome": "Aprendiz", "quantidade": 0},
+        {"nome": "Organizado", "quantidade": 1},
+    ]

@@ -256,3 +256,71 @@ def test_clique_duplo_simultaneo_no_aporte_responde_como_sucesso(monkeypatch, ap
     assert resposta.status_code == 302
     monkeypatch.undo()
     assert "R$ 100,00 de R$ 200,00 · 50%" in lista(cliente)
+
+
+# ---------------------------------------------------------------------------
+# Resumo no topo e metas concluídas separadas
+# ---------------------------------------------------------------------------
+
+def ultima_meta_criada(cliente):
+    return max(int(i) for i in re.findall(r'data-meta-id="(\d+)"', lista(cliente)))
+
+
+def secao(html, id_):
+    """Conteúdo da <section> com `id_`, ou '' se a tela não tem essa seção."""
+    encontrado = re.search(rf'<section[^>]*id="{id_}".*?</section>', html, re.DOTALL)
+    return encontrado.group(0) if encontrado else ""
+
+
+def test_lista_mostra_o_total_guardado_em_todas_as_metas(cliente):
+    criar_meta(cliente, "Fone", "200,00")
+    aportar(cliente, ultima_meta_criada(cliente), "50,00")
+    criar_meta(cliente, "Show", "80,00")
+    aportar(cliente, ultima_meta_criada(cliente), "30,00")
+
+    assert re.search(r'id="guardado-total"[^>]*>R\$ 80,00<', lista(cliente))
+
+
+def test_meta_concluida_fica_separada_das_em_andamento(cliente):
+    criar_meta(cliente, "Show", "80,00")
+    show = ultima_meta_criada(cliente)
+    aportar(cliente, show, "80,00")
+    criar_meta(cliente, "Fone", "200,00")
+    fone = ultima_meta_criada(cliente)
+
+    html = lista(cliente)
+    assert f'data-meta-id="{show}"' in secao(html, "metas-concluidas")
+    assert f'data-meta-id="{fone}"' in secao(html, "metas-em-andamento")
+    assert f'data-meta-id="{show}"' not in secao(html, "metas-em-andamento")
+
+
+# ---------------------------------------------------------------------------
+# Atalhos de aporte (R$ 5, R$ 10, R$ 20)
+# ---------------------------------------------------------------------------
+
+def atalhos(html, meta_id):
+    """{valor: chave} de cada atalho de aporte da meta, como o navegador enviaria."""
+    cartao = re.search(rf'data-meta-id="{meta_id}".*?</li>', html, re.DOTALL).group(0)
+    formularios = re.findall(r'<form class="atalho".*?</form>', cartao, re.DOTALL)
+    return {
+        re.search(r'name="valor" value="([^"]+)"', form).group(1):
+            re.search(r'name="chave_idempotencia" value="([^"]+)"', form).group(1)
+        for form in formularios
+    }
+
+
+def test_atalho_so_aparece_quando_cabe_no_que_falta(cliente):
+    criar_meta(cliente, "Capinha", "30,00")
+    capinha = ultima_meta_criada(cliente)
+    aportar(cliente, capinha, "22,00")  # faltam R$ 8,00
+
+    assert list(atalhos(lista(cliente), capinha)) == ["5,00"]
+
+
+def test_dois_atalhos_seguidos_gravam_os_dois_aportes(cliente, meta_fone):
+    formularios = atalhos(lista(cliente), meta_fone)
+
+    aportar(cliente, meta_fone, "5,00", chave=formularios["5,00"])
+    aportar(cliente, meta_fone, "10,00", chave=formularios["10,00"])
+
+    assert "R$ 15,00 de R$ 200,00" in lista(cliente)

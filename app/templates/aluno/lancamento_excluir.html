@@ -1,10 +1,17 @@
 {% extends "base.html" %}
-{# Confirmação antes de excluir: só o botão (POST) apaga. #}
+{# Confirmação antes de excluir (protótipo navegável): só o botão (POST) apaga. #}
 
 {% block titulo %}Excluir lançamento{% endblock %}
 
 {% block conteudo %}
-<h1>Excluir este lançamento?</h1>
+<div class="cabecalho-voltar">
+  <a class="voltar" href="{{ url_for('lancamentos.editar', lancamento_id=lancamento.id) }}">
+    <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    <span class="oculto">Voltar</span>
+  </a>
+  <h1>Excluir lançamento</h1>
+</div>
 
 <dl class="resumo">
   <dt>Tipo</dt>
@@ -21,13 +28,15 @@
   {% endif %}
 </dl>
 
-<p>Essa ação não pode ser desfeita.</p>
-
-<form method="post" action="{{ url_for('lancamentos.excluir', lancamento_id=lancamento.id) }}">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <div class="acoes">
-    <button type="submit" class="perigo">Sim, excluir</button>
-    <a href="{{ url_for('lancamentos.listar') }}">Não, voltar</a>
-  </div>
-</form>
+<section class="confirma" aria-labelledby="titulo-confirma">
+  <h2 id="titulo-confirma">Excluir este lançamento?</h2>
+  <p>O saldo é recalculado. O XP e as missões já conquistados continuam. Essa ação não pode ser desfeita.</p>
+  <form method="post" action="{{ url_for('lancamentos.excluir', lancamento_id=lancamento.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="grade-2">
+      <a class="botao botao-contorno" href="{{ url_for('lancamentos.editar', lancamento_id=lancamento.id) }}">Cancelar</a>
+      <button type="submit" class="perigo">Excluir</button>
+    </div>
+  </form>
+</section>
 {% endblock %}

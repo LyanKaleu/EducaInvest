@@ -45,6 +45,17 @@ def test_lista_mostra_valor_e_data_formatados(cliente, lancamento_existente):
     assert "01/11/2026" in html
 
 
+def test_lista_mostra_o_total_de_entradas_e_de_gastos(cliente, form_valido):
+    cliente.post("/lancamentos/novo", data=form_valido)  # gasto de R$ 25,00
+    cliente.post("/lancamentos/novo", data={**form_valido, "tipo": "entrada", "categoria": "Mesada",
+                                            "valor": "50,00", "chave_idempotencia": "c2b1f0d4-1111-4a5b-9c3d-2e4f6a8b0c1d"})
+
+    html = cliente.get("/lancamentos/").get_data(as_text=True)
+
+    assert re.search(r'id="total-entradas"[^>]*>R\$ 50,00<', html)
+    assert re.search(r'id="total-gastos"[^>]*>R\$ 25,00<', html)
+
+
 def test_lista_nao_mostra_lancamentos_de_outro_aluno(cliente_outro_aluno, lancamento_existente):
     html = cliente_outro_aluno.get("/lancamentos/").get_data(as_text=True)
 
@@ -177,7 +188,7 @@ def test_editar_mostra_formulario_preenchido(cliente, lancamento_existente):
     html = cliente.get(f"/lancamentos/{lancamento_existente['id']}/editar").get_data(as_text=True)
 
     assert 'value="25,00"' in html
-    assert '<option value="Alimentação" selected' in html
+    assert 'name="categoria" value="Alimentação" checked' in html  # chips de categoria (rádios)
 
 
 def test_formulario_de_edicao_nao_tem_campo_de_chave(cliente, lancamento_existente):

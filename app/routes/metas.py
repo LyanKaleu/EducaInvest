@@ -49,8 +49,8 @@ def _com_progresso(meta: dict) -> dict:
 def _render_lista(aporte_com_erro=None, status=200):
     """Lista de metas. `aporte_com_erro` traz `meta_id`, `erros` e `form` do aporte recusado."""
     metas = [_com_progresso(meta) for meta in _repo().listar(_aluno_id())]
-    html = render_template("aluno/metas.html", metas=metas, nova_chave=_nova_chave,
-                           aporte_com_erro=aporte_com_erro or {})
+    html = render_template("aluno/metas.html", metas=metas, resumo=meta_service.resumo(metas),
+                           nova_chave=_nova_chave, aporte_com_erro=aporte_com_erro or {})
     return html, status
 
 

@@ -1,14 +1,22 @@
-/* Estilo único, leve e mobile-first. Cores com contraste AA sobre o fundo. */
+/* Estilo único, leve e mobile-first (visual v2). Cores com contraste AA sobre o fundo. */
 
 :root {
   --texto: #1a1a1a;
-  --fundo: #ffffff;
-  --suave: #f3f4f2;
-  --borda: #6b6b6b;          /* contraste 5,3:1, visível em bordas de campo */
-  --primaria: #1b6e3a;       /* verde: entradas e botão principal */
+  --texto-suave: #555555;    /* rótulos e dicas: 7,0:1 no branco, 6,3:1 no --suave */
+  --texto-descricao: #444444;
+  --fundo: #ffffff;          /* cartões e campos */
+  --suave: #f3f4f2;          /* fundo da página */
+  --divisoria: #d6d6d3;      /* borda dos cartões (decorativa) */
+  --borda: #6b6b6b;          /* borda de campos e barras: contraste 5,3:1 */
+  --primaria: #1b6e3a;       /* verde: marca, entradas, botão principal, XP */
+  --primaria-escura: #14532b;
   --perigo: #b3261e;         /* vermelho: gastos, erros e excluir */
-  --foco: #1a5fb4;
+  --foco: #1a5fb4;           /* azul: foco do teclado e missão em andamento */
+  --sucesso-fundo: #e7f4ea;
+  --erro-fundo: #fbeaea;
+  --texto-sobre-cor: #ffffff; /* sobre --primaria, --perigo e --foco passa de 6:1 */
   --raio: 8px;
+  --altura-menu: 4.25rem;    /* barra do rodapé do aluno no celular */
 }
 
 * { box-sizing: border-box; }
@@ -17,7 +25,7 @@ body {
   margin: 0;
   font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--texto);
-  background: var(--fundo);
+  background: var(--suave);
 }
 
 /* ---------- Acessibilidade ---------- */
@@ -27,34 +35,486 @@ body {
 
 /* Some da tela, mas o leitor de tela continua lendo. */
 .oculto {
-  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden;
   clip: rect(0 0 0 0); white-space: nowrap;
+  /* Zera o que botões e campos somam à caixa, para nada vazar para o lado. */
+  padding: 0 !important; border: 0 !important; margin: -1px !important; min-height: 0 !important; min-width: 0 !important;
 }
 
 /* "Pular para o conteúdo": escondido até receber foco. */
 .pular { position: absolute; left: -999px; }
-.pular:focus { left: 1rem; top: 1rem; z-index: 10; background: var(--fundo); padding: .5rem 1rem; }
+.pular:focus { left: 1rem; top: 1rem; z-index: 30; background: var(--fundo); padding: .5rem 1rem; }
 
 main:focus { outline: none; }
 
-/* ---------- Layout ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ---------- Topo ---------- */
 
 .topo {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-  gap: .5rem; padding: .75rem 1rem; background: var(--primaria);
+  display: flex; flex-wrap: nowrap; align-items: center;
+  gap: .25rem 1rem; padding: .5rem 1rem; min-height: 3.5rem;
+  background: var(--fundo); border-bottom: 1px solid var(--divisoria);
 }
-.topo a { color: #fff; }
-.marca { font-weight: 700; font-size: 1.15rem; text-decoration: none; }
-.topo ul { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: 0; padding: 0; list-style: none; }
-.topo [aria-current="page"] { font-weight: 700; text-decoration-thickness: 3px; }
+.marca {
+  font-weight: 700; font-size: 1.15rem; text-decoration: none; color: var(--primaria);
+  display: inline-flex; align-items: center; min-height: 44px;
+}
+/* Quem está logado: apelido e perfil, ao lado da marca. Encolhe com reticências para o topo
+   caber numa linha só no celular. */
+.identificacao {
+  flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--texto-suave); font-size: .9rem;
+}
+.marca + .menu-topo { margin-left: auto; }  /* visitante: sem identificação, menu à direita */
+.menu-topo ul { display: flex; flex-wrap: wrap; gap: 0 1rem; margin: 0; padding: 0; list-style: none; }
+.menu-topo a { display: inline-flex; align-items: center; min-height: 44px; }
+.menu-topo [aria-current="page"] { font-weight: 700; text-decoration-thickness: 3px; }
+/* Atalho com ícone (Quiz do aluno): sem sublinhado, o ícone ajuda a achar. */
+.menu-topo .com-icone { gap: .375rem; text-decoration: none; font-weight: 600; }
 /* Botão "Sair" com cara de link (é um formulário POST). */
-.topo form { margin: 0; }
+.sair { margin: 0; }
 button.link {
-  min-height: 0; padding: 0; background: none; border: 0;
-  color: #fff; font-weight: 400; text-decoration: underline; cursor: pointer;
+  min-height: 44px; padding: 0; background: none; border: 0;
+  color: var(--texto-suave); font-weight: 400; text-decoration: underline; cursor: pointer;
 }
-/* Quem está logado: apelido e perfil, ao lado da marca. */
-.identificacao { color: #fff; font-size: .9rem; }
+button.link:hover { color: var(--texto); }
+
+/* ---------- Menu do aluno: rodapé no celular, linha no desktop ---------- */
+
+.menu-aluno {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  background: var(--fundo); border-top: 1px solid var(--divisoria);
+  padding: .25rem max(.25rem, env(safe-area-inset-right, 0px)) calc(.25rem + env(safe-area-inset-bottom, 0px)) max(.25rem, env(safe-area-inset-left, 0px));
+}
+.menu-aluno ul {
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+  max-width: 40rem; margin: 0 auto; padding: 0; list-style: none;
+}
+.menu-aluno a {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 3.5rem; padding: .25rem 0;
+  font-size: .75rem; line-height: 1.2; text-align: center; text-decoration: none;
+  color: var(--texto-suave); border-radius: var(--raio);
+}
+.menu-aluno .icone { display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 1rem; }
+.menu-aluno a:hover { color: var(--texto); }
+/* Página atual: verde, em negrito e com um traço embaixo do ícone (não só a cor). */
+.menu-aluno [aria-current="page"] { color: var(--primaria); font-weight: 700; }
+.menu-aluno [aria-current="page"] .icone { background: var(--sucesso-fundo); }
+/* "Novo" é a ação principal: círculo verde cheio. */
+.menu-aluno .item-novo { color: var(--primaria); font-weight: 700; }
+.menu-aluno .item-novo .icone { background: var(--primaria); color: var(--texto-sobre-cor); }
+.menu-aluno .item-novo[aria-current="page"] .icone { background: var(--primaria-escura); }
+
+/* O conteúdo não fica escondido atrás da barra fixa. */
+.com-menu-aluno main { padding-bottom: calc(var(--altura-menu) + 1.5rem + env(safe-area-inset-bottom, 0px)); }
+
+@media (min-width: 48rem) {
+  .menu-aluno { position: static; border-top: 0; border-bottom: 1px solid var(--divisoria); padding: 0 1rem; }
+  .menu-aluno a { flex-direction: row; gap: .4rem; min-height: 3rem; font-size: .9rem; }
+  .menu-aluno .icone { width: 1.75rem; height: 1.75rem; }
+  .menu-aluno .icone svg { width: 18px; height: 18px; }
+  .com-menu-aluno main { padding-bottom: 2rem; }
+}
+
+/* ---------- Layout ---------- */
+
+main { max-width: 40rem; margin: 0 auto; padding: 1rem 1rem 2rem; }
+h1 { font-size: 1.5rem; line-height: 1.3; margin: .25rem 0 1rem; }
+h2 { font-size: 1.15rem; line-height: 1.3; }
+a { color: var(--primaria); }
+a:hover { color: var(--primaria-escura); }
+p { margin: 0 0 1rem; }
+
+/* Rótulo de seção: pequeno, em maiúsculas. */
+.rotulo { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--texto-suave); margin: 0; }
+
+/* Cartão base: branco e borda fina. Itens de lista (lançamento, missão, pergunta, turma)
+   ganham a faixa de 6px à esquerda com o tipo ou o status; o status também vai em texto. */
+.cartao, .lancamento, .missao, .meta, .pergunta, .resultado, .indicador {
+  background: var(--fundo); border: 1px solid var(--divisoria); border-radius: var(--raio);
+}
+.cartao {
+  display: flex; flex-direction: column; gap: .5rem;
+  padding: 1rem; margin-bottom: .75rem;
+}
+.cartao > p:last-child { margin-bottom: 0; }
+.cartao-topo { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.cartao-topo.base { align-items: baseline; }
+.cartao-titulo { font-size: 1.1rem; overflow-wrap: anywhere; }
+.cartao-rodape { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.percentual { font-size: 1.1rem; color: var(--primaria); font-variant-numeric: tabular-nums; }
+.numero { font-variant-numeric: tabular-nums; }
+.link-acao { display: inline-flex; align-items: center; min-height: 44px; align-self: flex-start; }
+
+/* Selo de XP: "+20 XP". */
+.selo-xp {
+  padding: .1rem .6rem; border-radius: 999px; white-space: nowrap;
+  background: var(--sucesso-fundo); color: var(--primaria); font-size: .9rem; font-weight: 700;
+}
+
+/* Estado vazio: ícone opcional, frase curta e a ação que resolve. */
+.vazio {
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  padding: 1.5rem 1rem; text-align: center;
+  background: var(--fundo); border: 1px dashed var(--borda); border-radius: var(--raio);
+  margin-bottom: .75rem;
+}
+.cartao .vazio { border: 0; padding: .5rem 0 0; margin: 0; }
+.vazio strong { font-size: 1.1rem; }
+.vazio p { margin: 0; }
+.vazio .botao { margin-top: .25rem; }
+
+/* ---------- Avisos (flash) e erros ---------- */
+
+.aviso { padding: .75rem 1rem; border-radius: var(--raio); border-left: 6px solid; }
+.aviso-sucesso { background: var(--sucesso-fundo); border-color: var(--primaria); }
+.aviso-erro { background: var(--erro-fundo); border-color: var(--perigo); }
+.erro-campo { color: var(--perigo); font-weight: 600; margin: .25rem 0 0; }
+[aria-invalid="true"] { border-color: var(--perigo) !important; border-width: 2px !important; }
+
+/* ---------- Formulários ---------- */
+
+.campo, fieldset { margin: 0 0 1rem; }
+fieldset { border: 1px solid var(--borda); border-radius: var(--raio); padding: .5rem 1rem; background: var(--fundo); }
+legend { font-weight: 600; padding: 0 .25rem; }
+label { display: block; font-weight: 600; margin-bottom: .25rem; }
+.opcao { display: inline-flex; align-items: center; gap: .5rem; font-weight: 400; margin-right: 1.5rem; min-height: 44px; }
+.dica { font-weight: 400; color: var(--texto-suave); }
+
+input[type="text"], input[type="search"], input[type="date"], input[type="email"],
+input[type="password"], select, textarea {
+  width: 100%; min-height: 44px;   /* área de toque confortável no celular */
+  padding: .5rem .75rem; font: inherit; color: var(--texto);
+  border: 1px solid var(--borda); border-radius: var(--raio); background: var(--fundo);
+}
+input[type="radio"], input[type="checkbox"] { width: 1.25rem; height: 1.25rem; accent-color: var(--primaria); flex-shrink: 0; }
+
+button, .botao {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  min-height: 44px; padding: .6rem 1.25rem;
+  font: inherit; font-weight: 600; line-height: 1.2; text-decoration: none; cursor: pointer;
+  color: var(--texto-sobre-cor); background: var(--primaria); border: 0; border-radius: var(--raio);
+}
+button:hover, .botao:hover { background: var(--primaria-escura); color: var(--texto-sobre-cor); }
+button.perigo { background: var(--perigo); }
+button.perigo:hover { background: #8f1e18; }
+/* Secundário: contorno verde. */
+.botao-contorno, .botao-contorno:hover {
+  color: var(--primaria); background: var(--fundo); border: 2px solid var(--primaria);
+}
+.botao-contorno:hover { background: var(--sucesso-fundo); }
+/* Sobre fundo colorido (cartão do saldo): branco com texto verde. */
+.botao-claro, .botao-claro:hover { color: var(--primaria); background: var(--fundo); }
+.botao-claro:hover { background: var(--sucesso-fundo); }
+.botao-largo { display: flex; width: 100%; }
+
+.acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.acoes a:not(.botao) { display: inline-flex; align-items: center; min-height: 44px; }
+.busca { margin-bottom: 1.5rem; }
+.busca .linha { display: flex; gap: .5rem; }
+.busca .linha input { flex: 1; min-width: 0; }
+.busca > a { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* Barras de progresso: trilho claro com borda, preenchimento verde. */
+progress {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: .75rem; border: 1px solid var(--borda); border-radius: 999px;
+  background: var(--suave); overflow: hidden; color: var(--primaria);
+}
+progress::-webkit-progress-bar { background: var(--suave); border-radius: 999px; }
+progress::-webkit-progress-value { background: var(--primaria); border-radius: 999px; }
+progress::-moz-progress-bar { background: var(--primaria); border-radius: 999px; }
+progress.fina { height: .625rem; }
+/* Sobre cartão colorido: trilho com borda branca e preenchimento branco. */
+progress.clara { border-color: var(--texto-sobre-cor); background: transparent; color: var(--texto-sobre-cor); }
+progress.clara::-webkit-progress-bar { background: transparent; }
+progress.clara::-webkit-progress-value { background: var(--texto-sobre-cor); }
+progress.clara::-moz-progress-bar { background: var(--texto-sobre-cor); }
+/* Missão em andamento: azul, para não confundir com dinheiro guardado. */
+progress.azul, .missao[data-status="ATIVA"] progress { color: var(--foco); }
+progress.azul::-webkit-progress-value, .missao[data-status="ATIVA"] progress::-webkit-progress-value { background: var(--foco); }
+progress.azul::-moz-progress-bar, .missao[data-status="ATIVA"] progress::-moz-progress-bar { background: var(--foco); }
+
+/* ---------- Lista de lançamentos ---------- */
+
+.lancamentos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .625rem; }
+/* O cartão inteiro é o link para editar. Faixa verde (entrada) ou vermelha (gasto). */
+.lancamento {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem;
+  padding: .75rem .875rem; color: var(--texto); text-decoration: none; border-left: 6px solid var(--borda);
+}
+a.lancamento:hover { color: var(--texto); background: #fafbfa; }
+.lancamento.entrada { border-left-color: var(--primaria); }
+.lancamento.saida { border-left-color: var(--perigo); }
+.lancamento-info { display: flex; flex-direction: column; min-width: 0; }
+.lancamento-info .dica { font-size: .9rem; }
+.lancamento .valor { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lancamento.entrada .valor { color: var(--primaria); }
+.lancamento.saida .valor { color: var(--perigo); }
+.descricao { overflow-wrap: anywhere; }
+.negativo { color: var(--perigo); }
+
+/* Busca com lupa dentro do campo. */
+.campo-busca { position: relative; }
+.campo-busca svg { position: absolute; left: .75rem; top: 50%; translate: 0 -50%; color: var(--texto-suave); pointer-events: none; }
+.campo-busca input { padding-left: 2.5rem; }
+
+/* Voltar + título, como no protótipo. */
+.cabecalho-voltar { display: flex; align-items: center; gap: .25rem; margin: .25rem 0 1rem; }
+.cabecalho-voltar h1 { margin: 0; }
+.voltar { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-left: -.625rem; color: var(--primaria); }
+
+/* ---------- Formulário de lançamento ---------- */
+
+.form-lancamento .cartao { gap: 1rem; }
+.form-lancamento .campo { margin: 0; }
+.valor-grande { font-size: 1.6rem !important; font-weight: 700; min-height: 56px !important; font-variant-numeric: tabular-nums; }
+/* Rádios com cara de botão: o input fica invisível por cima do rótulo, ainda clicável e focável. */
+.segmento, .chips-categoria { border: 0; padding: 0; margin: 0; background: none; min-width: 0; }
+.segmento { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.segmento .erro-campo { grid-column: 1 / -1; }
+.segmento-opcao, .chip { position: relative; display: inline-flex; align-items: center; justify-content: center; margin: 0; cursor: pointer; }
+.segmento-opcao input, .chip input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.segmento-opcao:has(input:focus-visible), .chip:has(input:focus-visible) { outline: 3px solid var(--foco); outline-offset: 2px; }
+.segmento-opcao {
+  min-height: 44px; border: 2px solid var(--primaria); border-radius: var(--raio);
+  background: var(--fundo); color: var(--primaria); font-weight: 600;
+}
+.segmento-opcao:has(input:checked) { background: var(--primaria); color: var(--texto-sobre-cor); }
+.segmento-opcao.gasto { border-color: var(--perigo); color: var(--perigo); }
+.segmento-opcao.gasto:has(input:checked) { background: var(--perigo); color: var(--texto-sobre-cor); }
+.chips-categoria legend { font-weight: 600; padding: 0; margin-bottom: .375rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.chip {
+  min-height: 44px; padding: 0 .875rem; border: 1px solid var(--borda); border-radius: var(--raio);
+  background: var(--fundo); color: var(--texto); font-weight: 500;
+}
+.chip:has(input:checked) { background: var(--texto); border-color: var(--texto); color: var(--texto-sobre-cor); }
+/* Só as categorias do tipo marcado (sem JavaScript). Sem tipo marcado, mostra as duas listas. */
+.form-lancamento:has(input[name="tipo"][value="saida"]:checked) .categorias-entrada,
+.form-lancamento:has(input[name="tipo"][value="entrada"]:checked) .categorias-saida { display: none; }
+.form-lancamento > .botao-largo { margin-top: .75rem; }
+.botao-registrar .se-entrada { display: none; }
+.form-lancamento:has(input[name="tipo"][value="entrada"]:checked) .se-entrada { display: inline; }
+.form-lancamento:has(input[name="tipo"][value="entrada"]:checked) .se-gasto { display: none; }
+.botao-contorno-perigo, .botao-contorno-perigo:hover {
+  margin-top: .75rem; color: var(--perigo); background: var(--fundo); border: 2px solid var(--perigo);
+}
+.botao-contorno-perigo:hover { background: var(--erro-fundo); }
+.centro { text-align: center; margin-top: .75rem; }
+
+/* Confirmação de exclusão: fundo de erro com a faixa vermelha. */
+.confirma {
+  display: flex; flex-direction: column; gap: .5rem; margin-top: 1rem; padding: 1rem;
+  border-radius: var(--raio); background: var(--erro-fundo); border-left: 6px solid var(--perigo);
+}
+.confirma h2 { margin: 0; font-size: 1.1rem; }
+.confirma p { margin: 0; }
+.confirma form { margin: .25rem 0 0; }
+.grade-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+
+/* ---------- Confirmação de exclusão ---------- */
+
+.resumo {
+  display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem;
+  padding: 1rem; background: var(--fundo); border: 1px solid var(--divisoria); border-radius: var(--raio);
+}
+.resumo dt { font-weight: 600; }
+.resumo dd { margin: 0; overflow-wrap: anywhere; }
+
+/* ---------- Missões e XP ---------- */
+
+.xp-total { font-size: 2.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.missoes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .625rem; }
+/* Faixa azul (em andamento), verde (concluída) ou cinza (bloqueada); o status também vai em texto. */
+.missao { display: flex; flex-direction: column; gap: .375rem; padding: .875rem 1rem; border-left: 6px solid var(--foco); }
+.missao.concluida { border-left-color: var(--primaria); }
+.missao[data-status="BLOQUEADA"] { border-left-color: var(--borda); background: var(--suave); }
+.conquistas { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* ---------- Metas e aportes ---------- */
+
+.metas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .75rem; }
+.meta { display: flex; flex-direction: column; gap: .5rem; padding: 1rem; }
+.metas .meta h2 { font-size: 1.1rem; margin: 0; overflow-wrap: anywhere; }
+.meta.concluida { background: var(--sucesso-fundo); border-color: #b9dcc3; }
+.meta-progresso { font-variant-numeric: tabular-nums; }
+.selo {
+  display: inline-flex; align-items: center; gap: .25rem; align-self: flex-start; white-space: nowrap;
+  padding: .1rem .6rem; border-radius: 999px;
+  background: var(--primaria); color: var(--texto-sobre-cor); font-size: .9rem; font-weight: 700;
+}
+.meta label { font-weight: 400; margin: .25rem 0 0; }
+.aporte { padding-top: .75rem; border-top: 1px solid var(--divisoria); }
+/* Atalhos de aporte: até três botões de contorno lado a lado. */
+.atalhos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; padding-top: .75rem; border-top: 1px solid var(--divisoria); }
+.atalhos-rotulo { grid-column: 1 / -1; font-weight: 600; }
+.atalho { margin: 0; }
+.atalho button { width: 100%; }
+.atalhos + .aporte { border-top: 0; padding-top: 0; }
+.aporte label { font-weight: 600; }
+.aporte .linha { display: flex; gap: .5rem; }
+.aporte .linha input { flex: 1; min-width: 0; }
+.meta .cartao-topo { align-items: baseline; }
+.meta-percentual { font-size: 1.4rem; color: var(--primaria); font-variant-numeric: tabular-nums; }
+.positivo { color: var(--primaria); }
+.titulo-secao { margin: 1.25rem 0 .5rem; }
+.cabecalho-pagina { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; margin-bottom: 1rem; }
+.cabecalho-pagina h1 { margin: 0; }
+
+/* ---------- Quiz ---------- */
+
+.cartao-quiz { flex-direction: row; align-items: center; gap: .75rem; padding: .875rem 1rem; }
+.cartao-quiz > div { display: flex; flex-direction: column; }
+.icone-quiz { flex: none; color: var(--primaria); }
+.xp-quiz { font-variant-numeric: tabular-nums; }
+.perguntas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+/* Faixa azul (nova), verde (acertou) ou vermelha (errou). O link cobre o cartão inteiro. */
+.pergunta { position: relative; display: flex; flex-direction: column; gap: .125rem; padding: .75rem .875rem; border-left: 6px solid var(--foco); }
+.pergunta[data-status="ACERTOU"] { border-left-color: var(--primaria); }
+.pergunta[data-status="ERROU"] { border-left-color: var(--perigo); }
+.pergunta a { font-weight: 700; color: var(--texto); text-decoration: none; }
+.pergunta a::after { content: ""; position: absolute; inset: 0; border-radius: var(--raio); }
+.pergunta a:focus-visible { outline: none; }
+.pergunta a:focus-visible::after { outline: 3px solid var(--foco); outline-offset: 2px; }
+.pergunta:hover { background: #fafbfa; }
+.pergunta .dica { font-size: .9rem; }
+.cabecalho-voltar .rotulo { margin: 0; }
+h1.enunciado { font-size: 1.25rem; }
+/* Alternativas em cartões com a letra num círculo. O rádio fica invisível por cima, ainda clicável e focável. */
+.alternativas { display: flex; flex-direction: column; gap: .5rem; border: 0; padding: 0; margin: 0 0 1rem; background: none; }
+.alternativas-respondidas { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.alt {
+  position: relative; display: flex; align-items: flex-start; gap: .625rem; margin: 0;
+  min-height: 48px; padding: .75rem .875rem; font-weight: 400;
+  border: 1px solid var(--borda); border-radius: var(--raio); background: var(--fundo);
+}
+label.alt { cursor: pointer; }
+.alt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.alt:has(input:checked) { border: 2px solid var(--foco); background: #eef3fb; }
+.alt:has(input:focus-visible) { outline: 3px solid var(--foco); outline-offset: 2px; }
+.alt.certa { border: 2px solid var(--primaria); background: var(--sucesso-fundo); }
+.alt.errada { border: 2px solid var(--perigo); background: var(--erro-fundo); }
+.letra {
+  flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--borda); background: var(--fundo); font-weight: 700; font-size: .85rem;
+}
+.resultado { padding: 1rem; margin-bottom: 1rem; background: var(--erro-fundo); border: 0; }
+.resultado[data-acertou="sim"] { background: var(--sucesso-fundo); }
+.resultado h2 { font-size: 1.15rem; margin: 0 0 .5rem; color: var(--perigo); }
+.resultado[data-acertou="sim"] h2 { color: var(--primaria); }
+.resultado p { margin: 0 0 .5rem; }
+.resultado p:last-child { margin-bottom: 0; }
+
+/* ---------- Painel do aluno ---------- */
+
+/* Saldo: cartão verde com o número grande e o atalho de registrar. Negativo vira vermelho. */
+.cartao-saldo {
+  display: flex; flex-direction: column; gap: .75rem;
+  padding: 1.25rem; margin-bottom: .75rem; border-radius: var(--raio);
+  background: var(--primaria); color: var(--texto-sobre-cor);
+}
+.cartao-saldo.negativo { background: var(--perigo); }
+.cartao-saldo .rotulo { color: var(--texto-sobre-cor); }
+.cartao-saldo .xp-total { color: var(--texto-sobre-cor); }
+.saldo { font-size: 2.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.saldo-detalhe { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: 0; font-variant-numeric: tabular-nums; }
+.saldo-detalhe dt { font-size: .9rem; }
+.saldo-detalhe dd { margin: 0; font-weight: 700; }
+.saldo-aviso { margin: 0; font-weight: 600; }
+.cartao-saldo.negativo .botao-claro { color: var(--perigo); }
+.cartao-saldo.negativo .botao-claro:hover { background: var(--erro-fundo); }
+
+.painel-indicadores { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin: 0 0 .75rem; }
+.indicador { display: flex; flex-direction: column; gap: .25rem; padding: .75rem 1rem; }
+.indicador strong { font-size: 1.4rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.indicador .dica { font-size: .9rem; }
+/* Sequência: 7 marcas, do mais antigo até hoje. Cheia = ganhou XP no dia. */
+.dias { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: .25rem 0; }
+.dia { height: .625rem; border-radius: 3px; border: 1px solid var(--borda); }
+.dia.ativo { background: var(--primaria); border-color: var(--primaria); }
+
+/* ---------- Turmas e painel da turma (professor) ---------- */
+
+code.codigo-turma { font-family: ui-monospace, Consolas, monospace; font-size: 1.1rem; font-weight: 700; letter-spacing: .1em; color: var(--primaria); }
+/* Lista de turmas: o cartão inteiro abre a turma; faixa verde como no protótipo. */
+.turmas { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: .625rem; }
+.turma-item {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  padding: .875rem 1rem; color: var(--texto); text-decoration: none;
+  background: var(--fundo); border: 1px solid var(--divisoria); border-left: 6px solid var(--primaria); border-radius: var(--raio);
+}
+a.turma-item:hover { color: var(--texto); background: #fafbfa; }
+.turma-item code.codigo-turma { font-size: 1rem; }
+.form-turma { gap: .75rem; }
+.form-turma .campo { margin: 0; }
+.form-turma .dica { margin: 0; font-size: .9rem; }
+
+.titulo-turma { display: flex; flex-direction: column; min-width: 0; }
+.titulo-turma h1 { margin: 0; overflow-wrap: anywhere; }
+/* Destaque da turma: cartão verde, como o saldo do aluno. */
+.cartao-turma {
+  display: flex; flex-direction: column; gap: .75rem;
+  padding: 1.25rem; margin-bottom: .75rem; border-radius: var(--raio);
+  background: var(--primaria); color: var(--texto-sobre-cor);
+}
+.cartao-turma .rotulo { color: var(--texto-sobre-cor); }
+.ativos-turma { margin: 0; }
+.ativos-turma strong { font-size: 2.5rem; line-height: 1.1; margin-right: .25rem; font-variant-numeric: tabular-nums; }
+.numeros-turma { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: .25rem 0 0; font-variant-numeric: tabular-nums; }
+.numeros-turma dt { font-size: .9rem; }
+.numeros-turma dd { margin: 0; font-size: 1.3rem; font-weight: 700; }
+/* Alerta de inativos: fundo de erro, ícone e título em vermelho, nomes em texto. */
+.atencao { display: flex; gap: .75rem; align-items: flex-start; padding: .875rem 1rem; margin-bottom: .75rem; border-radius: var(--raio); background: var(--erro-fundo); }
+.atencao svg { flex: none; margin-top: 2px; color: var(--perigo); }
+.atencao h2 { margin: 0 0 .125rem; font-size: 1rem; color: var(--perigo); }
+.atencao p { margin: 0; overflow-wrap: anywhere; }
+/* Ranking: lista com barra relativa ao maior XP; inativo em cinza e vermelho, escrito. */
+.ranking-cartao { padding: 0; gap: 0; overflow: hidden; }
+.ranking-cartao > .rotulo { padding: .875rem 1rem .5rem; }
+.ranking { list-style: none; margin: 0; padding: 0; }
+.aluno-ranking { display: flex; flex-direction: column; gap: .375rem; padding: .75rem 1rem; border-top: 1px solid var(--divisoria); }
+.aluno-ranking .apelido { overflow-wrap: anywhere; }
+.aluno-ranking progress { height: .5rem; border: 0; }
+.aluno-ranking.inativo progress { color: var(--borda); }
+.aluno-ranking.inativo progress::-webkit-progress-value { background: var(--borda); }
+.aluno-ranking.inativo progress::-moz-progress-bar { background: var(--borda); }
+.situacao { font-size: .9rem; color: var(--texto-suave); }
+.aluno-ranking.inativo .situacao { color: var(--perigo); font-weight: 600; }
+/* Turma por nível: um quadro por nível, o número em cima. */
+.niveis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin: 0; text-align: center; }
+.niveis > div { display: flex; flex-direction: column-reverse; padding: .6rem .25rem; border-radius: var(--raio); background: var(--suave); }
+.niveis > div.com-alunos { background: var(--sucesso-fundo); }
+.niveis dd { margin: 0; font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.niveis dt { font-size: .9rem; }
+/* Convite: o código em destaque, com contorno tracejado. */
+.convite {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem;
+  padding: .875rem 1rem; margin-bottom: .75rem; border-radius: var(--raio);
+  background: var(--fundo); border: 1px dashed var(--borda);
+}
+.convite h2 { margin: 0; font-size: 1rem; }
+.convite p { margin: 0; }
+.convite code.codigo-turma { font-size: 1.3rem; letter-spacing: .12em; }
+
+/* ---------- Login e cadastro ---------- */
+
+/* Marca grande no lugar do topo, como no protótipo. */
+.marca-entrada { display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 1.75rem 0 1rem; text-align: center; }
+.marca-entrada h1 { margin: .25rem 0 0; }
+.marca-entrada p { margin: 0; }
+.logo { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 18px; background: var(--primaria); color: var(--texto-sobre-cor); }
+form.cartao .campo, .cartao > .campo { margin: 0; }
+form.cartao, .cartao:has(> .campo) { gap: .875rem; }
+form > .cartao + .botao-largo, form.cartao .botao-largo { margin-top: .25rem; }
+form > .cartao + .botao-largo { margin-top: .75rem; }
+.campo-codigo { font-family: ui-monospace, Consolas, monospace; letter-spacing: .12em; text-transform: uppercase; }
+.consentimento { display: flex; align-items: flex-start; margin: 0; }
+.consentimento input { margin-top: .15rem; }
 
 /* Escolha do tipo de conta no cadastro: a opção atual fica cheia, a outra só com contorno. */
 .escolha-perfil { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
@@ -62,149 +522,3 @@ button.link {
 .escolha-perfil .botao[aria-current="false"] {
   color: var(--primaria); background: var(--fundo); border: 2px solid var(--primaria);
 }
-code.codigo-turma { font-size: 1.1rem; font-weight: 700; letter-spacing: .1em; }
-
-main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
-h1 { font-size: 1.5rem; margin: .5rem 0 1rem; }
-a { color: var(--primaria); }
-
-/* ---------- Avisos (flash) e erros ---------- */
-
-.aviso { padding: .75rem 1rem; border-radius: var(--raio); border-left: 6px solid; }
-.aviso-sucesso { background: #e7f4ea; border-color: var(--primaria); }
-.aviso-erro { background: #fbeaea; border-color: var(--perigo); }
-.erro-campo { color: var(--perigo); font-weight: 600; margin: .25rem 0 0; }
-[aria-invalid="true"] { border-color: var(--perigo); border-width: 2px; }
-
-/* ---------- Formulários ---------- */
-
-.campo, fieldset { margin: 0 0 1rem; }
-fieldset { border: 1px solid var(--borda); border-radius: var(--raio); padding: .5rem 1rem; }
-label { display: block; font-weight: 600; margin-bottom: .25rem; }
-.opcao { display: inline-flex; align-items: center; gap: .4rem; font-weight: 400; margin-right: 1.5rem; min-height: 44px; }
-.dica { font-weight: 400; color: #555; }
-
-input[type="text"], input[type="search"], input[type="date"], select {
-  width: 100%; min-height: 44px;   /* área de toque confortável no celular */
-  padding: .5rem; font: inherit;
-  border: 1px solid var(--borda); border-radius: var(--raio); background: var(--fundo);
-}
-input[type="radio"] { width: 1.25rem; height: 1.25rem; accent-color: var(--primaria); }
-
-button, .botao {
-  display: inline-block; min-height: 44px; padding: .6rem 1.25rem;
-  font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
-  color: #fff; background: var(--primaria); border: 0; border-radius: var(--raio);
-}
-button.perigo { background: var(--perigo); }
-
-.acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
-.busca { margin-bottom: 1.5rem; }
-.busca .linha { display: flex; gap: .5rem; }
-.busca .linha input { flex: 1; }
-
-/* ---------- Lista de lançamentos ---------- */
-
-.lancamentos { list-style: none; margin: 0; padding: 0; }
-.lancamento {
-  display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem;
-  padding: .75rem 1rem; margin-bottom: .75rem;
-  background: var(--suave); border-radius: var(--raio); border-left: 6px solid;
-}
-.lancamento.entrada { border-color: var(--primaria); }
-.lancamento.saida { border-color: var(--perigo); }
-.lancamento-info { display: flex; flex-direction: column; }
-.lancamento.entrada .valor { color: var(--primaria); }
-.lancamento.saida .valor { color: var(--perigo); }
-.descricao { color: #444; }
-
-/* ---------- Confirmação de exclusão ---------- */
-
-.resumo { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; }
-.resumo dt { font-weight: 600; }
-.resumo dd { margin: 0; }
-
-/* ---------- Missões e XP ---------- */
-
-.xp { display: flex; flex-direction: column; gap: .25rem; margin-bottom: 1.5rem; }
-.xp-total { font-size: 2rem; color: var(--primaria); }
-.xp ~ h2, #conquistas h2 { font-size: 1.2rem; margin: 1.5rem 0 .75rem; }
-.missoes { list-style: none; margin: 0; padding: 0; }
-.missao {
-  display: flex; flex-direction: column; gap: .25rem;
-  padding: .75rem 1rem; margin-bottom: .75rem;
-  background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--borda);
-}
-.missao[data-status="ATIVA"] { border-color: var(--foco); }
-.missao.concluida { border-color: var(--primaria); }
-.missao label { font-weight: 400; margin: .25rem 0 0; }
-.missao progress { width: 100%; height: 1rem; accent-color: var(--primaria); }
-
-/* ---------- Metas e aportes ---------- */
-
-.metas { list-style: none; margin: 0; padding: 0; }
-.meta {
-  display: flex; flex-direction: column; gap: .4rem;
-  padding: .75rem 1rem; margin-bottom: .75rem;
-  background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--foco);
-}
-.meta.concluida { border-color: var(--primaria); }
-.metas .meta h2 { font-size: 1.1rem; margin: 0; overflow-wrap: anywhere; }
-.meta progress { width: 100%; height: 1rem; accent-color: var(--primaria); }
-.meta-progresso { font-variant-numeric: tabular-nums; }
-.selo { align-self: flex-start; color: var(--primaria); }
-.meta label { font-weight: 400; margin: .25rem 0 0; }
-.aporte .linha { display: flex; gap: .5rem; }
-.aporte .linha input { flex: 1; min-width: 0; }
-
-/* ---------- Quiz ---------- */
-
-.xp-quiz { font-size: 1.4rem; color: var(--primaria); font-variant-numeric: tabular-nums; }
-.xp ~ section h2 { font-size: 1.2rem; margin: 1.5rem 0 .75rem; }
-.perguntas { list-style: none; margin: 0; padding: 0; }
-.pergunta {
-  display: flex; flex-direction: column; gap: .25rem;
-  padding: .75rem 1rem; margin-bottom: .75rem;
-  background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--foco);
-}
-.pergunta[data-status="ACERTOU"] { border-color: var(--primaria); }
-.pergunta[data-status="ERROU"] { border-color: var(--perigo); }
-.pergunta a { font-weight: 600; }
-/* Alternativas longas: uma por linha, com a linha inteira clicável. */
-.alternativas .opcao { display: flex; align-items: flex-start; margin: 0; padding: .5rem 0; }
-.alternativas .opcao input { flex-shrink: 0; margin-top: .1rem; }
-.resultado {
-  padding: .75rem 1rem; margin-bottom: 1.5rem;
-  background: var(--suave); border-radius: var(--raio); border-left: 6px solid var(--perigo);
-}
-.resultado[data-acertou="sim"] { border-color: var(--primaria); }
-.resultado h2 { font-size: 1.2rem; margin: 0 0 .5rem; }
-.resultado p { margin: 0 0 .5rem; }
-
-/* ---------- Painel do aluno ---------- */
-
-.rotulo { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #555; margin: 0; }
-.painel-saldo { display: flex; flex-direction: column; gap: .25rem; margin-bottom: 1rem; }
-.saldo { font-size: 2.25rem; line-height: 1.1; color: var(--primaria); font-variant-numeric: tabular-nums; }
-.saldo.negativo { color: var(--perigo); }
-.botao-largo { display: block; text-align: center; }
-.painel-indicadores { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin: 1.5rem 0 .75rem; }
-.indicador {
-  display: flex; flex-direction: column; gap: .25rem;
-  padding: .75rem 1rem; border: 1px solid var(--borda); border-radius: var(--raio);
-}
-.indicador strong { font-size: 1.4rem; font-variant-numeric: tabular-nums; }
-
-/* ---------- Painel da turma (professor) ---------- */
-
-.indicador h3 { line-height: 1.3; }
-/* Quatro números: sempre 2 x 2, para não sobrar um cartão sozinho na segunda linha. */
-.indicadores-turma { grid-template-columns: repeat(2, 1fr); }
-/* No celular estreito a tabela rola sozinha, sem empurrar a página para o lado. */
-.tabela-rolavel { overflow-x: auto; margin-bottom: 1.5rem; }
-.tabela-turma { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-.tabela-turma th, .tabela-turma td { padding: .6rem .5rem; text-align: left; border-bottom: 1px solid #d6d6d3; }
-.tabela-turma thead th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #555; }
-.tabela-turma tbody th { font-weight: 600; overflow-wrap: anywhere; }
-.tabela-turma .numero { text-align: right; }
-.tabela-turma .sem-quebra { white-space: nowrap; }

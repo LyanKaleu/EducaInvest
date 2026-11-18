@@ -7,9 +7,12 @@
   <title>{% block titulo %}EducaInvest{% endblock %} · EducaInvest</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
-<body>
+{% set e_aluno = session.get('perfil') == 'ALUNO' %}
+<body{% if e_aluno %} class="com-menu-aluno"{% endif %}>
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
+  {# Telas de entrada (login e cadastro) trocam o topo pela marca grande. #}
+  {% block topo %}
   <header class="topo">
     <a class="marca" href="{{ url_for('inicio') }}">EducaInvest</a>
     {% if session.get('usuario_id') %}
@@ -17,55 +20,72 @@
       {% set perfil = 'Professor' if session.get('perfil') == 'PROFESSOR' else 'Aluno' %}
       <span class="identificacao">{% if session.get('apelido') %}{{ session.get('apelido') }} · {% endif %}{{ perfil }}</span>
     {% endif %}
-    <nav aria-label="Menu principal">
+    <nav class="menu-topo" aria-label="{{ 'Atalhos' if e_aluno else 'Menu principal' }}">
+        <ul>
+          {% if e_aluno %}
+            {# O Quiz fica no topo; o rodapé tem as 5 telas do dia a dia. #}
+            <li>
+              <a class="com-icone" href="{{ url_for('quiz.listar') }}"
+                 aria-current="{{ 'page' if request.endpoint in ('quiz.listar', 'quiz.ver', 'quiz.responder') else 'false' }}">
+                <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg>
+                Quiz
+              </a>
+            </li>
+          {% elif session.get('perfil') == 'PROFESSOR' %}
+            <li>
+              <a href="{{ url_for('professor.turmas') }}"
+                 aria-current="{{ 'page' if request.endpoint == 'professor.turmas' else 'false' }}">Turmas</a>
+            </li>
+          {% else %}
+            <li><a href="{{ url_for('auth.login') }}">Entrar</a></li>
+            <li><a href="{{ url_for('auth.cadastro') }}">Criar conta</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% if session.get('usuario_id') %}
+      {# Sair é POST: um link (GET) não pode encerrar a sessão. #}
+      <form class="sair" method="post" action="{{ url_for('auth.sair') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="link">Sair</button>
+      </form>
+    {% endif %}
+  </header>
+  {% endblock %}
+
+  {% if e_aluno %}
+    {# Menu do aluno: barra fixa no rodapé do celular, com as 5 telas do dia a dia; no desktop vira
+       uma linha abaixo do topo.
+       Cada item tem ícone (decorativo) e texto. aria-current="page" marca a página atual. #}
+    {% set icones = {
+      'inicio': 'M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z',
+      'lancamentos': 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
+      'novo': 'M12 5v14M5 12h14',
+      'missoes': 'M5 21V4M5 4h11l-2 4 2 4H5',
+      'metas': 'M12 4a8 8 0 1 0 0 16a8 8 0 1 0 0-16M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6',
+    } %}
+    {% set itens = [
+      ('inicio', 'painel.ver', ('painel.ver',), 'Início'),
+      ('lancamentos', 'lancamentos.listar', ('lancamentos.listar',), 'Lançamentos'),
+      ('novo', 'lancamentos.novo', ('lancamentos.novo', 'lancamentos.criar'), 'Novo'),
+      ('missoes', 'missoes.listar', ('missoes.listar',), 'Missões'),
+      ('metas', 'metas.listar', ('metas.listar', 'metas.nova', 'metas.criar', 'metas.aportar'), 'Metas'),
+    ] %}
+    <nav class="menu-aluno" aria-label="Menu principal">
       <ul>
-        {# aria-current="page" avisa ao leitor de tela qual é a página atual. #}
-        {% if session.get('perfil') == 'ALUNO' %}
+        {% for chave, destino, endpoints, rotulo in itens %}
           <li>
-            <a href="{{ url_for('painel.ver') }}"
-               aria-current="{{ 'page' if request.endpoint == 'painel.ver' else 'false' }}">Início</a>
+            <a class="item-{{ chave }}" href="{{ url_for(destino) }}"
+               aria-current="{{ 'page' if request.endpoint in endpoints else 'false' }}">
+              <span class="icone"><svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ icones[chave] }}"/></svg></span>
+              {{ rotulo }}
+            </a>
           </li>
-          <li>
-            <a href="{{ url_for('lancamentos.listar') }}"
-               aria-current="{{ 'page' if request.endpoint == 'lancamentos.listar' else 'false' }}">Lançamentos</a>
-          </li>
-          <li>
-            <a href="{{ url_for('lancamentos.novo') }}"
-               aria-current="{{ 'page' if request.endpoint in ('lancamentos.novo', 'lancamentos.criar') else 'false' }}">Novo</a>
-          </li>
-          <li>
-            <a href="{{ url_for('missoes.listar') }}"
-               aria-current="{{ 'page' if request.endpoint == 'missoes.listar' else 'false' }}">Missões</a>
-          </li>
-          <li>
-            <a href="{{ url_for('metas.listar') }}"
-               aria-current="{{ 'page' if request.endpoint in ('metas.listar', 'metas.nova', 'metas.criar', 'metas.aportar') else 'false' }}">Metas</a>
-          </li>
-          <li>
-            <a href="{{ url_for('quiz.listar') }}"
-               aria-current="{{ 'page' if request.endpoint in ('quiz.listar', 'quiz.ver', 'quiz.responder') else 'false' }}">Quiz</a>
-          </li>
-        {% elif session.get('perfil') == 'PROFESSOR' %}
-          <li>
-            <a href="{{ url_for('professor.turmas') }}"
-               aria-current="{{ 'page' if request.endpoint == 'professor.turmas' else 'false' }}">Turmas</a>
-          </li>
-        {% else %}
-          <li><a href="{{ url_for('auth.login') }}">Entrar</a></li>
-          <li><a href="{{ url_for('auth.cadastro') }}">Criar conta</a></li>
-        {% endif %}
-        {% if session.get('usuario_id') %}
-          <li>
-            {# Sair é POST: um link (GET) não pode encerrar a sessão. #}
-            <form method="post" action="{{ url_for('auth.sair') }}">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="link">Sair</button>
-            </form>
-          </li>
-        {% endif %}
+        {% endfor %}
       </ul>
     </nav>
-  </header>
+  {% endif %}
 
   <main id="conteudo" tabindex="-1">
     {% with mensagens = get_flashed_messages(with_categories=true) %}

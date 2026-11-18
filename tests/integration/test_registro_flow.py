@@ -180,3 +180,9 @@ def test_missoes_nao_mostram_xp_de_outro_aluno(cliente, cliente_outro_aluno):
 
     assert xp_total(cliente_outro_aluno) == 0
     assert status_da_missao(cliente_outro_aluno, PRIMEIRA) == "ATIVA"
+
+
+def test_missoes_mostra_o_xp_de_registros_de_hoje_e_o_teto(cliente):
+    registrar(cliente, vezes=2)
+
+    assert "Hoje: 20 de 50 XP." in tela_missoes(cliente)

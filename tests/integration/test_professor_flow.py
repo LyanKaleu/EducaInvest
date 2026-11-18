@@ -90,3 +90,13 @@ def test_aluno_de_outra_turma_nao_aparece(app, cliente_professor, turma):
 
     html_turma = cliente_professor.get(f"/professor/turmas/{turma['id']}").get_data(as_text=True)
     assert "Beatriz" not in html_turma
+
+
+def test_lista_de_turmas_mostra_quantos_alunos_cada_uma_tem(app, cliente_professor, turma, cliente_aluno):
+    criar_turma(cliente_professor, "3º B")  # sem alunos
+    cadastrar_aluno(app.test_client(), turma["codigo"], email="bruno@escola.br", apelido="Bruno")
+
+    html = cliente_professor.get("/professor/turmas").get_data(as_text=True)
+
+    assert re.search(r'2º A</strong>\s*<span[^>]*>2 alunos</span>', html)
+    assert re.search(r'3º B</strong>\s*<span[^>]*>0 alunos</span>', html)
