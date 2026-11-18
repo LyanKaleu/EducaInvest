@@ -212,12 +212,19 @@
 }
 @keyframes revela-barra { from { clip-path: inset(0 100% 0 0); } }
 @keyframes aparece { from { opacity: 0; } }
-@keyframes some { to { opacity: 0; visibility: hidden; } }
+/* A saída do toast é só visual: sem visibility: hidden, o texto continua para o leitor de tela
+   (o aviso do teto de XP só existe ali). No último quadro ele salta para fora da tela, para não
+   cobrir o rodapé invisível (pointer-events não é animável). */
+@keyframes some {
+  99% { opacity: 0; transform: none; }
+  to { opacity: 0; transform: translateY(100vh); }
+}
 @keyframes entra-toast {
   from { opacity: 0; transform: translateY(16px) scale(.97); filter: blur(var(--desfoque-pequeno)); }
 }
 @keyframes sai-toast {
-  to { opacity: 0; transform: translateY(8px) scale(.98); filter: blur(var(--desfoque-pequeno)); visibility: hidden; }
+  99% { opacity: 0; transform: translateY(8px) scale(.98); filter: blur(var(--desfoque-pequeno)); }
+  to { opacity: 0; transform: translateY(100vh); }
 }
 @keyframes aparece-check { from { opacity: 0; transform: rotate(80deg); filter: blur(4px); } }
 @keyframes assenta-check { from { translate: 0 6px; } }
@@ -278,5 +285,6 @@
 }
 .t-reel-sep { display: inline-block; height: var(--reel-cell); line-height: var(--reel-cell); }
 
-/* Pausa a saída do toast enquanto o aluno lê com o mouse em cima ou navega por ele (WCAG 2.2.1). */
-.aviso-sucesso:hover, .aviso-sucesso:focus-within { animation-play-state: paused; }
+/* Segura o toast enquanto o aluno lê: o mouse em cima pausa a saída, e um toque nele (movimento.js)
+   o deixa parado até o próximo toque. */
+.aviso-sucesso:hover, .aviso-sucesso.segurado { animation-play-state: paused; }

@@ -14,6 +14,14 @@ export const poucoMovimento = matchMedia(
 ).matches;
 
 // ---------------------------------------------------------------------------
+// Toast de sucesso: um toque segura (ou solta) a saída, para ler com calma
+// ---------------------------------------------------------------------------
+
+for (const toast of document.querySelectorAll(".aviso-sucesso")) {
+  toast.addEventListener("click", () => toast.classList.toggle("segurado"));
+}
+
+// ---------------------------------------------------------------------------
 // Gasto/Entrada: pílula que desliza até a opção marcada (tabs sliding)
 // ---------------------------------------------------------------------------
 

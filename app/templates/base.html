@@ -19,6 +19,9 @@
   {# Clássico e no <head> de propósito: escuta o pagereveal, que vem antes da primeira pintura.
      Baixa junto com o CSS, então não atrasa a tela. #}
   <script src="{{ url_for('static', filename='js/direcao.js') }}"></script>
+  {# Segura a primeira pintura até o <main> chegar, para o menu (que vem antes) já existir quando o
+     direcao.js calcula a direção, mesmo com a rede lenta. Navegador sem suporte ignora. #}
+  <link rel="expect" href="#conteudo" blocking="render">
 </head>
 {% set e_aluno = session.get('perfil') == 'ALUNO' %}
 <body{% if e_aluno %} class="com-menu-aluno"{% endif %}>

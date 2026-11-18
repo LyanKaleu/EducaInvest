@@ -36,7 +36,8 @@
   addEventListener("pagereveal", (evento) => {
     const ativacao = window.navigation?.activation;
     if (!evento.viewTransition || !ativacao?.from || !ativacao.entry) return;
-    // O menu já existe aqui: o pagereveal vem depois do HTML lido.
+    // O menu já existe aqui: o <link rel="expect" blocking="render"> do
+    // base.html segura a primeira pintura (e o pagereveal) até o <main>.
     const tipo = direcao(lugar(ativacao.from.url), lugar(ativacao.entry.url));
     if (tipo) evento.viewTransition.types.add(tipo);
   });

@@ -107,7 +107,7 @@ Os padrões vêm do transitions.dev (skills `transitions-dev` e `transitions-pol
 - **O que anima:**
   - **Troca de página:** `@view-transition { navigation: auto; }`. O topo e o menu ficam parados; o conteúdo sai num fade e entra subindo 8px. Onde o navegador não suporta, a página só carrega normal.
   - **Troca de página com direção** (`direcao.js`): ir para a direita no menu ou entrar num detalhe desliza 8px para a esquerda com desfoque de 3px; voltar desliza para o outro lado.
-  - **Avisos:** entram descendo 6px. O de sucesso é um toast no rodapé, com check desenhado, e some sozinho em 5s (pausa com o mouse ou o foco em cima), só com CSS.
+  - **Avisos:** entram descendo 6px. O de sucesso é um toast no rodapé, com check desenhado, e some da vista sozinho em 5s, só com CSS (o texto continua para o leitor de tela). O mouse em cima pausa, e um toque segura até o próximo toque (JS).
   - **Erro:** o campo com erro treme uma vez (80/60/80/60ms) e a mensagem entra junto.
   - **Escolhas:** o chip e a alternativa marcados assentam com mola; no Gasto/Entrada, uma pílula desliza até a opção (JS).
   - **Painel:** as marcas da sequência acendem em cascata; se o XP subiu desde a última visita neste aparelho, o número rola num tambor 3D e a barra enche desde onde estava (JS, `localStorage`).
