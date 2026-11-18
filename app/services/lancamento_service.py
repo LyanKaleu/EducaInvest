@@ -1,4 +1,5 @@
 """Valida lançamentos (RN-07), calcula saldo e dispara a verificação de missões."""
+
 from collections.abc import Callable, Mapping
 from datetime import date, datetime, timedelta, timezone
 
@@ -19,7 +20,14 @@ TIPOS = {"entrada": "ENTRADA", "saida": "SAIDA", "saída": "SAIDA"}
 # Lista fixa (mesma do seed em docs/educainvest_schema.sql). A confirmar pelo grupo.
 CATEGORIAS = {
     "ENTRADA": ("Mesada", "Trabalho/bico", "Benefício", "Outras entradas"),
-    "SAIDA": ("Alimentação", "Transporte", "Lazer", "Compras", "Estudos", "Outras saídas"),
+    "SAIDA": (
+        "Alimentação",
+        "Transporte",
+        "Lazer",
+        "Compras",
+        "Estudos",
+        "Outras saídas",
+    ),
 }
 
 DESCRICAO_MAX = 140
@@ -35,7 +43,9 @@ def hoje_no_piaui() -> date:
     return datetime.now(FUSO_PIAUI).date()
 
 
-def validar_lancamento(dados: Mapping[str, str], hoje: date | None = None) -> dict:
+def validar_lancamento(
+    dados: Mapping[str, str], hoje: date | None = None
+) -> dict:
     """Valida o formulário de lançamento e devolve os dados normalizados.
 
     Confere todos os campos antes de responder, para a tela mostrar todos os
@@ -63,7 +73,9 @@ def validar_lancamento(dados: Mapping[str, str], hoje: date | None = None) -> di
     hoje = hoje or hoje_no_piaui()
     erros: dict[str, str] = {}
 
-    def campo[T](nome: str, conversor: Callable[..., T], *args: object) -> T | None:
+    def campo[T](
+        nome: str, conversor: Callable[..., T], *args: object
+    ) -> T | None:
         try:
             return conversor(texto_do_campo(dados, nome), *args)
         except ValueError as erro:
@@ -115,13 +127,17 @@ def _converter_tipo(texto: str) -> str:
 def _converter_categoria(texto: str, tipo: str | None) -> str | None:
     if not texto:
         raise ValueError("Escolha uma categoria.")
-    if tipo is None:  # o erro do tipo já foi informado; não dá para checar a categoria
+    if (
+        tipo is None
+    ):  # o erro do tipo já foi informado; não dá para checar a categoria
         return None
     for nome in CATEGORIAS[tipo]:
         if nome.casefold() == texto.casefold():
             return nome
     outro_tipo = "SAIDA" if tipo == "ENTRADA" else "ENTRADA"
-    if any(nome.casefold() == texto.casefold() for nome in CATEGORIAS[outro_tipo]):
+    if any(
+        nome.casefold() == texto.casefold() for nome in CATEGORIAS[outro_tipo]
+    ):
         raise ValueError("Essa categoria não combina com o tipo escolhido.")
     raise ValueError("Escolha uma categoria da lista.")
 
@@ -137,6 +153,7 @@ def _converter_data(texto: str, hoje: date) -> date:
 
 def _converter_descricao(texto: str) -> str | None:
     if len(texto) > DESCRICAO_MAX:
-        raise ValueError(f"A descrição pode ter no máximo {DESCRICAO_MAX} caracteres.")
+        raise ValueError(
+            f"A descrição pode ter no máximo {DESCRICAO_MAX} caracteres."
+        )
     return texto or None
-

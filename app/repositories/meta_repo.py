@@ -1,4 +1,5 @@
 """SQL de metas e aportes: único lugar com SQL destas entidades."""
+
 import sqlite3
 
 from app.repositories.conversao import linha_para_dict
@@ -56,7 +57,14 @@ class MetaRepository:
         """Cria as tabelas `metas` e `aportes_meta`, se ainda não existirem."""
         conn.executescript(SQL_CRIAR_TABELA)
 
-    def criar(self, aluno_id: int, nome: str, valor_alvo_centavos: int, prazo: str | None, chave_idempotencia: str) -> dict:
+    def criar(
+        self,
+        aluno_id: int,
+        nome: str,
+        valor_alvo_centavos: int,
+        prazo: str | None,
+        chave_idempotencia: str,
+    ) -> dict:
         """Insere uma meta, ou devolve a já existente se a chave se repetir. Não faz commit.
 
         Args:
@@ -92,17 +100,22 @@ class MetaRepository:
         Returns:
             list[dict]: as colunas de `metas` mais `guardado_centavos` (soma dos aportes, 0 sem aportes).
         """
-        linhas = self.conn.execute(SQL_METAS_COM_GUARDADO.format(filtro=""), (aluno_id,)).fetchall()
+        linhas = self.conn.execute(
+            SQL_METAS_COM_GUARDADO.format(filtro=""), (aluno_id,)
+        ).fetchall()
         return [dict(linha) for linha in linhas]
 
     def buscar(self, aluno_id: int, meta_id: int) -> dict | None:
         """Uma meta do aluno com `guardado_centavos`, ou None se não existir ou for de outro aluno."""
         linha = self.conn.execute(
-            SQL_METAS_COM_GUARDADO.format(filtro="AND m.id = ?"), (aluno_id, meta_id)
+            SQL_METAS_COM_GUARDADO.format(filtro="AND m.id = ?"),
+            (aluno_id, meta_id),
         ).fetchone()
         return linha_para_dict(linha)
 
-    def aporte_registrado(self, aluno_id: int, meta_id: int, chave_idempotencia: str) -> bool:
+    def aporte_registrado(
+        self, aluno_id: int, meta_id: int, chave_idempotencia: str
+    ) -> bool:
         """Se este envio (chave) já gravou um aporte nesta meta do aluno (reenvio, N2)."""
         linha = self.conn.execute(
             """
@@ -113,7 +126,13 @@ class MetaRepository:
         ).fetchone()
         return linha is not None
 
-    def aportar(self, aluno_id: int, meta_id: int, valor_centavos: int, chave_idempotencia: str) -> bool:
+    def aportar(
+        self,
+        aluno_id: int,
+        meta_id: int,
+        valor_centavos: int,
+        chave_idempotencia: str,
+    ) -> bool:
         """Registra um aporte numa meta do aluno. Não faz commit.
 
         O INSERT só acontece se a meta for do aluno e o aporte couber no que
@@ -138,6 +157,12 @@ class MetaRepository:
                    WHERE a.meta_id = m.id) + ? <= m.valor_alvo_centavos
             ON CONFLICT (meta_id, chave_idempotencia) DO NOTHING
             """,
-            (valor_centavos, chave_idempotencia, meta_id, aluno_id, valor_centavos),
+            (
+                valor_centavos,
+                chave_idempotencia,
+                meta_id,
+                aluno_id,
+                valor_centavos,
+            ),
         )
         return cursor.rowcount == 1

@@ -1,4 +1,5 @@
 """Conexão com o SQLite: abre o banco, cria as tabelas e entrega uma conexão por requisição."""
+
 import sqlite3
 
 from flask import Flask, current_app, g
@@ -18,7 +19,9 @@ def conectar(caminho: str) -> sqlite3.Connection:
     Use ":memory:" nos testes para um banco temporário em memória.
     """
     conn = sqlite3.connect(caminho)
-    conn.row_factory = sqlite3.Row  # linhas acessíveis por nome: linha["valor_centavos"]
+    conn.row_factory = (
+        sqlite3.Row
+    )  # linhas acessíveis por nome: linha["valor_centavos"]
     # O SQLite deixa as FKs desligadas por conexão: sem isto, todo REFERENCES e o
     # ON DELETE CASCADE de matriculas viram decoração. Tem de vir antes de abrir transação.
     conn.execute("PRAGMA foreign_keys = ON")

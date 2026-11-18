@@ -1,4 +1,5 @@
 """SQL das missões concluídas por cada aluno. O catálogo fica em missao_service.MISSOES."""
+
 import sqlite3
 from collections.abc import Iterable
 

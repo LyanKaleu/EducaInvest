@@ -3,6 +3,7 @@
 Padrão de mercado (Google Classroom, Khan Academy, Upwork): o tipo de usuário é
 escolhido no cadastro, o login é um só, e depois de entrar a tela mostra o perfil.
 """
+
 import re
 
 import pytest
@@ -14,7 +15,7 @@ from tests.conftest import cadastrar_aluno, entrar
 
 def opcao(html: str, texto: str) -> str | None:
     """A tag <a> da opção de perfil com o `texto` dado, ou None."""
-    encontrado = re.search(rf'<a [^>]*>\s*{texto}\s*</a>', html)
+    encontrado = re.search(rf"<a [^>]*>\s*{texto}\s*</a>", html)
     return encontrado.group(0) if encontrado else None
 
 
@@ -22,7 +23,10 @@ def opcao(html: str, texto: str) -> str | None:
 # Cadastro: escolha clara entre aluno e professor
 # ---------------------------------------------------------------------------
 
-def test_cadastro_de_aluno_oferece_as_duas_opcoes_com_aluno_marcado(cliente_anonimo: FlaskClient) -> None:
+
+def test_cadastro_de_aluno_oferece_as_duas_opcoes_com_aluno_marcado(
+    cliente_anonimo: FlaskClient,
+) -> None:
     html = cliente_anonimo.get("/cadastro").get_data(as_text=True)
 
     aluno, professor = opcao(html, "Sou aluno"), opcao(html, "Sou professor")
@@ -34,7 +38,9 @@ def test_cadastro_de_aluno_oferece_as_duas_opcoes_com_aluno_marcado(cliente_anon
     assert 'aria-current="page"' not in professor
 
 
-def test_cadastro_de_professor_marca_a_opcao_professor(cliente_anonimo: FlaskClient) -> None:
+def test_cadastro_de_professor_marca_a_opcao_professor(
+    cliente_anonimo: FlaskClient,
+) -> None:
     html = cliente_anonimo.get("/cadastro/professor").get_data(as_text=True)
 
     assert 'aria-current="page"' in opcao(html, "Sou professor")
@@ -45,7 +51,10 @@ def test_cadastro_de_professor_marca_a_opcao_professor(cliente_anonimo: FlaskCli
 # Login: um só para todos
 # ---------------------------------------------------------------------------
 
-def test_login_avisa_que_alunos_e_professores_entram_pelo_mesmo_lugar(cliente_anonimo: FlaskClient) -> None:
+
+def test_login_avisa_que_alunos_e_professores_entram_pelo_mesmo_lugar(
+    cliente_anonimo: FlaskClient,
+) -> None:
     html = cliente_anonimo.get("/login").get_data(as_text=True)
 
     assert "Alunos e professores entram por aqui" in html
@@ -55,13 +64,18 @@ def test_login_avisa_que_alunos_e_professores_entram_pelo_mesmo_lugar(cliente_an
 # Topo: quem está logado e com qual perfil
 # ---------------------------------------------------------------------------
 
-def test_topo_mostra_apelido_e_perfil_do_aluno(cliente_aluno: FlaskClient) -> None:
+
+def test_topo_mostra_apelido_e_perfil_do_aluno(
+    cliente_aluno: FlaskClient,
+) -> None:
     html = cliente_aluno.get("/lancamentos/").get_data(as_text=True)
 
     assert '<span class="identificacao">Gabriel · Aluno</span>' in html
 
 
-def test_topo_mostra_apelido_e_perfil_do_professor(cliente_professor: FlaskClient) -> None:
+def test_topo_mostra_apelido_e_perfil_do_professor(
+    cliente_professor: FlaskClient,
+) -> None:
     html = cliente_professor.get("/professor/turmas").get_data(as_text=True)
 
     assert '<span class="identificacao">Prof. Ana · Professor</span>' in html
@@ -83,17 +97,26 @@ def test_visitante_nao_ve_identificacao(cliente_anonimo: FlaskClient) -> None:
     assert 'class="identificacao"' not in html
 
 
-def test_apelido_no_topo_nao_executa_html(app: Flask, turma: dict[str, int | str]) -> None:
+def test_apelido_no_topo_nao_executa_html(
+    app: Flask, turma: dict[str, int | str]
+) -> None:
     cliente = app.test_client()
-    cadastrar_aluno(cliente, turma["codigo"], email="x@escola.br", apelido="<b>Zé</b>")
+    cadastrar_aluno(
+        cliente, turma["codigo"], email="x@escola.br", apelido="<b>Zé</b>"
+    )
 
     html = cliente.get("/lancamentos/").get_data(as_text=True)
 
     assert "<b>Zé</b>" not in html
-    assert '<span class="identificacao">&lt;b&gt;Zé&lt;/b&gt; · Aluno</span>' in html
+    assert (
+        '<span class="identificacao">&lt;b&gt;Zé&lt;/b&gt; · Aluno</span>'
+        in html
+    )
 
 
-def test_sessao_antiga_sem_apelido_mostra_so_o_perfil(cliente_aluno: FlaskClient) -> None:
+def test_sessao_antiga_sem_apelido_mostra_so_o_perfil(
+    cliente_aluno: FlaskClient,
+) -> None:
     # Quem entrou antes desta versão não tem apelido na sessão: nada de "None · Aluno".
     with cliente_aluno.session_transaction() as sessao:
         sessao.pop("apelido")

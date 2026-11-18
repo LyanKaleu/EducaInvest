@@ -1,14 +1,23 @@
 """Tela inicial do aluno: saldo, XP, nível, sequência e missão em andamento (HU1 saldo, HU3 RN-13)."""
+
 import re
 import uuid
 
 from flask.testing import FlaskClient
 
 
-def registrar(cliente: FlaskClient, tipo: str, categoria: str, valor: str) -> None:
+def registrar(
+    cliente: FlaskClient, tipo: str, categoria: str, valor: str
+) -> None:
     """Cria um lançamento pela rota, como o navegador envia."""
-    form = {"tipo": tipo, "categoria": categoria, "valor": valor, "data": "2026-11-01",
-            "descricao": "", "chave_idempotencia": str(uuid.uuid4())}
+    form = {
+        "tipo": tipo,
+        "categoria": categoria,
+        "valor": valor,
+        "data": "2026-11-01",
+        "descricao": "",
+        "chave_idempotencia": str(uuid.uuid4()),
+    }
     cliente.post("/lancamentos/novo", data=form)
 
 
@@ -25,7 +34,9 @@ def valor(html: str, id_: str) -> str:
     return encontrado.group(1).strip()
 
 
-def test_painel_mostra_saldo_xp_sequencia_e_missao(cliente_aluno: FlaskClient) -> None:
+def test_painel_mostra_saldo_xp_sequencia_e_missao(
+    cliente_aluno: FlaskClient,
+) -> None:
     registrar(cliente_aluno, "entrada", "Mesada", "50,00")
     registrar(cliente_aluno, "saida", "Alimentação", "25,00")
 
@@ -37,7 +48,9 @@ def test_painel_mostra_saldo_xp_sequencia_e_missao(cliente_aluno: FlaskClient) -
     assert valor(html, "missao-progresso") == "Primeiros passos: 1 de 3"
 
 
-def test_saldo_nao_inclui_lancamentos_de_outro_aluno(cliente_aluno: FlaskClient, cliente_outro_aluno: FlaskClient) -> None:
+def test_saldo_nao_inclui_lancamentos_de_outro_aluno(
+    cliente_aluno: FlaskClient, cliente_outro_aluno: FlaskClient
+) -> None:
     registrar(cliente_outro_aluno, "entrada", "Mesada", "80,00")
     registrar(cliente_aluno, "saida", "Lazer", "10,50")
 
@@ -64,23 +77,51 @@ def test_inicio_do_aluno_abre_o_painel(cliente_aluno: FlaskClient) -> None:
 # Meta em destaque (HU2)
 # ---------------------------------------------------------------------------
 
-def criar_meta_com_aporte(cliente: FlaskClient, nome: str, alvo: str, aporte: str) -> None:
+
+def criar_meta_com_aporte(
+    cliente: FlaskClient, nome: str, alvo: str, aporte: str
+) -> None:
     """Cria a meta e faz um aporte pelas rotas. Devolve o id da meta."""
-    cliente.post("/metas/nova", data={"nome": nome, "alvo": alvo, "prazo": "",
-                                       "chave_idempotencia": str(uuid.uuid4())})
-    meta_id = max(int(i) for i in re.findall(r'data-meta-id="(\d+)"', cliente.get("/metas/").get_data(as_text=True)))
-    cliente.post(f"/metas/{meta_id}/aportes", data={"valor": aporte, "chave_idempotencia": str(uuid.uuid4())})
+    cliente.post(
+        "/metas/nova",
+        data={
+            "nome": nome,
+            "alvo": alvo,
+            "prazo": "",
+            "chave_idempotencia": str(uuid.uuid4()),
+        },
+    )
+    meta_id = max(
+        int(i)
+        for i in re.findall(
+            r'data-meta-id="(\d+)"',
+            cliente.get("/metas/").get_data(as_text=True),
+        )
+    )
+    cliente.post(
+        f"/metas/{meta_id}/aportes",
+        data={"valor": aporte, "chave_idempotencia": str(uuid.uuid4())},
+    )
     return meta_id
 
 
-def test_painel_mostra_a_meta_mais_perto_de_concluir(cliente_aluno: FlaskClient) -> None:
-    criar_meta_com_aporte(cliente_aluno, "Fone", "200,00", "100,00")      # 50%
-    criar_meta_com_aporte(cliente_aluno, "Bicicleta", "800,00", "120,00")  # 15%
+def test_painel_mostra_a_meta_mais_perto_de_concluir(
+    cliente_aluno: FlaskClient,
+) -> None:
+    criar_meta_com_aporte(cliente_aluno, "Fone", "200,00", "100,00")  # 50%
+    criar_meta_com_aporte(
+        cliente_aluno, "Bicicleta", "800,00", "120,00"
+    )  # 15%
 
-    assert valor(painel(cliente_aluno), "meta-progresso") == "Fone: R$ 100,00 de R$ 200,00 · 50%"
+    assert (
+        valor(painel(cliente_aluno), "meta-progresso")
+        == "Fone: R$ 100,00 de R$ 200,00 · 50%"
+    )
 
 
-def test_painel_sem_metas_convida_a_criar_a_primeira(cliente_aluno: FlaskClient) -> None:
+def test_painel_sem_metas_convida_a_criar_a_primeira(
+    cliente_aluno: FlaskClient,
+) -> None:
     assert "Crie sua primeira meta" in painel(cliente_aluno)
 
 
@@ -92,11 +133,17 @@ def test_aporte_na_meta_nao_muda_o_saldo(cliente_aluno: FlaskClient) -> None:
     assert valor(painel(cliente_aluno), "saldo") == "R$ 50,00"
 
 
-def test_painel_mostra_os_ultimos_7_dias_da_sequencia(cliente_aluno: FlaskClient) -> None:
+def test_painel_mostra_os_ultimos_7_dias_da_sequencia(
+    cliente_aluno: FlaskClient,
+) -> None:
     registrar(cliente_aluno, "saida", "Alimentação", "5,00")
 
-    assert 'aria-label="Ganhou XP em 1 dos últimos 7 dias"' in painel(cliente_aluno)
+    assert 'aria-label="Ganhou XP em 1 dos últimos 7 dias"' in painel(
+        cliente_aluno
+    )
 
 
 def test_aluno_novo_ve_os_7_dias_em_branco(cliente_aluno: FlaskClient) -> None:
-    assert 'aria-label="Ganhou XP em 0 dos últimos 7 dias"' in painel(cliente_aluno)
+    assert 'aria-label="Ganhou XP em 0 dos últimos 7 dias"' in painel(
+        cliente_aluno
+    )

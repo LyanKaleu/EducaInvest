@@ -4,6 +4,7 @@ Sem o PRAGMA, o SQLite aceita filho órfão (o REFERENCES vira decoração) e o
 ON DELETE CASCADE de `matriculas` não dispara. Este teste falha se a linha do
 PRAGMA sumir de app.db.conectar (prova de revert).
 """
+
 import sqlite3
 
 import pytest

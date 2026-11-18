@@ -1,4 +1,5 @@
 """Rota das missões, conquistas, XP e nível do aluno, e o progresso gerado por cada registro (HU3)."""
+
 import sqlite3
 
 from flask import Blueprint, flash, render_template, session
@@ -34,7 +35,9 @@ def listar() -> ResponseReturnValue:
         xp_total=xp_total,
         nivel=xp_service.nivel(xp_total),
         # XP de registros ganho hoje, para o aluno ver quanto falta do teto diário (RN-11).
-        xp_registros_hoje=xp_repo.pontos_no_dia(aluno_id, "LANCAMENTO", hoje_no_piaui().isoformat()),
+        xp_registros_hoje=xp_repo.pontos_no_dia(
+            aluno_id, "LANCAMENTO", hoje_no_piaui().isoformat()
+        ),
         teto_registros=xp_service.TETO_DIARIO_LANCAMENTOS,
         xp_por_registro=xp_service.XP_POR_LANCAMENTO,
     )
@@ -44,7 +47,10 @@ def listar() -> ResponseReturnValue:
 # Progresso: chamado pelas rotas de lançamento, DENTRO da transação delas
 # ---------------------------------------------------------------------------
 
-def registrar_progresso(conn: sqlite3.Connection, aluno_id: int, lancamento_id: int | None = None) -> dict:
+
+def registrar_progresso(
+    conn: sqlite3.Connection, aluno_id: int, lancamento_id: int | None = None
+) -> dict:
     """Credita o XP do lançamento, conclui as missões cumpridas e detecta a subida de nível.
 
     Não faz commit: chame dentro do mesmo `with conn:` que gravou o lançamento,
@@ -68,17 +74,25 @@ def registrar_progresso(conn: sqlite3.Connection, aluno_id: int, lancamento_id: 
 
     xp_lancamento, teto_atingido = 0, False
     if lancamento_id is not None:
-        pontos = xp_service.xp_do_lancamento(xp_repo.pontos_no_dia(aluno_id, "LANCAMENTO", hoje))
+        pontos = xp_service.xp_do_lancamento(
+            xp_repo.pontos_no_dia(aluno_id, "LANCAMENTO", hoje)
+        )
         teto_atingido = pontos == 0
         # Reenvio da mesma chave devolve o mesmo lançamento: o UNIQUE barra o 2º crédito.
-        if pontos and xp_repo.creditar(aluno_id, "LANCAMENTO", lancamento_id, pontos, hoje):
+        if pontos and xp_repo.creditar(
+            aluno_id, "LANCAMENTO", lancamento_id, pontos, hoje
+        ):
             xp_lancamento = pontos
 
     contagens = LancamentoRepository(conn).contar_por_tipo(aluno_id)
     conquistas = []
-    for missao in missao_service.a_concluir(contagens, missao_repo.concluidas(aluno_id)):
+    for missao in missao_service.a_concluir(
+        contagens, missao_repo.concluidas(aluno_id)
+    ):
         if missao_repo.concluir(aluno_id, missao["codigo"]):
-            xp_repo.creditar(aluno_id, "MISSAO", missao["codigo"], missao["xp"], hoje)
+            xp_repo.creditar(
+                aluno_id, "MISSAO", missao["codigo"], missao["xp"], hoje
+            )
             conquistas.append(missao)
 
     nivel_depois = xp_service.nivel(xp_repo.total(aluno_id))
@@ -86,7 +100,9 @@ def registrar_progresso(conn: sqlite3.Connection, aluno_id: int, lancamento_id: 
         "xp_lancamento": xp_lancamento,
         "teto_atingido": teto_atingido,
         "conquistas": conquistas,
-        "novo_nivel": nivel_depois if nivel_depois["nivel"] > nivel_antes else None,
+        "novo_nivel": nivel_depois
+        if nivel_depois["nivel"] > nivel_antes
+        else None,
     }
 
 
@@ -96,7 +112,13 @@ def avisar_conquistas(progresso: dict) -> None:
     Usam a categoria "conquista", que o CSS mostra como comemoração.
     """
     for missao in progresso["conquistas"]:
-        flash(f"Conquista desbloqueada: {missao['titulo']}! +{missao['xp']} XP", "conquista")
+        flash(
+            f"Conquista desbloqueada: {missao['titulo']}! +{missao['xp']} XP",
+            "conquista",
+        )
     if progresso["novo_nivel"]:
         nivel = progresso["novo_nivel"]
-        flash(f"Você subiu para o nível {nivel['nivel']} ({nivel['nome']})!", "conquista")
+        flash(
+            f"Você subiu para o nível {nivel['nivel']} ({nivel['nome']})!",
+            "conquista",
+        )

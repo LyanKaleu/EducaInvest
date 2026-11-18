@@ -1,4 +1,5 @@
 """Testes do limite de tentativas de login (auditoria, achado 1). Só o service, relógio falso."""
+
 from app.services.limite_service import LimiteDeTentativas
 
 
@@ -12,9 +13,13 @@ class RelogioFalso:
         return self.agora
 
 
-def limite_com_relogio(**extra: int) -> tuple[LimiteDeTentativas, RelogioFalso]:
+def limite_com_relogio(
+    **extra: int,
+) -> tuple[LimiteDeTentativas, RelogioFalso]:
     relogio = RelogioFalso()
-    return LimiteDeTentativas(maximo=5, janela_segundos=900, relogio=relogio, **extra), relogio
+    return LimiteDeTentativas(
+        maximo=5, janela_segundos=900, relogio=relogio, **extra
+    ), relogio
 
 
 def tentar(limite: LimiteDeTentativas, chave: str, vezes: int) -> list[bool]:

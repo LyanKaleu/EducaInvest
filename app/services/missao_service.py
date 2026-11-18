@@ -52,7 +52,9 @@ def situacao(contagens: dict, concluidas: set) -> list[dict]:
         if missao["codigo"] in concluidas:
             status, atual = "CONCLUIDA", missao["alvo"]
         else:
-            requisito_pendente = missao["requisito"] and missao["requisito"] not in concluidas
+            requisito_pendente = (
+                missao["requisito"] and missao["requisito"] not in concluidas
+            )
             status = "BLOQUEADA" if requisito_pendente else "ATIVA"
             atual = min(_contagem(missao, contagens), missao["alvo"])
         resultado.append({**missao, "atual": atual, "status": status})

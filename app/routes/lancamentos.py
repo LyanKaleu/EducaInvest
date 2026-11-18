@@ -1,4 +1,5 @@
 """Rotas para registrar e listar entradas e gastos (HU1, RF03)."""
+
 import uuid
 
 from flask import (
@@ -75,7 +76,12 @@ def _form_do_registro(lancamento: dict) -> dict:
     }
 
 
-def _render_form(form: dict[str, str], erros: dict[str, str] | None = None, lancamento: dict | None = None, status: int = 200) -> ResponseReturnValue:
+def _render_form(
+    form: dict[str, str],
+    erros: dict[str, str] | None = None,
+    lancamento: dict | None = None,
+    status: int = 200,
+) -> ResponseReturnValue:
     """Formulário de criar (lancamento=None) ou editar, já preenchido com `form`."""
     html = render_template(
         "aluno/lancamento_form.html",
@@ -91,6 +97,7 @@ def _render_form(form: dict[str, str], erros: dict[str, str] | None = None, lanc
 # Listar
 # ---------------------------------------------------------------------------
 
+
 @bp.get("/")
 def listar() -> ResponseReturnValue:
     """Lista os lançamentos do aluno, com a busca opcional."""
@@ -98,13 +105,19 @@ def listar() -> ResponseReturnValue:
     lancamentos = _repo().listar(_aluno_id(), busca or None)
     # Os totais do topo valem para todos os lançamentos, com ou sem busca.
     somas = _repo().somar_por_tipo(_aluno_id())
-    return render_template("aluno/lancamentos.html", lancamentos=lancamentos, busca=busca,
-                           entradas=somas["ENTRADA"], gastos=somas["SAIDA"])
+    return render_template(
+        "aluno/lancamentos.html",
+        lancamentos=lancamentos,
+        busca=busca,
+        entradas=somas["ENTRADA"],
+        gastos=somas["SAIDA"],
+    )
 
 
 # ---------------------------------------------------------------------------
 # Criar
 # ---------------------------------------------------------------------------
+
 
 @bp.get("/novo")
 def novo() -> ResponseReturnValue:
@@ -112,7 +125,9 @@ def novo() -> ResponseReturnValue:
     form = {
         "tipo": "saida",  # gasto é o caso mais comum (HU1)
         "data": hoje_no_piaui().isoformat(),
-        "chave_idempotencia": str(uuid.uuid4()),  # evita duplicar se o envio for repetido
+        "chave_idempotencia": str(
+            uuid.uuid4()
+        ),  # evita duplicar se o envio for repetido
     }
     return _render_form(form)
 
@@ -127,15 +142,20 @@ def criar() -> ResponseReturnValue:
         return _render_form(request.form, erro.erros, status=400)
 
     conn = obter_conexao()
-    with conn:  # lançamento, XP e missões na mesma transação (HU3, falha parcial)
+    with (
+        conn
+    ):  # lançamento, XP e missões na mesma transação (HU3, falha parcial)
         lancamento = _repo().criar(_aluno_id(), **dados)
         progresso = registrar_progresso(conn, _aluno_id(), lancamento["id"])
 
     if progresso["xp_lancamento"]:
         flash(f"Lançamento salvo! +{progresso['xp_lancamento']} XP", "sucesso")
     elif progresso["teto_atingido"]:
-        flash("Lançamento salvo. Você já ganhou o máximo de XP por registros hoje "
-              f"({TETO_DIARIO_LANCAMENTOS} XP).", "sucesso")
+        flash(
+            "Lançamento salvo. Você já ganhou o máximo de XP por registros hoje "
+            f"({TETO_DIARIO_LANCAMENTOS} XP).",
+            "sucesso",
+        )
     else:
         flash("Lançamento salvo!", "sucesso")
     avisar_conquistas(progresso)
@@ -145,6 +165,7 @@ def criar() -> ResponseReturnValue:
 # ---------------------------------------------------------------------------
 # Editar
 # ---------------------------------------------------------------------------
+
 
 @bp.get("/<int:lancamento_id>/editar")
 def editar(lancamento_id: int) -> ResponseReturnValue:
@@ -158,16 +179,23 @@ def atualizar(lancamento_id: int) -> ResponseReturnValue:
     """Grava a edição de um lançamento do aluno."""
     lancamento = _buscar_ou_404(lancamento_id)
     # Na edição a chave de idempotência é a do registro original e não muda.
-    dados_form = {**request.form.to_dict(), "chave_idempotencia": lancamento["chave_idempotencia"]}
+    dados_form = {
+        **request.form.to_dict(),
+        "chave_idempotencia": lancamento["chave_idempotencia"],
+    }
     try:
         dados = validar_lancamento(dados_form)
     except ErroValidacao as erro:
         flash(MSG_ERRO_FORM, "erro")
-        return _render_form(request.form, erro.erros, lancamento=lancamento, status=400)
+        return _render_form(
+            request.form, erro.erros, lancamento=lancamento, status=400
+        )
 
     dados.pop("chave_idempotencia")
     conn = obter_conexao()
-    with conn:  # mudar o tipo pode cumprir uma missão; editar não rende XP de registro
+    with (
+        conn
+    ):  # mudar o tipo pode cumprir uma missão; editar não rende XP de registro
         _repo().atualizar(_aluno_id(), lancamento_id, dados)
         progresso = registrar_progresso(conn, _aluno_id())
     flash("Lançamento atualizado!", "sucesso")
@@ -179,11 +207,14 @@ def atualizar(lancamento_id: int) -> ResponseReturnValue:
 # Excluir: GET mostra a confirmação; só o POST apaga.
 # ---------------------------------------------------------------------------
 
+
 @bp.get("/<int:lancamento_id>/excluir")
 def confirmar_exclusao(lancamento_id: int) -> ResponseReturnValue:
     """Pede a confirmação antes de excluir o lançamento."""
     lancamento = _buscar_ou_404(lancamento_id)
-    return render_template("aluno/lancamento_excluir.html", lancamento=lancamento)
+    return render_template(
+        "aluno/lancamento_excluir.html", lancamento=lancamento
+    )
 
 
 @bp.post("/<int:lancamento_id>/excluir")

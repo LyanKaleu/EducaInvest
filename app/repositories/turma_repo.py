@@ -1,4 +1,5 @@
 """SQL de turmas e matrículas."""
+
 import sqlite3
 
 from app.repositories.conversao import linha_para_dict
@@ -59,7 +60,9 @@ class TurmaRepository:
         ).fetchall()
         return [dict(linha) for linha in linhas]
 
-    def buscar_do_professor(self, professor_id: int, turma_id: int) -> dict | None:
+    def buscar_do_professor(
+        self, professor_id: int, turma_id: int
+    ) -> dict | None:
         """Uma turma do professor, ou None se não existir ou for de outro."""
         linha = self.conn.execute(
             "SELECT * FROM turmas WHERE professor_id = ? AND id = ?",
@@ -85,7 +88,8 @@ class TurmaRepository:
     def matricular(self, aluno_id: int, turma_id: int) -> None:
         """Matricula o aluno na turma. Não faz commit."""
         self.conn.execute(
-            "INSERT INTO matriculas (aluno_id, turma_id) VALUES (?, ?)", (aluno_id, turma_id)
+            "INSERT INTO matriculas (aluno_id, turma_id) VALUES (?, ?)",
+            (aluno_id, turma_id),
         )
 
     def listar_alunos(self, turma_id: int) -> list[dict]:

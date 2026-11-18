@@ -1,4 +1,5 @@
 """Rotas de cadastro (aluno com código de turma, professor), login e logout (RF01)."""
+
 from datetime import UTC, datetime
 
 from flask import (
@@ -28,7 +29,9 @@ MSG_LOGIN_INVALIDO = "E-mail ou senha incorretos."
 # (ver ESTADO.md): sem envio de e-mail não dá para o "cadastro silencioso", e limitar
 # por IP brigaria com a turma saindo pelo mesmo Wi-Fi da escola. A UX de mandar logar vale mais.
 MSG_EMAIL_EM_USO = "Este e-mail já está cadastrado."
-MSG_MUITAS_TENTATIVAS = "Muitas tentativas para este e-mail. Espere 15 minutos e tente de novo."
+MSG_MUITAS_TENTATIVAS = (
+    "Muitas tentativas para este e-mail. Espere 15 minutos e tente de novo."
+)
 
 # Contra senha por tentativa e erro: 5 senhas erradas bloqueiam o e-mail por 15 min.
 # Conta por e-mail, não por IP: a turma inteira sai pelo mesmo Wi-Fi da escola.
@@ -39,27 +42,40 @@ JANELA_DE_LOGIN_SEGUNDOS = 15 * 60
 def _limite_de_login() -> LimiteDeTentativas:
     """Um contador por app (os testes criam um app novo a cada teste)."""
     return current_app.extensions.setdefault(
-        "limite_de_login", LimiteDeTentativas(FALHAS_DE_LOGIN, JANELA_DE_LOGIN_SEGUNDOS)
+        "limite_de_login",
+        LimiteDeTentativas(FALHAS_DE_LOGIN, JANELA_DE_LOGIN_SEGUNDOS),
     )
 
 
 def destino_do_perfil(perfil: str) -> str:
     """Página inicial de cada perfil depois de entrar."""
-    return url_for("professor.turmas") if perfil == auth_service.PERFIL_PROFESSOR else url_for("painel.ver")
+    return (
+        url_for("professor.turmas")
+        if perfil == auth_service.PERFIL_PROFESSOR
+        else url_for("painel.ver")
+    )
 
 
 def _iniciar_sessao(usuario: dict) -> ResponseReturnValue:
     session.clear()  # descarta qualquer sessão anterior (evita fixação de sessão)
     session["usuario_id"] = usuario["id"]
     session["perfil"] = usuario["perfil"]
-    session["apelido"] = usuario["apelido"]  # só para mostrar no topo; o acesso usa o perfil
+    session["apelido"] = usuario[
+        "apelido"
+    ]  # só para mostrar no topo; o acesso usa o perfil
     return redirect(destino_do_perfil(usuario["perfil"]))
 
 
-def _render_cadastro(*, professor: bool, erros: dict[str, str] | None = None, status: int = 200) -> ResponseReturnValue:
+def _render_cadastro(
+    *, professor: bool, erros: dict[str, str] | None = None, status: int = 200
+) -> ResponseReturnValue:
     # Nunca devolve a senha para a página: o template não preenche esse campo.
-    html = render_template("auth/cadastro.html", professor=professor,
-                           form=request.form, erros=erros or {})
+    html = render_template(
+        "auth/cadastro.html",
+        professor=professor,
+        form=request.form,
+        erros=erros or {},
+    )
     return html, status
 
 
@@ -72,6 +88,7 @@ def _cadastro_invalido(erros: dict, *, professor: bool) -> ResponseReturnValue:
 # ---------------------------------------------------------------------------
 # Cadastro
 # ---------------------------------------------------------------------------
+
 
 @bp.get("/cadastro")
 def cadastro() -> ResponseReturnValue:
@@ -100,7 +117,9 @@ def cadastrar_aluno() -> ResponseReturnValue:
 
     with obter_conexao():
         usuario = usuarios.criar(
-            auth_service.PERFIL_ALUNO, dados["apelido"], dados["email"],
+            auth_service.PERFIL_ALUNO,
+            dados["apelido"],
+            dados["email"],
             auth_service.gerar_hash_senha(dados["senha"]),
             consentimento_em=datetime.now(UTC).isoformat(timespec="seconds"),
         )
@@ -124,19 +143,22 @@ def cadastrar_professor() -> ResponseReturnValue:
         return _cadastro_invalido(erro.erros, professor=True)
 
     if usuarios.buscar_por_email(dados["email"]):
-        return _cadastro_invalido(
-            {"email": MSG_EMAIL_EM_USO}, professor=True
-        )
+        return _cadastro_invalido({"email": MSG_EMAIL_EM_USO}, professor=True)
 
     with obter_conexao():
-        usuario = usuarios.criar(auth_service.PERFIL_PROFESSOR, dados["apelido"], dados["email"],
-                                 auth_service.gerar_hash_senha(dados["senha"]))
+        usuario = usuarios.criar(
+            auth_service.PERFIL_PROFESSOR,
+            dados["apelido"],
+            dados["email"],
+            auth_service.gerar_hash_senha(dados["senha"]),
+        )
     return _iniciar_sessao(usuario)
 
 
 # ---------------------------------------------------------------------------
 # Login e logout
 # ---------------------------------------------------------------------------
+
 
 @bp.get("/login")
 def login() -> ResponseReturnValue:
@@ -150,24 +172,32 @@ def entrar() -> ResponseReturnValue:
     try:
         dados = auth_service.validar_login(request.form)
     except ErroValidacao as erro:
-        return render_template("auth/login.html", form=request.form, erros=erro.erros), 400
+        return render_template(
+            "auth/login.html", form=request.form, erros=erro.erros
+        ), 400
 
     limite = _limite_de_login()
     # A tentativa conta antes de conferir a senha: chutes simultâneos não furam o teto.
     if not limite.tentar(dados["email"]):
         # Bloqueia mesmo com a senha certa: senão o chute continuaria até acertar.
         flash(MSG_MUITAS_TENTATIVAS, "erro")
-        return render_template("auth/login.html", form=request.form, erros={}), 429
+        return render_template(
+            "auth/login.html", form=request.form, erros={}
+        ), 429
 
     usuarios = UsuarioRepository(obter_conexao())
     usuario = usuarios.buscar_por_email(dados["email"])
     confere, hash_novo = False, None
     if usuario is not None:
-        confere, hash_novo = auth_service.conferir_senha(usuario["senha_hash"], dados["senha"])
+        confere, hash_novo = auth_service.conferir_senha(
+            usuario["senha_hash"], dados["senha"]
+        )
     if not confere:
         # Mesma mensagem nos dois casos: não revela quais e-mails estão cadastrados.
         flash(MSG_LOGIN_INVALIDO, "erro")
-        return render_template("auth/login.html", form=request.form, erros={}), 401
+        return render_template(
+            "auth/login.html", form=request.form, erros={}
+        ), 401
     if hash_novo:
         # Conta antiga (scrypt) ou parâmetros desatualizados: regrava em Argon2id.
         with obter_conexao():

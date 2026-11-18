@@ -1,4 +1,5 @@
 """Rota da tela inicial do aluno: saldo, XP, nível, sequência de dias, missão e meta em andamento."""
+
 from flask import Blueprint, render_template, session
 from flask.typing import ResponseReturnValue
 
@@ -37,7 +38,8 @@ def ver() -> ResponseReturnValue:
     hoje = hoje_no_piaui()
     metas = MetaRepository(conn).listar(aluno_id)
     missoes = missao_service.situacao(
-        lancamentos.contar_por_tipo(aluno_id), MissaoRepository(conn).concluidas(aluno_id)
+        lancamentos.contar_por_tipo(aluno_id),
+        MissaoRepository(conn).concluidas(aluno_id),
     )
     return render_template(
         "aluno/painel.html",

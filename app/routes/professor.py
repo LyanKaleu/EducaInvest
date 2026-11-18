@@ -1,4 +1,5 @@
 """Rotas do professor: criar turma, ver o código e o painel da turma (RF02, HU5)."""
+
 from flask import (
     Blueprint,
     abort,
@@ -36,10 +37,16 @@ def _repo() -> TurmaRepository:
     return TurmaRepository(obter_conexao())
 
 
-def _render_turmas(erros: dict[str, str] | None = None, status: int = 200) -> ResponseReturnValue:
+def _render_turmas(
+    erros: dict[str, str] | None = None, status: int = 200
+) -> ResponseReturnValue:
     turmas = _repo().listar_do_professor(session["usuario_id"])
-    html = render_template("professor/turmas.html", turmas=turmas,
-                           form=request.form, erros=erros or {})
+    html = render_template(
+        "professor/turmas.html",
+        turmas=turmas,
+        form=request.form,
+        erros=erros or {},
+    )
     return html, status
 
 
@@ -61,10 +68,14 @@ def criar_turma() -> ResponseReturnValue:
 
     if _repo().existe_nome(professor_id, dados["nome"]):
         flash("Não foi possível criar a turma.", "erro")
-        return _render_turmas({"nome": "Você já tem uma turma com esse nome."}, 400)
+        return _render_turmas(
+            {"nome": "Você já tem uma turma com esse nome."}, 400
+        )
 
     codigo = gerar_codigo_turma()
-    while _repo().buscar_por_codigo(codigo):  # colisão é raríssima, mas possível
+    while _repo().buscar_por_codigo(
+        codigo
+    ):  # colisão é raríssima, mas possível
         codigo = gerar_codigo_turma()
 
     with obter_conexao():
@@ -89,4 +100,6 @@ def turma(turma_id: int) -> ResponseReturnValue:
         MissaoRepository(conn).contar_por_aluno(ids),
         hoje_no_piaui(),
     )
-    return render_template("professor/turma.html", turma=registro, painel=painel)
+    return render_template(
+        "professor/turma.html", turma=registro, painel=painel
+    )

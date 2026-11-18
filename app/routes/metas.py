@@ -1,4 +1,5 @@
 """Rotas para criar metas e registrar aportes (HU2, RF04)."""
+
 import uuid
 
 from flask import (
@@ -49,18 +50,31 @@ def _buscar_ou_404(meta_id: int) -> dict:
 
 
 def _com_progresso(meta: dict) -> dict:
-    return {**meta, **meta_service.progresso(meta["valor_alvo_centavos"], meta["guardado_centavos"])}
+    return {
+        **meta,
+        **meta_service.progresso(
+            meta["valor_alvo_centavos"], meta["guardado_centavos"]
+        ),
+    }
 
 
 # ---------------------------------------------------------------------------
 # Listar
 # ---------------------------------------------------------------------------
 
-def _render_lista(aporte_com_erro: dict | None = None, status: int = 200) -> ResponseReturnValue:
+
+def _render_lista(
+    aporte_com_erro: dict | None = None, status: int = 200
+) -> ResponseReturnValue:
     """Lista de metas. `aporte_com_erro` traz `meta_id`, `erros` e `form` do aporte recusado."""
     metas = [_com_progresso(meta) for meta in _repo().listar(_aluno_id())]
-    html = render_template("aluno/metas.html", metas=metas, resumo=meta_service.resumo(metas),
-                           nova_chave=_nova_chave, aporte_com_erro=aporte_com_erro or {})
+    html = render_template(
+        "aluno/metas.html",
+        metas=metas,
+        resumo=meta_service.resumo(metas),
+        nova_chave=_nova_chave,
+        aporte_com_erro=aporte_com_erro or {},
+    )
     return html, status
 
 
@@ -79,8 +93,15 @@ def _nova_chave() -> str:
 # Criar
 # ---------------------------------------------------------------------------
 
-def _render_form(form: dict[str, str], erros: dict[str, str] | None = None, status: int = 200) -> ResponseReturnValue:
-    return render_template("aluno/meta_form.html", form=form, erros=erros or {}), status
+
+def _render_form(
+    form: dict[str, str],
+    erros: dict[str, str] | None = None,
+    status: int = 200,
+) -> ResponseReturnValue:
+    return render_template(
+        "aluno/meta_form.html", form=form, erros=erros or {}
+    ), status
 
 
 @bp.get("/nova")
@@ -109,10 +130,13 @@ def criar() -> ResponseReturnValue:
 # Aportar
 # ---------------------------------------------------------------------------
 
+
 def _aporte_recusado(meta_id: int, erro: ErroValidacao) -> ResponseReturnValue:
     # A lista volta com o erro no campo e o valor e a chave preservados (nada foi gravado).
     flash(MSG_ERRO_APORTE, "erro")
-    return _render_lista({"meta_id": meta_id, "erros": erro.erros, "form": request.form}, 400)
+    return _render_lista(
+        {"meta_id": meta_id, "erros": erro.erros, "form": request.form}, 400
+    )
 
 
 def _recusa_do_aporte(meta: dict, dados: dict) -> ResponseReturnValue | None:
@@ -122,7 +146,9 @@ def _recusa_do_aporte(meta: dict, dados: dict) -> ResponseReturnValue | None:
         return _render_lista(status=400)
     try:
         meta_service.conferir_limite_do_aporte(
-            dados["valor_centavos"], meta["valor_alvo_centavos"], meta["guardado_centavos"]
+            dados["valor_centavos"],
+            meta["valor_alvo_centavos"],
+            meta["guardado_centavos"],
         )
     except ErroValidacao as erro:
         return _aporte_recusado(meta["id"], erro)
@@ -138,7 +164,9 @@ def aportar(meta_id: int) -> ResponseReturnValue:
     except ErroValidacao as erro:
         return _aporte_recusado(meta_id, erro)
     # Valida antes para checar o reenvio com a chave normalizada, a mesma que foi gravada.
-    if _repo().aporte_registrado(_aluno_id(), meta_id, dados["chave_idempotencia"]):
+    if _repo().aporte_registrado(
+        _aluno_id(), meta_id, dados["chave_idempotencia"]
+    ):
         # Reenvio de um aporte já gravado (clique duplo, falha de rede): responde como
         # sucesso, mesmo que esse aporte tenha concluído a meta (N2).
         return redirect(url_for(".listar"))
@@ -148,11 +176,17 @@ def aportar(meta_id: int) -> ResponseReturnValue:
 
     with obter_conexao():
         gravou = _repo().aportar(_aluno_id(), meta_id, **dados)
-    if not gravou and not _repo().aporte_registrado(_aluno_id(), meta_id, dados["chave_idempotencia"]):
+    if not gravou and not _repo().aporte_registrado(
+        _aluno_id(), meta_id, dados["chave_idempotencia"]
+    ):
         # Outro aporte entrou entre a conferência acima e o INSERT, e o banco recusou
         # este para não passar do alvo. Confere de novo com o guardado atual.
-        return _recusa_do_aporte(_com_progresso(_buscar_ou_404(meta_id)), dados)
+        return _recusa_do_aporte(
+            _com_progresso(_buscar_ou_404(meta_id)), dados
+        )
     flash(f"Aporte de {reais(dados['valor_centavos'])} guardado!", "sucesso")
     if _com_progresso(_repo().buscar(_aluno_id(), meta_id))["concluida"]:
-        flash(f"Parabéns, você concluiu a meta {meta['nome']}!", "conquista")  # comemoração no CSS
+        flash(
+            f"Parabéns, você concluiu a meta {meta['nome']}!", "conquista"
+        )  # comemoração no CSS
     return redirect(url_for(".listar"))

@@ -1,11 +1,18 @@
 """SQL de lançamentos (entradas e gastos): único lugar com SQL desta entidade."""
+
 import sqlite3
 
 from app.repositories.conversao import linha_para_dict
 
 # Colunas que podem ser alteradas em atualizar(). Nomes de coluna não podem ir
 # como parâmetro "?", então só aceitamos nomes desta lista fixa.
-CAMPOS_EDITAVEIS = ("tipo", "categoria", "valor_centavos", "data_lancamento", "descricao")
+CAMPOS_EDITAVEIS = (
+    "tipo",
+    "categoria",
+    "valor_centavos",
+    "data_lancamento",
+    "descricao",
+)
 
 SQL_CRIAR_TABELA = """
 CREATE TABLE IF NOT EXISTS lancamentos (
@@ -60,8 +67,17 @@ class LancamentoRepository:
         """
         conn.executescript(SQL_CRIAR_TABELA)
 
-    def criar(self, aluno_id: int, *, tipo: str, categoria: str, valor_centavos: int, data_lancamento: str,
-              chave_idempotencia: str, descricao: str | None = None) -> dict:
+    def criar(
+        self,
+        aluno_id: int,
+        *,
+        tipo: str,
+        categoria: str,
+        valor_centavos: int,
+        data_lancamento: str,
+        chave_idempotencia: str,
+        descricao: str | None = None,
+    ) -> dict:
         """Insere um lançamento, ou devolve o já existente se a chave se repetir.
 
         Se o mesmo aluno enviar de novo a mesma `chave_idempotencia` (por
@@ -93,8 +109,15 @@ class LancamentoRepository:
             VALUES (?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (aluno_id, chave_idempotencia) DO NOTHING
             """,
-            (aluno_id, tipo, categoria, valor_centavos, data_lancamento,
-             descricao, chave_idempotencia),
+            (
+                aluno_id,
+                tipo,
+                categoria,
+                valor_centavos,
+                data_lancamento,
+                descricao,
+                chave_idempotencia,
+            ),
         )
         linha = self.conn.execute(
             "SELECT * FROM lancamentos WHERE aluno_id = ? AND chave_idempotencia = ?",
@@ -157,7 +180,11 @@ class LancamentoRepository:
             "SELECT tipo, COUNT(*) AS qtd FROM lancamentos WHERE aluno_id = ? GROUP BY tipo",
             (aluno_id,),
         ).fetchall()
-        return {"ENTRADA": 0, "SAIDA": 0, **{linha["tipo"]: linha["qtd"] for linha in linhas}}
+        return {
+            "ENTRADA": 0,
+            "SAIDA": 0,
+            **{linha["tipo"]: linha["qtd"] for linha in linhas},
+        }
 
     def somar_por_tipo(self, aluno_id: int) -> dict:
         """Total em centavos dos lançamentos do aluno, por tipo (base do saldo).
@@ -172,9 +199,15 @@ class LancamentoRepository:
             "SELECT tipo, SUM(valor_centavos) AS total FROM lancamentos WHERE aluno_id = ? GROUP BY tipo",
             (aluno_id,),
         ).fetchall()
-        return {"ENTRADA": 0, "SAIDA": 0, **{linha["tipo"]: linha["total"] for linha in linhas}}
+        return {
+            "ENTRADA": 0,
+            "SAIDA": 0,
+            **{linha["tipo"]: linha["total"] for linha in linhas},
+        }
 
-    def atualizar(self, aluno_id: int, lancamento_id: int, campos: dict) -> bool:
+    def atualizar(
+        self, aluno_id: int, lancamento_id: int, campos: dict
+    ) -> bool:
         """Altera colunas de um lançamento do aluno. Não faz commit.
 
         Args:

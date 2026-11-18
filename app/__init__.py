@@ -1,4 +1,5 @@
 """Fábrica da aplicação: cria o app Flask, configura, liga o banco e registra as rotas."""
+
 import os
 import secrets
 from datetime import timedelta
@@ -80,7 +81,9 @@ def create_app(config: dict | None = None) -> Flask:
         # adivinha o tipo do arquivo e só roda o que vem do próprio app (não há script inline).
         resposta.headers["X-Frame-Options"] = "DENY"
         resposta.headers["X-Content-Type-Options"] = "nosniff"
-        resposta.headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none'"
+        resposta.headers["Content-Security-Policy"] = (
+            "default-src 'self'; frame-ancestors 'none'"
+        )
         return resposta
 
     @app.errorhandler(CSRFError)

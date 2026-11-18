@@ -3,6 +3,7 @@
 Em produção, use a fábrica diretamente (ex.: `gunicorn "app:create_app()"`)
 com a variável de ambiente SECRET_KEY definida.
 """
+
 from app import create_app
 
 if __name__ == "__main__":

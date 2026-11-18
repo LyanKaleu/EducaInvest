@@ -1,4 +1,5 @@
 """Controle de acesso por perfil, compartilhado pelos Blueprints (RNF04)."""
+
 from collections.abc import Callable
 
 from flask import abort, redirect, session, url_for
@@ -15,6 +16,7 @@ def exigir_perfil(perfil: str) -> Callable[[], ResponseReturnValue | None]:
         Função para `Blueprint.before_request`: sem login redireciona para
         /login; com outro perfil responde 403.
     """
+
     def verificar() -> ResponseReturnValue | None:
         if "usuario_id" not in session:
             return redirect(url_for("auth.login"))

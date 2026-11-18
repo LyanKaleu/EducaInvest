@@ -1,9 +1,12 @@
 """Calcula o XP do lançamento com teto diário, o nível e a sequência de dias (RN-11 a RN-13)."""
+
 from datetime import date, timedelta
 
 # Valores de exemplo da spec (HU3). A confirmar pelo grupo.
 XP_POR_LANCAMENTO = 10
-TETO_DIARIO_LANCAMENTOS = 50  # só o XP de registros conta para o teto; missão fica fora
+TETO_DIARIO_LANCAMENTOS = (
+    50  # só o XP de registros conta para o teto; missão fica fora
+)
 
 # (nível, nome, XP mínimo), do menor para o maior. Mesmo seed de docs/educainvest_schema.sql.
 NIVEIS = (
@@ -49,7 +52,9 @@ def nivel(xp_total: int) -> dict:
         "nivel": atual[0],
         "nome": atual[1],
         "falta": proximo[2] - xp_total if proximo else None,
-        "percentual": (xp_total - atual[2]) * 100 // (proximo[2] - atual[2]) if proximo else 100,
+        "percentual": (xp_total - atual[2]) * 100 // (proximo[2] - atual[2])
+        if proximo
+        else 100,
     }
 
 
@@ -74,7 +79,9 @@ def sequencia(dias_ativos: set[date], hoje: date) -> int:
     return total
 
 
-def ultimos_dias(dias_ativos: set[date], hoje: date, quantidade: int = 7) -> list[bool]:
+def ultimos_dias(
+    dias_ativos: set[date], hoje: date, quantidade: int = 7
+) -> list[bool]:
     """Se o aluno ganhou XP em cada um dos últimos dias, do mais antigo até hoje.
 
     Alimenta as marcas da sequência na tela inicial.
@@ -87,4 +94,7 @@ def ultimos_dias(dias_ativos: set[date], hoje: date, quantidade: int = 7) -> lis
     Returns:
         list[bool]: `quantidade` itens; True no dia em que houve XP.
     """
-    return [hoje - timedelta(days=atras) in dias_ativos for atras in range(quantidade - 1, -1, -1)]
+    return [
+        hoje - timedelta(days=atras) in dias_ativos
+        for atras in range(quantidade - 1, -1, -1)
+    ]

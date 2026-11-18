@@ -1,4 +1,5 @@
 """SQL do livro-razão de XP: único lugar com SQL desta entidade (INVARIANTES N6)."""
+
 import sqlite3
 from collections.abc import Iterable
 from datetime import date
@@ -46,7 +47,14 @@ class XpRepository:
         """Cria a tabela `xp_eventos`, seu índice e os gatilhos, se ainda não existirem."""
         conn.executescript(SQL_CRIAR_TABELA)
 
-    def creditar(self, aluno_id: int, origem: str, origem_id: int | str, pontos: int, dia_ref: str) -> bool:
+    def creditar(
+        self,
+        aluno_id: int,
+        origem: str,
+        origem_id: int | str,
+        pontos: int,
+        dia_ref: str,
+    ) -> bool:
         """Registra XP para o aluno, se essa origem ainda não pontuou. Não faz commit.
 
         Args:
@@ -116,7 +124,10 @@ class XpRepository:
             aluno_ids,
         ).fetchall()
         return {
-            linha["aluno_id"]: {"xp": linha["xp"], "ultimo_dia": date.fromisoformat(linha["ultimo_dia"])}
+            linha["aluno_id"]: {
+                "xp": linha["xp"],
+                "ultimo_dia": date.fromisoformat(linha["ultimo_dia"]),
+            }
             for linha in linhas
         }
 

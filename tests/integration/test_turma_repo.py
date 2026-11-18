@@ -1,4 +1,5 @@
 """Garantias do banco na tabela de turmas, sem passar pela rota."""
+
 import sqlite3
 from collections.abc import Iterator
 
@@ -21,7 +22,9 @@ def repo() -> Iterator[TurmaRepository]:
     conn.close()
 
 
-def test_banco_recusa_turma_do_mesmo_professor_com_nome_em_outra_caixa(repo: TurmaRepository) -> None:
+def test_banco_recusa_turma_do_mesmo_professor_com_nome_em_outra_caixa(
+    repo: TurmaRepository,
+) -> None:
     # Mesmo que a checagem da rota falhe (corrida, clique duplo), o banco barra.
     repo.criar(professor_id=1, nome="Turma 2", codigo_acesso="AAAAAA")
 
@@ -29,7 +32,9 @@ def test_banco_recusa_turma_do_mesmo_professor_com_nome_em_outra_caixa(repo: Tur
         repo.criar(professor_id=1, nome="TURMA 2", codigo_acesso="BBBBBB")
 
 
-def test_banco_aceita_mesmo_nome_para_professores_diferentes(repo: TurmaRepository) -> None:
+def test_banco_aceita_mesmo_nome_para_professores_diferentes(
+    repo: TurmaRepository,
+) -> None:
     repo.criar(professor_id=1, nome="Turma 2", codigo_acesso="AAAAAA")
 
     assert repo.criar(professor_id=2, nome="turma 2", codigo_acesso="BBBBBB")

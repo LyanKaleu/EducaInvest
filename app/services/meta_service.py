@@ -1,4 +1,5 @@
 """Valida metas e aportes e calcula o progresso percentual (RN-08)."""
+
 from collections.abc import Callable, Mapping
 from datetime import date
 
@@ -38,7 +39,9 @@ def validar_meta(dados: Mapping[str, str], hoje: date | None = None) -> dict:
     hoje = hoje or hoje_no_piaui()
     erros: dict[str, str] = {}
 
-    def campo[T](nome: str, conversor: Callable[..., T], *args: object) -> T | None:
+    def campo[T](
+        nome: str, conversor: Callable[..., T], *args: object
+    ) -> T | None:
         try:
             return conversor(texto_do_campo(dados, nome), *args)
         except ValueError as erro:
@@ -72,8 +75,10 @@ def validar_aporte(dados: Mapping[str, str]) -> dict:
     """
     erros: dict[str, str] = {}
     resultado = {}
-    for campo, chave, conversor in (("valor", "valor_centavos", converter_valor),
-                                    ("chave_idempotencia", "chave_idempotencia", converter_chave)):
+    for campo, chave, conversor in (
+        ("valor", "valor_centavos", converter_valor),
+        ("chave_idempotencia", "chave_idempotencia", converter_chave),
+    ):
         try:
             resultado[chave] = conversor(texto_do_campo(dados, campo))
         except ValueError as erro:
@@ -83,7 +88,9 @@ def validar_aporte(dados: Mapping[str, str]) -> dict:
     return resultado
 
 
-def conferir_limite_do_aporte(valor_centavos: int, alvo_centavos: int, guardado_centavos: int) -> None:
+def conferir_limite_do_aporte(
+    valor_centavos: int, alvo_centavos: int, guardado_centavos: int
+) -> None:
     """Recusa o aporte maior do que falta para concluir a meta.
 
     Sem resgate nem exclusão de aporte, um dígito a mais fecharia a meta para
@@ -96,7 +103,9 @@ def conferir_limite_do_aporte(valor_centavos: int, alvo_centavos: int, guardado_
     falta = alvo_centavos - guardado_centavos
     if valor_centavos > falta:
         raise ErroValidacao(
-            {"valor": f"Faltam só {reais(falta)} para concluir esta meta. Guarde até esse valor."}
+            {
+                "valor": f"Faltam só {reais(falta)} para concluir esta meta. Guarde até esse valor."
+            }
         )
 
 
@@ -126,13 +135,20 @@ def mais_perto_de_concluir(metas: list[dict]) -> dict | None:
         None se não houver meta em andamento.
     """
     em_andamento = [
-        {**meta, **progresso(meta["valor_alvo_centavos"], meta["guardado_centavos"])}
+        {
+            **meta,
+            **progresso(
+                meta["valor_alvo_centavos"], meta["guardado_centavos"]
+            ),
+        }
         for meta in metas
     ]
     em_andamento = [meta for meta in em_andamento if not meta["concluida"]]
     if not em_andamento:
         return None
-    return min(em_andamento, key=lambda meta: (-meta["percentual"], meta["id"]))
+    return min(
+        em_andamento, key=lambda meta: (-meta["percentual"], meta["id"])
+    )
 
 
 def resumo(metas: list[dict]) -> dict:
@@ -146,7 +162,10 @@ def resumo(metas: list[dict]) -> dict:
         `em_andamento` e `concluidas` (quantas metas de cada tipo).
     """
     concluidas = sum(
-        progresso(meta["valor_alvo_centavos"], meta["guardado_centavos"])["concluida"] for meta in metas
+        progresso(meta["valor_alvo_centavos"], meta["guardado_centavos"])[
+            "concluida"
+        ]
+        for meta in metas
     )
     return {
         "guardado": sum(meta["guardado_centavos"] for meta in metas),

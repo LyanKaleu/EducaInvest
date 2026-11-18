@@ -17,4 +17,3 @@ def data_br(data_iso: str) -> str:
     """Formata uma data ISO no padrão brasileiro: '2026-11-04' -> '04/11/2026'."""
     ano, mes, dia = data_iso.split("-")
     return f"{dia}/{mes}/{ano}"
-

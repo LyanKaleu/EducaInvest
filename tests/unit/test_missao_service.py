@@ -1,7 +1,8 @@
 """Testes de progresso, conclusão única e desbloqueio de missões (HU3). Só o service."""
+
 from app.services import missao_service
 
-PRIMEIRA = "REG_3_GASTOS"   # Registre 3 gastos (+30 XP)
+PRIMEIRA = "REG_3_GASTOS"  # Registre 3 gastos (+30 XP)
 SEGUNDA = "REG_7_LANCAMENTOS"  # Registre 7 lançamentos, entradas ou saídas (+50 XP); exige a primeira
 
 
@@ -21,40 +22,65 @@ def codigos(missoes: list[dict]) -> list[str]:
 # Situação mostrada na tela
 # ---------------------------------------------------------------------------
 
-def test_dois_gastos_mostram_2_de_3_na_primeira_missao() -> None:
-    primeira = por_codigo(missao_service.situacao(contagens(gastos=2), set()))[PRIMEIRA]
 
-    assert (primeira["atual"], primeira["alvo"], primeira["status"]) == (2, 3, "ATIVA")
+def test_dois_gastos_mostram_2_de_3_na_primeira_missao() -> None:
+    primeira = por_codigo(missao_service.situacao(contagens(gastos=2), set()))[
+        PRIMEIRA
+    ]
+
+    assert (primeira["atual"], primeira["alvo"], primeira["status"]) == (
+        2,
+        3,
+        "ATIVA",
+    )
 
 
 def test_entradas_nao_contam_para_a_missao_de_gastos() -> None:
-    primeira = por_codigo(missao_service.situacao(contagens(entradas=5), set()))[PRIMEIRA]
+    primeira = por_codigo(
+        missao_service.situacao(contagens(entradas=5), set())
+    )[PRIMEIRA]
 
     assert primeira["atual"] == 0
 
 
 def test_segunda_missao_fica_bloqueada_ate_concluir_a_primeira() -> None:
-    segunda = por_codigo(missao_service.situacao(contagens(gastos=2), set()))[SEGUNDA]
+    segunda = por_codigo(missao_service.situacao(contagens(gastos=2), set()))[
+        SEGUNDA
+    ]
 
     assert segunda["status"] == "BLOQUEADA"
 
 
-def test_segunda_missao_conta_entradas_e_saidas_depois_de_desbloqueada() -> None:
-    situacao = missao_service.situacao(contagens(gastos=3, entradas=2), {PRIMEIRA})
+def test_segunda_missao_conta_entradas_e_saidas_depois_de_desbloqueada() -> (
+    None
+):
+    situacao = missao_service.situacao(
+        contagens(gastos=3, entradas=2), {PRIMEIRA}
+    )
     segunda = por_codigo(situacao)[SEGUNDA]
 
-    assert (segunda["atual"], segunda["alvo"], segunda["status"]) == (5, 7, "ATIVA")
+    assert (segunda["atual"], segunda["alvo"], segunda["status"]) == (
+        5,
+        7,
+        "ATIVA",
+    )
 
 
-def test_missao_concluida_aparece_como_concluida_mesmo_com_menos_registros() -> None:
+def test_missao_concluida_aparece_como_concluida_mesmo_com_menos_registros() -> (
+    None
+):
     # O aluno excluiu um gasto depois de concluir: a conquista não some (RN-12).
-    primeira = por_codigo(missao_service.situacao(contagens(gastos=1), {PRIMEIRA}))[PRIMEIRA]
+    primeira = por_codigo(
+        missao_service.situacao(contagens(gastos=1), {PRIMEIRA})
+    )[PRIMEIRA]
 
     assert primeira["status"] == "CONCLUIDA"
 
 
 def test_progresso_nao_passa_do_alvo() -> None:
-    primeira = por_codigo(missao_service.situacao(contagens(gastos=9), set()))[PRIMEIRA]
+    primeira = por_codigo(missao_service.situacao(contagens(gastos=9), set()))[
+        PRIMEIRA
+    ]
 
     assert primeira["atual"] == 3
 
@@ -62,6 +88,7 @@ def test_progresso_nao_passa_do_alvo() -> None:
 # ---------------------------------------------------------------------------
 # O que concluir agora (RN-09, RN-10)
 # ---------------------------------------------------------------------------
+
 
 def test_nada_a_concluir_com_dois_gastos() -> None:
     assert missao_service.a_concluir(contagens(gastos=2), set()) == []
@@ -87,4 +114,6 @@ def test_criterio_ja_cumprido_conclui_a_trilha_em_ordem() -> None:
 
 def test_segunda_missao_nao_conclui_sem_a_primeira() -> None:
     # 7 lançamentos, mas só 2 gastos: a primeira não fecha, então a segunda segue bloqueada.
-    assert missao_service.a_concluir(contagens(gastos=2, entradas=5), set()) == []
+    assert (
+        missao_service.a_concluir(contagens(gastos=2, entradas=5), set()) == []
+    )

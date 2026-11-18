@@ -1,4 +1,5 @@
 """Fixtures compartilhadas: app de teste, banco SQLite temporário e cliente HTTP."""
+
 import re
 import uuid
 from datetime import date
@@ -22,8 +23,11 @@ HOJE = date(2026, 11, 4)
 def hash_de_senha_rapido(monkeypatch: pytest.MonkeyPatch) -> None:
     """Troca o Argon2id de produção (64 MiB, lento de propósito) por um barato, só nos testes."""
     barato = Argon2Hasher(time_cost=1, memory_cost=8, parallelism=1)
-    monkeypatch.setattr(auth_service, "SENHAS",
-                        PasswordHash((barato, auth_service.HasherLegadoWerkzeug())))
+    monkeypatch.setattr(
+        auth_service,
+        "SENHAS",
+        PasswordHash((barato, auth_service.HasherLegadoWerkzeug())),
+    )
 
 
 @pytest.fixture
@@ -40,14 +44,16 @@ def form_valido() -> dict[str, str]:
 
 
 def _criar_app(tmp_path: Path, **config: object) -> Flask:
-    return create_app({
-        "TESTING": True,
-        "SECRET_KEY": "chave-de-teste",
-        "DATABASE": str(tmp_path / "teste.db"),
-        # CSRF desligado nos testes de regra; tests/integration/test_seguranca.py liga.
-        "WTF_CSRF_ENABLED": False,
-        **config,
-    })
+    return create_app(
+        {
+            "TESTING": True,
+            "SECRET_KEY": "chave-de-teste",
+            "DATABASE": str(tmp_path / "teste.db"),
+            # CSRF desligado nos testes de regra; tests/integration/test_seguranca.py liga.
+            "WTF_CSRF_ENABLED": False,
+            **config,
+        }
+    )
 
 
 @pytest.fixture
@@ -63,12 +69,16 @@ def cliente(cliente_aluno: FlaskClient) -> FlaskClient:
 
 
 @pytest.fixture
-def cliente_outro_aluno(app: Flask, turma: dict[str, int | str], cliente_aluno: FlaskClient) -> FlaskClient:  # noqa: ARG001
+def cliente_outro_aluno(
+    app: Flask, turma: dict[str, int | str], cliente_aluno: FlaskClient
+) -> FlaskClient:  # noqa: ARG001
     """Segundo aluno, na mesma turma e no MESMO banco do primeiro."""
     # `cliente_aluno` só garante que o primeiro aluno se cadastra antes. Fixture não
     # aceita @pytest.mark.usefixtures, por isso o noqa do ARG001 acima.
     outro = app.test_client()
-    cadastrar_aluno(outro, turma["codigo"], email="beatriz@escola.br", apelido="Beatriz")
+    cadastrar_aluno(
+        outro, turma["codigo"], email="beatriz@escola.br", apelido="Beatriz"
+    )
     return outro
 
 
@@ -85,13 +95,19 @@ SENHA = "senha-segura-123"
 
 
 def cadastrar_professor(
-    cliente: FlaskClient, email: str = "prof.ana@escola.br", apelido: str = "Prof. Ana"
+    cliente: FlaskClient,
+    email: str = "prof.ana@escola.br",
+    apelido: str = "Prof. Ana",
 ) -> TestResponse:
-    return cliente.post("/cadastro/professor",
-                        data={"apelido": apelido, "email": email, "senha": SENHA})
+    return cliente.post(
+        "/cadastro/professor",
+        data={"apelido": apelido, "email": email, "senha": SENHA},
+    )
 
 
-def criar_turma(cliente_professor: FlaskClient, nome: str = "2º A") -> TestResponse:
+def criar_turma(
+    cliente_professor: FlaskClient, nome: str = "2º A"
+) -> TestResponse:
     return cliente_professor.post("/professor/turmas", data={"nome": nome})
 
 
@@ -102,12 +118,20 @@ def cadastrar_aluno(
     apelido: str = "Gabriel",
     **extra: str,
 ) -> TestResponse:
-    dados = {"apelido": apelido, "email": email, "senha": SENHA,
-             "codigo_turma": codigo, "consentimento": "sim", **extra}
+    dados = {
+        "apelido": apelido,
+        "email": email,
+        "senha": SENHA,
+        "codigo_turma": codigo,
+        "consentimento": "sim",
+        **extra,
+    }
     return cliente.post("/cadastro", data=dados)
 
 
-def entrar(cliente: FlaskClient, email: str, senha: str = SENHA) -> TestResponse:
+def entrar(
+    cliente: FlaskClient, email: str, senha: str = SENHA
+) -> TestResponse:
     return cliente.post("/login", data={"email": email, "senha": senha})
 
 
@@ -128,7 +152,9 @@ def turma(cliente_professor: FlaskClient) -> dict[str, int | str]:
     """Cria a turma "2º A" e devolve {"id": ..., "codigo": ...} lidos da página de turmas."""
     criar_turma(cliente_professor)
     html = cliente_professor.get("/professor/turmas").get_data(as_text=True)
-    codigo = re.search(r'<code class="codigo-turma">([A-Z0-9]{6,8})</code>', html)
+    codigo = re.search(
+        r'<code class="codigo-turma">([A-Z0-9]{6,8})</code>', html
+    )
     turma_id = re.search(r'href="/professor/turmas/(\d+)"', html)
     assert codigo, "a página de turmas deve mostrar o código da turma"
     assert turma_id, "a página de turmas deve mostrar o link da turma"
@@ -143,7 +169,9 @@ def cliente_aluno(app: Flask, turma: dict[str, int | str]) -> FlaskClient:
 
 
 @pytest.fixture
-def lancamento_existente(cliente: FlaskClient, form_valido: dict[str, str]) -> dict[str, int]:
+def lancamento_existente(
+    cliente: FlaskClient, form_valido: dict[str, str]
+) -> dict[str, int]:
     """Gasto de R$ 25,00 do aluno logado, criado pela rota. Devolve {"id": ...}."""
     cliente.post("/lancamentos/novo", data=form_valido)
     html = cliente.get("/lancamentos/").get_data(as_text=True)

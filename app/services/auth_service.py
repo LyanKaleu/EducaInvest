@@ -1,4 +1,5 @@
 """Valida cadastro e login, faz hash de senha e controla o acesso por perfil (RNF04)."""
+
 import re
 from collections.abc import Mapping
 from typing import override
@@ -20,7 +21,6 @@ EMAIL_RE = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
 CODIGO_RE = re.compile(r"[A-Z0-9]{6,8}")
 
 
-
 class HasherLegadoWerkzeug(HasherProtocol):
     """Confere os hashes antigos do Werkzeug (scrypt), de antes do Argon2id. Nunca gera hash.
 
@@ -35,9 +35,7 @@ class HasherLegadoWerkzeug(HasherProtocol):
         return not Argon2Hasher.identify(hash)
 
     @override
-    def hash(
-        self, password: str | bytes, *, salt: bytes | None = None
-    ) -> str:
+    def hash(self, password: str | bytes, *, salt: bytes | None = None) -> str:
         raise NotImplementedError("hash novo é sempre Argon2id")
 
     @override
@@ -67,7 +65,9 @@ def validar_cadastro_aluno(dados: Mapping[str, str]) -> dict:
         erros["codigo_turma"] = "Código de turma inválido."
 
     if dados.get("consentimento") != "sim":
-        erros["consentimento"] = "Você precisa confirmar a autorização para continuar."
+        erros["consentimento"] = (
+            "Você precisa confirmar a autorização para continuar."
+        )
 
     if erros:
         raise ErroValidacao(erros)
@@ -115,14 +115,20 @@ def _validar_conta(dados: Mapping[str, str], erros: dict[str, str]) -> dict:
     """Campos comuns a aluno e professor: apelido, e-mail e senha."""
     apelido = texto_do_campo(dados, "apelido")
     email = texto_do_campo(dados, "email").lower()
-    senha = dados.get("senha") or ""  # senha não é aparada: espaços fazem parte dela
+    senha = (
+        dados.get("senha") or ""
+    )  # senha não é aparada: espaços fazem parte dela
 
     if not APELIDO_MIN <= len(apelido) <= APELIDO_MAX:
-        erros["apelido"] = f"Informe um apelido de {APELIDO_MIN} a {APELIDO_MAX} caracteres."
+        erros["apelido"] = (
+            f"Informe um apelido de {APELIDO_MIN} a {APELIDO_MAX} caracteres."
+        )
     if not EMAIL_RE.fullmatch(email):
         erros["email"] = "Informe um e-mail válido."
     if len(senha) < SENHA_MIN:
-        erros["senha"] = f"A senha precisa ter pelo menos {SENHA_MIN} caracteres."
+        erros["senha"] = (
+            f"A senha precisa ter pelo menos {SENHA_MIN} caracteres."
+        )
     elif len(senha) > SENHA_MAX:
         erros["senha"] = f"A senha pode ter no máximo {SENHA_MAX} caracteres."
 

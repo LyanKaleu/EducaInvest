@@ -1,4 +1,5 @@
 """Gera código único de turma e valida o nome da turma (RF02)."""
+
 import random
 import secrets
 from collections.abc import Mapping
@@ -27,11 +28,15 @@ def validar_turma(dados: Mapping[str, str]) -> dict:
     if not nome:
         raise ErroValidacao({"nome": "Dê um nome à turma."})
     if len(nome) > NOME_MAX:
-        raise ErroValidacao({"nome": f"O nome pode ter no máximo {NOME_MAX} caracteres."})
+        raise ErroValidacao(
+            {"nome": f"O nome pode ter no máximo {NOME_MAX} caracteres."}
+        )
     return {"nome": nome}
 
 
-def painel_da_turma(alunos: list[dict], resumo_xp: dict, missoes: dict, hoje: date) -> dict:
+def painel_da_turma(
+    alunos: list[dict], resumo_xp: dict, missoes: dict, hoje: date
+) -> dict:
     """Progresso da turma para o professor, sem nenhum valor em reais (HU5, RN-18).
 
     Args:
@@ -56,14 +61,19 @@ def painel_da_turma(alunos: list[dict], resumo_xp: dict, missoes: dict, hoje: da
     linhas = []
     for aluno in alunos:
         resumo = resumo_xp.get(aluno["id"], {"xp": 0, "ultimo_dia": None})
-        ativo = resumo["ultimo_dia"] is not None and resumo["ultimo_dia"] >= primeiro_dia_da_janela
-        linhas.append({
-            "apelido": aluno["apelido"],
-            "xp": resumo["xp"],
-            "nivel": nivel(resumo["xp"]),
-            "missoes": missoes.get(aluno["id"], 0),
-            "ativo": ativo,
-        })
+        ativo = (
+            resumo["ultimo_dia"] is not None
+            and resumo["ultimo_dia"] >= primeiro_dia_da_janela
+        )
+        linhas.append(
+            {
+                "apelido": aluno["apelido"],
+                "xp": resumo["xp"],
+                "nivel": nivel(resumo["xp"]),
+                "missoes": missoes.get(aluno["id"], 0),
+                "ativo": ativo,
+            }
+        )
 
     total = len(linhas)
     soma_xp = sum(linha["xp"] for linha in linhas)
@@ -75,9 +85,16 @@ def painel_da_turma(alunos: list[dict], resumo_xp: dict, missoes: dict, hoje: da
         "alunos": linhas,
         # sorted é estável: no empate de XP fica a ordem recebida (a do apelido).
         "ranking": sorted(linhas, key=lambda linha: -linha["xp"]),
-        "inativos": [linha["apelido"] for linha in linhas if not linha["ativo"]],
+        "inativos": [
+            linha["apelido"] for linha in linhas if not linha["ativo"]
+        ],
         "por_nivel": [
-            {"nome": nome, "quantidade": sum(linha["nivel"]["nome"] == nome for linha in linhas)}
+            {
+                "nome": nome,
+                "quantidade": sum(
+                    linha["nivel"]["nome"] == nome for linha in linhas
+                ),
+            }
             for _, nome, _ in NIVEIS
         ],
     }
@@ -86,4 +103,6 @@ def painel_da_turma(alunos: list[dict], resumo_xp: dict, missoes: dict, hoje: da
 def gerar_codigo_turma(aleatorio: random.Random | None = None) -> str:
     """Gera o código de acesso da turma, sem letras que se confundem."""
     aleatorio = aleatorio or secrets.SystemRandom()
-    return "".join(aleatorio.choice(ALFABETO_CODIGO) for _ in range(TAMANHO_CODIGO))
+    return "".join(
+        aleatorio.choice(ALFABETO_CODIGO) for _ in range(TAMANHO_CODIGO)
+    )

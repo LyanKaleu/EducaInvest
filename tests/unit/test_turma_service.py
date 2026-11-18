@@ -1,4 +1,5 @@
 """Testes das regras de turma (RF02, HU5): nome e código de acesso. Só o service."""
+
 import random
 from datetime import date
 
@@ -15,7 +16,9 @@ def erros_turma(nome: str) -> dict[str, str]:
 
 
 def test_turma_valida_devolve_nome_sem_espacos_nas_pontas() -> None:
-    assert turma_service.validar_turma({"nome": "  2º A  "}) == {"nome": "2º A"}
+    assert turma_service.validar_turma({"nome": "  2º A  "}) == {
+        "nome": "2º A"
+    }
 
 
 @pytest.mark.parametrize("nome", ["", "   "])
@@ -28,7 +31,9 @@ def test_nome_da_turma_com_60_caracteres_e_aceito() -> None:
 
 
 def test_nome_da_turma_com_61_caracteres_e_recusado() -> None:
-    assert erros_turma("a" * 61) == {"nome": "O nome pode ter no máximo 60 caracteres."}
+    assert erros_turma("a" * 61) == {
+        "nome": "O nome pode ter no máximo 60 caracteres."
+    }
 
 
 def test_codigo_da_turma_tem_8_caracteres() -> None:
@@ -62,7 +67,10 @@ HOJE_PAINEL = date(2026, 11, 11)
 
 def alunos(*apelidos: str) -> list[dict[str, int | str]]:
     """Alunos da turma como `listar_alunos` devolve: id (1, 2, ...) e apelido."""
-    return [{"id": i, "apelido": apelido} for i, apelido in enumerate(apelidos, start=1)]
+    return [
+        {"id": i, "apelido": apelido}
+        for i, apelido in enumerate(apelidos, start=1)
+    ]
 
 
 def xp(pontos: int, ultimo_dia: date = HOJE_PAINEL) -> dict[str, int | date]:
@@ -74,13 +82,22 @@ def painel(
     resumo_xp: dict[int, dict] | None = None,
     missoes: dict[int, int] | None = None,
 ) -> dict:
-    return turma_service.painel_da_turma(turma, resumo_xp or {}, missoes or {}, HOJE_PAINEL)
+    return turma_service.painel_da_turma(
+        turma, resumo_xp or {}, missoes or {}, HOJE_PAINEL
+    )
 
 
-@pytest.mark.parametrize(("turma", "resumo_xp", "esperado"), [
-    (alunos("Ana", "Beatriz", "Caio"), {1: xp(10), 2: xp(25)}, 12),  # 35 / 3 = 11,67
-    (alunos("Ana", "Beatriz"), {1: xp(5)}, 3),                       # 5 / 2 = 2,5 sobe
-])
+@pytest.mark.parametrize(
+    ("turma", "resumo_xp", "esperado"),
+    [
+        (
+            alunos("Ana", "Beatriz", "Caio"),
+            {1: xp(10), 2: xp(25)},
+            12,
+        ),  # 35 / 3 = 11,67
+        (alunos("Ana", "Beatriz"), {1: xp(5)}, 3),  # 5 / 2 = 2,5 sobe
+    ],
+)
 def test_xp_medio_arredonda_para_o_inteiro_mais_proximo(
     turma: list[dict], resumo_xp: dict[int, dict], esperado: int
 ) -> None:
@@ -92,12 +109,16 @@ def test_ativo_conta_ate_seis_dias_atras() -> None:
     resumo_xp = {
         1: xp(10, date(2026, 11, 5)),  # hoje - 6: ainda dentro dos 7 dias
         2: xp(10, date(2026, 11, 4)),  # hoje - 7: fora
-    }                                  # Caio nunca ganhou XP
+    }  # Caio nunca ganhou XP
 
     resultado = painel(turma, resumo_xp)
 
     assert resultado["ativos"] == 1
-    assert [aluno["ativo"] for aluno in resultado["alunos"]] == [True, False, False]
+    assert [aluno["ativo"] for aluno in resultado["alunos"]] == [
+        True,
+        False,
+        False,
+    ]
 
 
 def test_turma_vazia_nao_tem_media() -> None:
@@ -115,26 +136,45 @@ def test_linha_do_aluno_traz_nivel_xp_e_missoes() -> None:
 
     assert resultado["missoes_concluidas"] == 2
     ana, beatriz = resultado["alunos"]
-    assert (ana["apelido"], ana["nivel"]["nome"], ana["xp"], ana["missoes"]) == ("Ana", "Aprendiz", 120, 2)
-    assert (beatriz["nivel"]["nome"], beatriz["xp"], beatriz["missoes"]) == ("Iniciante", 0, 0)
+    assert (
+        ana["apelido"],
+        ana["nivel"]["nome"],
+        ana["xp"],
+        ana["missoes"],
+    ) == ("Ana", "Aprendiz", 120, 2)
+    assert (beatriz["nivel"]["nome"], beatriz["xp"], beatriz["missoes"]) == (
+        "Iniciante",
+        0,
+        0,
+    )
 
 
 # ---------------------------------------------------------------------------
 # Ranking, inativos e turma por nível (painel v2)
 # ---------------------------------------------------------------------------
 
+
 def test_ranking_ordena_por_xp_e_mantem_a_ordem_recebida_no_empate() -> None:
-    turma = alunos("Ana", "Bia", "Caio", "Duda")  # já em ordem de apelido, como o repositório devolve
+    turma = alunos(
+        "Ana", "Bia", "Caio", "Duda"
+    )  # já em ordem de apelido, como o repositório devolve
 
     resultado = painel(turma, {1: xp(10), 2: xp(50), 3: xp(10)})
 
-    assert [aluno["apelido"] for aluno in resultado["ranking"]] == ["Bia", "Ana", "Caio", "Duda"]
+    assert [aluno["apelido"] for aluno in resultado["ranking"]] == [
+        "Bia",
+        "Ana",
+        "Caio",
+        "Duda",
+    ]
 
 
 def test_inativos_inclui_quem_nunca_ganhou_xp() -> None:
     turma = alunos("Ana", "Beatriz", "Caio")
 
-    resultado = painel(turma, {1: xp(10), 2: xp(10, date(2026, 11, 4))})  # Beatriz: hoje - 7
+    resultado = painel(
+        turma, {1: xp(10), 2: xp(10, date(2026, 11, 4))}
+    )  # Beatriz: hoje - 7
 
     assert resultado["inativos"] == ["Beatriz", "Caio"]
 

@@ -1,4 +1,5 @@
 """SQL das respostas de quiz de cada aluno. O banco de perguntas fica em quiz_service.PERGUNTAS."""
+
 import sqlite3
 
 # A PK garante uma única resposta por pergunta (RN-16: a primeira vale), inclusive no
@@ -28,7 +29,12 @@ class QuizRepository:
         conn.executescript(SQL_CRIAR_TABELA)
 
     def responder(
-        self, aluno_id: int, pergunta_codigo: str, alternativa: str, *, correta: bool
+        self,
+        aluno_id: int,
+        pergunta_codigo: str,
+        alternativa: str,
+        *,
+        correta: bool,
     ) -> bool:
         """Grava a resposta do aluno, se ele ainda não respondeu essa pergunta. Não faz commit.
 
@@ -56,7 +62,10 @@ class QuizRepository:
         ).fetchone()
         if linha is None:
             return None
-        return {"alternativa": linha["alternativa"], "correta": bool(linha["correta"])}
+        return {
+            "alternativa": linha["alternativa"],
+            "correta": bool(linha["correta"]),
+        }
 
     def acertos_por_pergunta(self, aluno_id: int) -> dict[str, bool]:
         """{código: acertou} de todas as perguntas que o aluno já respondeu."""
@@ -64,4 +73,7 @@ class QuizRepository:
             "SELECT pergunta_codigo, correta FROM quiz_respostas WHERE aluno_id = ?",
             (aluno_id,),
         ).fetchall()
-        return {linha["pergunta_codigo"]: bool(linha["correta"]) for linha in linhas}
+        return {
+            linha["pergunta_codigo"]: bool(linha["correta"])
+            for linha in linhas
+        }
