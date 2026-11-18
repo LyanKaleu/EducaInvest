@@ -58,6 +58,29 @@ p { margin: 0 0 1rem; }
 .percentual { font-size: 1.1rem; color: var(--primaria-texto); font-variant-numeric: tabular-nums; }
 .numero { font-variant-numeric: tabular-nums; }
 .link-acao { display: inline-flex; align-items: center; min-height: 44px; align-self: flex-start; }
+/* Sublinhado desenhado (taste-skill): em repouso, um fio fraco; no hover ou no foco, a linha da cor
+   do link cobre o fio da esquerda para a direita e, ao sair, vai embora pela direita (o ponto de
+   apoio troca de lado). Os dois "gradientes" são cor lisa: é só o jeito de desenhar uma linha de
+   1px que pode crescer. A transição fica em movimento.css; sem ela, a linha só aparece. */
+.link-acao {
+  text-decoration: none;
+  /* Reserva para navegador sem color-mix: o fio de repouso sai cheio, e o link nunca fica sem
+     sublinhado (só a cor não basta para reconhecer um link, WCAG 1.4.1). */
+  background-image: linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor);
+  /* Fio de repouso com 60% da cor do link: discreto, mas visível nos dois temas. */
+  background-image:
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(color-mix(in srgb, currentColor 60%, transparent), color-mix(in srgb, currentColor 60%, transparent));
+  background-repeat: no-repeat;
+  background-size: 0 1px, 100% 1px;
+  background-position-x: 100%, 0;
+  background-position-y: calc(50% + .75em);
+}
+.link-acao:focus-visible { background-size: 100% 1px, 100% 1px; background-position-x: 0, 0; }
+/* Hover só com mouse: no celular o toque deixaria a linha cheia presa. */
+@media (hover: hover) and (pointer: fine) {
+  .link-acao:hover { background-size: 100% 1px, 100% 1px; background-position-x: 0, 0; }
+}
 
 /* Selo de XP: "+20 XP". */
 .selo-xp {

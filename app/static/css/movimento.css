@@ -86,18 +86,39 @@
 
   /* ---------- Toque: o que se aperta afunda um pouco ---------- */
 
-  button, .botao, .chip, .segmento-opcao, label.alt, a.lancamento, a.turma-item {
+  /* Camada de hover e toque (taste-skill, references/motion.md). O estado parado guarda a transição
+     de saída (120ms); o hover, a de entrada; o clique, a mais curta (90ms). Sem mola: nada passa do
+     ponto. Hover só com mouse; o clique vale para mouse e toque. */
+  button, .botao, .chip, .segmento-opcao, label.alt, a.lancamento, a.turma-item, .pergunta {
     transition:
-      transform var(--duracao-toque) var(--ease-out),
+      transform var(--duracao-hover-sai) var(--ease-out),
       background-color var(--duracao-cor) ease,
       border-color var(--duracao-cor) ease,
       color var(--duracao-cor) ease;
   }
-  button:active, .botao:active, .chip:active, .segmento-opcao:active, label.alt:active { transform: scale(.97); }
-  /* Cartões grandes afundam menos, senão parecem encolher. */
-  a.lancamento:active, a.turma-item:active, .pergunta:active { transform: scale(.985); }
-  .pergunta { transition: transform var(--duracao-toque) var(--ease-out), background-color var(--duracao-cor) ease; }
-  .menu-aluno .icone { transition: transform var(--duracao-toque) var(--ease-out), background-color var(--duracao-cor) ease; }
+  @media (hover: hover) and (pointer: fine) {
+    /* Uma faixa invisível estende a área do hover 3px para baixo: sem ela, o cursor parado na borda
+       de baixo perde o elemento quando ele sobe, e ele fica tremendo. */
+    button, .botao, a.lancamento, a.turma-item { position: relative; }
+    button::before, .botao::before, a.lancamento::before, a.turma-item::before, .pergunta::before {
+      content: ""; position: absolute; inset: 0 0 -3px;
+    }
+    /* O botão sobe 1px; o cartão-link sobe 2px e a borda escurece um passo. */
+    button:hover, .botao:hover { transform: translateY(-1px); transition-duration: var(--duracao-hover-entra); }
+    a.lancamento:hover, a.turma-item:hover, .pergunta:hover {
+      transform: translateY(-2px); transition-duration: var(--duracao-cartao-entra);
+      border-top-color: var(--borda); border-right-color: var(--borda); border-bottom-color: var(--borda);
+    }
+  }
+  /* Clique: o botão desce 1px abaixo do repouso e encolhe um pouco; cartões e escolhas só encolhem. */
+  button:active, .botao:active { transform: translateY(1px) scale(.985); transition-duration: var(--duracao-clique); }
+  .chip:active, .segmento-opcao:active, label.alt:active,
+  a.lancamento:active, a.turma-item:active, .pergunta:active { transform: scale(.985); transition-duration: var(--duracao-clique); }
+
+  /* Link de ação: o sublinhado se desenha da esquerda e, ao sair, vai embora pela direita. */
+  .link-acao { transition: background-size var(--duracao-hover-sai) var(--ease-out), color var(--duracao-cor) ease; }
+  .link-acao:hover, .link-acao:focus-visible { transition-duration: var(--duracao-hover-entra), var(--duracao-cor); }
+  .menu-aluno .icone { transition: transform var(--duracao-clique) var(--ease-out), background-color var(--duracao-cor) ease; }
   .menu-aluno a:active .icone { transform: scale(.95); }
 
   /* ---------- Erros e escolhas nos formulários ---------- */
@@ -176,6 +197,12 @@
 
   .aviso { animation: aparece 200ms ease backwards; }
   .erro-campo { animation: aparece 200ms ease backwards; }
+  /* O cartão-link não sobe, mas a borda escurece do mesmo jeito. */
+  @media (hover: hover) and (pointer: fine) {
+    a.lancamento:hover, a.turma-item:hover, .pergunta:hover {
+      border-top-color: var(--borda); border-right-color: var(--borda); border-bottom-color: var(--borda);
+    }
+  }
   /* O toast continua saindo sozinho, só com esmaecimento. */
   .aviso-sucesso { animation: aparece 200ms ease backwards, some 200ms ease var(--tempo-do-toast) forwards; }
 

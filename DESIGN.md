@@ -101,7 +101,7 @@ Os padrões vêm do transitions.dev (skills `transitions-dev` e `transitions-pol
 - **Por que animar:** retorno ao toque, continuidade entre telas e comemoração de conquista. Nada anima "porque fica bonito". Ação repetida muitas vezes por dia anima pouco ou nada.
 - **Curva e tempo** (tokens em `tokens.css`):
   - `--ease-out` é `cubic-bezier(0.23, 1, 0.32, 1)`: começa rápido e assenta devagar. Nunca `ease-in` em interface.
-  - Toque: 160ms. Troca de cor: 150ms. Troca de página: 240ms (abaixo de 300ms, porque a página fica inerte durante a troca). Aviso: 200ms. Barra: 280ms.
+  - Hover: 150ms entrando e 120ms saindo (cartão: 180ms entrando). Clique: 90ms. Troca de cor: 150ms. Troca de página: 240ms (abaixo de 300ms, porque a página fica inerte durante a troca). Aviso: 200ms. Barra: 280ms.
   - Escala do transitions.dev: escalonar 40ms, tremida 80ms por trecho, fechar 150ms, abrir e deslizar 250ms, toast 350ms, ênfase 500ms; `--ease-mola` só em entrada (check, contador, escolha marcada), nunca em saída.
   - A comemoração é a exceção: até ~1,4s, uma vez só.
 - **O que anima:**
@@ -113,7 +113,7 @@ Os padrões vêm do transitions.dev (skills `transitions-dev` e `transitions-pol
   - **Painel:** as marcas da sequência acendem em cascata; se o XP subiu desde a última visita neste aparelho, o número rola num tambor 3D e a barra enche desde onde estava (JS, `localStorage`).
   - **Quiz:** enunciado e alternativas entram em cascata; depois de responder, a certa assenta e a errada treme.
   - **Conquista** (missão, nível, meta concluída): o cartão verde dá um pequeno salto, o troféu balança e um confete de CSS cai uma vez.
-  - **Toque:** botões, chips e alternativas afundam (`scale(.97)`); cartões-link e ícones do menu afundam menos (`scale(.985)` e `scale(.95)`).
+  - **Hover e toque** (camada do taste-skill, `references/motion.md`, sem mola): com mouse, o botão sobe 1px e o cartão-link sobe 2px com a borda um passo mais escura; no clique, o botão desce 1px e encolhe para `scale(.985)`, e cartões, chips e alternativas só encolhem; o ícone do menu afunda `scale(.95)`. O link de ação tem um fio de 35% da cor em repouso, e no hover ou no foco a linha cheia se desenha da esquerda e sai pela direita. Com menos movimento, nada se desloca: só a cor e a borda mudam, e o sublinhado aparece sem viajar.
   - **Barras:** se desenham da esquerda com `clip-path`. O navegador não anima o preenchimento do `<progress>`.
 - **O que não anima:**
   - layout (`width`, `height`, `margin`, `top`);
