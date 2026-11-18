@@ -65,22 +65,22 @@ Texto branco (`--texto-sobre-cor`) sobre `--primaria` e `--perigo` passa de 5:1 
 ## 5. Forma, espaço e profundidade
 - **Raio:** 8px em cartões, campos, botões e avisos; selos em pílula.
 - **Espaçamento:** múltiplos de 0,25rem. Padding de cartão 1rem. Distância entre cartões 0,75rem. Padding da página 1rem.
-- **Profundidade:** sem sombras. A página tem fundo `--suave`; os cartões são brancos com borda fina `--divisoria`.
+- **Profundidade:** sem sombras. A página tem fundo `--suave`; os cartões têm fundo `--fundo` (branco no claro) e borda fina `--divisoria`.
 - **Faixa de 6px na borda esquerda:** só nos itens de lista, para o tipo ou o status: lançamento (verde entrada, vermelho gasto), missão (azul em andamento, verde concluída, cinza bloqueada), pergunta do quiz (azul nova, verde acertou, vermelho errou), turma (verde) e avisos. O status também vai em texto.
 
 ## 6. Componentes
-- **Topo:** fundo branco. À esquerda a marca "EducaInvest" em verde e o apelido com o perfil ("Ana · Aluno", que encolhe com reticências no celular). À direita, o aluno tem o atalho "Quiz" (ícone + texto) e "Sair"; o professor tem "Turmas" e "Sair". Login e cadastro não têm topo: a marca aparece grande, num quadrado verde com o ícone de gráfico.
+- **Topo:** fundo `--fundo`. À esquerda a marca "EducaInvest" em verde e o apelido com o perfil ("Ana · Aluno", que encolhe com reticências no celular). À direita, o aluno tem o atalho "Quiz" (ícone + texto) e "Sair"; o professor tem "Turmas" e "Sair". Login e cadastro não têm topo: a marca aparece grande, num quadrado verde com o ícone de gráfico.
 - **Menu do aluno:** barra fixa no rodapé com 5 itens (Início, Lançamentos, Novo, Missões, Metas), ícone + texto. "Novo" é um círculo verde. O item atual fica verde, em negrito e com fundo claro no ícone. A partir de 48rem a barra vira uma linha abaixo do topo.
 - **Botão principal:** fundo verde, texto branco 600, altura mínima de 44px. Versão larga (100%) para a ação principal da tela.
 - **Botão de perigo:** fundo vermelho (excluir). Versão de contorno vermelho para "Excluir lançamento".
-- **Botão secundário:** contorno verde de 2px com fundo branco (atalhos de aporte, "Cancelar").
+- **Botão secundário:** contorno verde de 2px com fundo `--fundo` (atalhos de aporte, "Cancelar").
 - **Voltar:** seta à esquerda do título nas telas de formulário, quiz e turma.
 - **Campo de formulário:** rótulo em negrito acima, campo com 100% de largura, borda `--borda`, altura de 44px. Com erro, a borda fica vermelha de 2px e a mensagem aparece em vermelho, embaixo do campo. Valores em reais usam um campo maior (1,6rem, negrito).
 - **Botões de escolha (sem JavaScript):** rádios com cara de botão. Tipo do lançamento em dois botões (Gasto em vermelho, Entrada em verde), categoria em chips (o marcado fica escuro) e alternativas do quiz em cartões com a letra num círculo. O CSS (`:has`) mostra só as categorias do tipo marcado.
 - **Barra de progresso:** `<progress>` com trilho claro e preenchimento verde; azul na missão em andamento; branca sobre cartão colorido.
 - **Aviso (flash):** fundo claro e faixa esquerda de 6px: verde para sucesso, vermelha para erro.
-- **Cartão de destaque:** verde, texto branco, número grande (saldo do aluno, nível em Missões, alunos ativos no painel da turma). O saldo negativo pinta o cartão de vermelho e diz "Você gastou mais do que entrou."
-- **Indicador:** cartão branco com rótulo em maiúsculas, número grande e uma dica curta, em grade de 2 colunas.
+- **Cartão de destaque:** verde, texto branco, número grande (saldo do aluno, nível em Missões, alunos ativos no painel da turma). Dentro dele o anel de foco é branco, porque o azul some sobre o verde. O saldo negativo pinta o cartão de vermelho e diz "Você gastou mais do que entrou."
+- **Indicador:** cartão `--fundo` com rótulo em maiúsculas, número grande e uma dica curta, em grade de 2 colunas.
 - **Selo:** pílula verde clara com "+50 XP", ou verde cheia com "Concluída" e o ícone de visto.
 - **Estado vazio:** caixa com borda tracejada, frase em negrito, dica e o botão que resolve.
 - **Código da turma:** monoespaçado, negrito, verde, com letras espaçadas; no convite, numa caixa tracejada.
