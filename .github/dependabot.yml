@@ -2,9 +2,10 @@
 # O gate roda no PR; só entra no merge se passar. Versão nova major vem em PR separado,
 # porque costuma quebrar algo e não deve travar as atualizações pequenas.
 # O GitHub lê este arquivo da branch padrão (main): passa a valer depois do merge lá.
+# O ecossistema uv atualiza o pyproject.toml e o uv.lock no mesmo PR.
 version: 2
 updates:
-  - package-ecosystem: pip
+  - package-ecosystem: uv
     directory: "/"
     target-branch: develop
     schedule:
