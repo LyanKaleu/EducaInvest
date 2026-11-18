@@ -1,4 +1,8 @@
 """Fluxo HTTP de cadastro com código de turma, login, logout e acesso por perfil (RF01, RNF04, HU5)."""
+from werkzeug.security import generate_password_hash
+
+from app.db import conectar
+from app.repositories.usuario_repo import UsuarioRepository
 from app.services import auth_service
 from tests.conftest import SENHA, cadastrar_aluno, cadastrar_professor, entrar
 
@@ -155,7 +159,7 @@ def test_bloqueio_de_um_email_nao_afeta_outro(app, turma, cliente_aluno):
 def test_chutes_simultaneos_nao_furam_o_limite(monkeypatch, app, cliente_aluno):
     # 6 chutes chegam juntos: cada um dispara o próximo enquanto confere a senha (o hash
     # é lento), então nenhum terminou quando o 6º chega. O 6º, com a senha certa, não entra.
-    original = auth_service.senha_confere
+    original = auth_service.conferir_senha
     disparados = []
     sexto = {}
 
@@ -168,7 +172,7 @@ def test_chutes_simultaneos_nao_furam_o_limite(monkeypatch, app, cliente_aluno):
                 entrar(app.test_client(), "gabriel@escola.br", senha="senha-errada")
         return original(senha_hash, senha)
 
-    monkeypatch.setattr(auth_service, "senha_confere", conferir_enquanto_chega_outro)
+    monkeypatch.setattr(auth_service, "conferir_senha", conferir_enquanto_chega_outro)
     entrar(app.test_client(), "gabriel@escola.br", senha="senha-errada")
 
     assert sexto["resposta"].status_code == 429
@@ -181,6 +185,21 @@ def test_login_certo_zera_as_falhas(app, cliente_aluno):
     errar_a_senha(cliente, "gabriel@escola.br", 1)
 
     assert entrar(app.test_client(), "gabriel@escola.br").status_code == 302
+
+
+def test_login_com_hash_scrypt_antigo_entra_e_regrava_em_argon2id(app, cliente_aluno):
+    # Conta de antes do Argon2id: o hash guardado é o scrypt padrão do Werkzeug.
+    conn = conectar(app.config["DATABASE"])
+    with conn:
+        conn.execute("UPDATE usuarios SET senha_hash = ? WHERE email = ?",
+                     (generate_password_hash(SENHA, method="scrypt"), "gabriel@escola.br"))
+
+    resposta = entrar(app.test_client(), "gabriel@escola.br")
+
+    assert resposta.status_code == 302
+    usuario = UsuarioRepository(conn).buscar_por_email("gabriel@escola.br")
+    conn.close()
+    assert usuario["senha_hash"].startswith("$argon2id$")
 
 
 def test_login_vazio_retorna_400(cliente_anonimo):

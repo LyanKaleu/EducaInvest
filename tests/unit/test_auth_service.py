@@ -1,5 +1,6 @@
 """Testes das regras de cadastro, login e senha (RF01, RN-04, RN-05, RNF04): só o service."""
 import pytest
+from werkzeug.security import generate_password_hash
 
 # Importa o MÓDULO (que já existe) e não as funções: enquanto elas não existirem,
 # cada teste falha sozinho, em vez de quebrar a coleta do arquivo inteiro.
@@ -195,13 +196,33 @@ def test_hash_da_mesma_senha_muda_a_cada_vez():
     assert auth_service.gerar_hash_senha("abc12345") != auth_service.gerar_hash_senha("abc12345")
 
 
-def test_senha_certa_confere_com_o_hash():
+def test_hash_novo_e_argon2id():
+    assert auth_service.gerar_hash_senha("senha-segura-123").startswith("$argon2id$")
+
+
+def test_senha_certa_com_hash_novo_confere_sem_pedir_rehash():
     hash_senha = auth_service.gerar_hash_senha("senha-segura-123")
 
-    assert auth_service.senha_confere(hash_senha, "senha-segura-123") is True
+    assert auth_service.conferir_senha(hash_senha, "senha-segura-123") == (True, None)
 
 
-def test_senha_errada_nao_confere_com_o_hash():
+def test_senha_certa_com_hash_scrypt_antigo_confere_e_devolve_argon2id():
+    # Formato das contas criadas antes do Argon2id (o padrão do Werkzeug no deploy).
+    hash_antigo = generate_password_hash("senha-segura-123", method="scrypt")
+
+    confere, hash_novo = auth_service.conferir_senha(hash_antigo, "senha-segura-123")
+
+    assert confere is True
+    assert hash_novo.startswith("$argon2id$")
+
+
+def test_senha_errada_nao_confere_com_hash_novo():
     hash_senha = auth_service.gerar_hash_senha("senha-segura-123")
 
-    assert auth_service.senha_confere(hash_senha, "senha-errada") is False
+    assert auth_service.conferir_senha(hash_senha, "senha-errada") == (False, None)
+
+
+def test_senha_errada_nao_confere_com_hash_scrypt_antigo():
+    hash_antigo = generate_password_hash("senha-segura-123", method="scrypt")
+
+    assert auth_service.conferir_senha(hash_antigo, "senha-errada") == (False, None)

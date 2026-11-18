@@ -142,11 +142,19 @@ def entrar():
         flash(MSG_MUITAS_TENTATIVAS, "erro")
         return render_template("auth/login.html", form=request.form, erros={}), 429
 
-    usuario = UsuarioRepository(obter_conexao()).buscar_por_email(dados["email"])
-    if usuario is None or not auth_service.senha_confere(usuario["senha_hash"], dados["senha"]):
+    usuarios = UsuarioRepository(obter_conexao())
+    usuario = usuarios.buscar_por_email(dados["email"])
+    confere, hash_novo = False, None
+    if usuario is not None:
+        confere, hash_novo = auth_service.conferir_senha(usuario["senha_hash"], dados["senha"])
+    if not confere:
         # Mesma mensagem nos dois casos: não revela quais e-mails estão cadastrados.
         flash(MSG_LOGIN_INVALIDO, "erro")
         return render_template("auth/login.html", form=request.form, erros={}), 401
+    if hash_novo:
+        # Conta antiga (scrypt) ou parâmetros desatualizados: regrava em Argon2id.
+        with obter_conexao():
+            usuarios.atualizar_senha_hash(usuario["id"], hash_novo)
     limite.limpar(dados["email"])
     return _iniciar_sessao(usuario)
 
