@@ -107,7 +107,8 @@
   .erro-campo { animation: entra-erro var(--duracao-curta) var(--ease-out) 200ms backwards; }
 
   /* Chip e alternativa marcados assentam com uma pequena mola. */
-  .chip:has(input:checked), .alternativas label.alt:has(input:checked) { animation: marca-escolha var(--duracao-curta) var(--ease-mola); }
+  /* (O nth-child só sobe a especificidade acima da cascata do quiz, para a mola vir sem atraso.) */
+  .chip:has(input:checked), .alternativas label.alt:nth-child(n of .alt):has(input:checked) { animation: marca-escolha var(--duracao-curta) var(--ease-mola); }
 
   /* Pílula do Gasto/Entrada deslizando (transitions.dev: tabs sliding). Posição e largura vêm do JS. */
   .js .segmento .pilula {
@@ -115,6 +116,29 @@
       transform var(--duracao-curta) var(--ease-out),
       width var(--duracao-curta) var(--ease-out),
       background-color var(--duracao-curta) ease;
+  }
+
+  /* ---------- Quiz ---------- */
+
+  /* A pergunta entra em cascata: enunciado, depois cada alternativa, subindo de um desfoque
+     (transitions.dev: texts reveal, 40 ms entre linhas). */
+  h1.enunciado, .alternativas .alt, .alternativas-respondidas .alt, .resultado {
+    animation: revela-texto var(--duracao-lenta) var(--ease-out) backwards;
+  }
+  :is(.alternativas, .alternativas-respondidas) .alt:nth-child(1 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 2); }
+  :is(.alternativas, .alternativas-respondidas) .alt:nth-child(2 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 3); }
+  :is(.alternativas, .alternativas-respondidas) .alt:nth-child(3 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 4); }
+  :is(.alternativas, .alternativas-respondidas) .alt:nth-child(4 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 5); }
+  :is(.alternativas, .alternativas-respondidas) .alt:nth-child(5 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 6); }
+  .resultado { animation-delay: calc(var(--duracao-escalonar) * 8); }
+
+  /* Depois de responder: a certa assenta com mola e a escolhida errada treme, quando a cascata
+     já passou. As duas mantêm a revelação antes. */
+  .alternativas-respondidas .alt.certa:nth-child(n of .alt) {
+    animation: revela-texto var(--duracao-lenta) var(--ease-out) backwards, marca-escolha var(--duracao-curta) var(--ease-mola) 420ms backwards;
+  }
+  .alternativas-respondidas .alt.errada:nth-child(n of .alt) {
+    animation: revela-texto var(--duracao-lenta) var(--ease-out) backwards, treme-erro 280ms linear 420ms;
   }
 
   /* ---------- Painel: sequência e nível ---------- */
@@ -208,6 +232,7 @@
 @keyframes entra-erro { from { opacity: 0; transform: translateY(-4px); } }
 @keyframes marca-escolha { from { transform: scale(.94); } }
 @keyframes acende-dia { from { opacity: 0; transform: scale(.4); } }
+@keyframes revela-texto { from { opacity: 0; transform: translateY(12px); filter: blur(var(--desfoque-medio)); } }
 
 /* ---------- Estrutura que só existe com JavaScript (movimento.js) ---------- */
 
