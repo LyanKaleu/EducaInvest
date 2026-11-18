@@ -10,19 +10,19 @@ from app.services import xp_service
 # ---------------------------------------------------------------------------
 
 
-def test_lancamento_abaixo_do_teto_vale_10_xp():
+def test_lancamento_abaixo_do_teto_vale_10_xp() -> None:
     assert xp_service.xp_do_lancamento(ganho_hoje=0) == 10
 
 
-def test_lancamento_com_teto_atingido_nao_vale_xp():
+def test_lancamento_com_teto_atingido_nao_vale_xp() -> None:
     assert xp_service.xp_do_lancamento(ganho_hoje=50) == 0
 
 
-def test_lancamento_perto_do_teto_vale_so_o_que_falta():
+def test_lancamento_perto_do_teto_vale_so_o_que_falta() -> None:
     assert xp_service.xp_do_lancamento(ganho_hoje=45) == 5
 
 
-def test_lancamento_nunca_vale_xp_negativo():
+def test_lancamento_nunca_vale_xp_negativo() -> None:
     # Se o teto baixar um dia, quem já passou dele não perde nem "deve" XP (RN-12).
     assert xp_service.xp_do_lancamento(ganho_hoje=80) == 0
 
@@ -39,17 +39,17 @@ def test_lancamento_nunca_vale_xp_negativo():
     (300, (3, "Organizado")),
     (5000, (3, "Organizado")),
 ])
-def test_nivel_pelo_xp_acumulado(xp_total, esperado):
+def test_nivel_pelo_xp_acumulado(xp_total: int, esperado: tuple[int, str]) -> None:
     nivel = xp_service.nivel(xp_total)
 
     assert (nivel["nivel"], nivel["nome"]) == esperado
 
 
-def test_nivel_informa_quanto_falta_para_o_proximo():
+def test_nivel_informa_quanto_falta_para_o_proximo() -> None:
     assert xp_service.nivel(40)["falta"] == 60
 
 
-def test_ultimo_nivel_nao_tem_proximo():
+def test_ultimo_nivel_nao_tem_proximo() -> None:
     assert xp_service.nivel(300)["falta"] is None
 
 
@@ -71,7 +71,7 @@ HOJE = date(2026, 11, 10)
         ({6, 8, 9, 10}, 3),                                          # lacuna antiga não conta
     ],
 )
-def test_sequencia_conta_dias_seguidos_ate_hoje(dias, esperado):
+def test_sequencia_conta_dias_seguidos_ate_hoje(dias: set[int], esperado: int) -> None:
     dias_ativos = {date(2026, 11, dia) for dia in dias}
 
     assert xp_service.sequencia(dias_ativos, HOJE) == esperado
@@ -91,7 +91,9 @@ def test_sequencia_conta_dias_seguidos_ate_hoje(dias, esperado):
         ({5, 8, 9}, [False, True, False, False, True, True, False]),
     ],
 )
-def test_ultimos_dias_marca_cada_dia_da_janela_ate_hoje(dias, esperado):
+def test_ultimos_dias_marca_cada_dia_da_janela_ate_hoje(
+    dias: set[int], esperado: list[bool]
+) -> None:
     dias_ativos = {date(2026, 11, dia) for dia in dias}
 
     assert xp_service.ultimos_dias(dias_ativos, HOJE) == esperado
@@ -113,5 +115,5 @@ def test_ultimos_dias_marca_cada_dia_da_janela_ate_hoje(dias, esperado):
         (900, 100),
     ],
 )
-def test_percentual_mostra_o_progresso_dentro_do_nivel(xp_total, esperado):
+def test_percentual_mostra_o_progresso_dentro_do_nivel(xp_total: int, esperado: int) -> None:
     assert xp_service.nivel(xp_total)["percentual"] == esperado

@@ -1,6 +1,7 @@
 """Limite de tentativas: bloqueia uma chave (o e-mail do login) depois de muitas tentativas seguidas."""
 import threading
 import time
+from collections.abc import Callable
 
 
 class LimiteDeTentativas:
@@ -14,8 +15,9 @@ class LimiteDeTentativas:
     para o MVP (um processo), mas não para vários workers.
     """
 
-    def __init__(self, maximo: int, janela_segundos: int, relogio=time.monotonic,
-                 max_chaves: int = 10_000):
+    def __init__(self, maximo: int, janela_segundos: int, relogio: Callable[[], float] = time.monotonic,
+                 max_chaves: int = 10_000) -> None:
+        """Configura o limite: `maximo` tentativas a cada `janela_segundos`."""
         self.maximo = maximo
         self.janela_segundos = janela_segundos
         self.relogio = relogio
@@ -30,7 +32,7 @@ class LimiteDeTentativas:
     def _vencida(self, janela: tuple[float, int], agora: float) -> bool:
         return agora - janela[0] >= self.janela_segundos
 
-    def tentar(self, chave) -> bool:
+    def tentar(self, chave: str) -> bool:
         """Conta uma tentativa. False se a chave já esgotou as tentativas da janela."""
         with self._trava:
             agora = self.relogio()
@@ -46,6 +48,7 @@ class LimiteDeTentativas:
             self._tentativas[chave] = (janela[0], janela[1] + 1)
             return True
 
-    def limpar(self, chave) -> None:
+    def limpar(self, chave: str) -> None:
+        """Zera a contagem da chave (depois de um login certo)."""
         with self._trava:
             self._tentativas.pop(chave, None)

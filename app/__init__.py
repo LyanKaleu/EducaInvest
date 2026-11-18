@@ -4,11 +4,12 @@ import secrets
 from datetime import timedelta
 from pathlib import Path
 
-from flask import Flask, flash, redirect, session, url_for
+from flask import Flask, Response, flash, redirect, session, url_for
+from flask.typing import ResponseReturnValue
 from flask_wtf.csrf import CSRFError, CSRFProtect
 
 from app import db
-from app.filtros import registrar_filtros
+from app.filtros import data_br, reais
 from app.routes.auth import bp as auth_bp
 from app.routes.auth import destino_do_perfil
 from app.routes.lancamentos import bp as lancamentos_bp
@@ -56,7 +57,9 @@ def create_app(config: dict | None = None) -> Flask:
     # Todo POST exige o csrf_token do formulário (o SameSite=Lax não barra o CSRF de login).
     CSRFProtect(app)
     db.init_app(app)
-    registrar_filtros(app)
+    # Filtros de dinheiro e data disponíveis em todos os templates.
+    app.add_template_filter(reais, "reais")
+    app.add_template_filter(data_br, "data_br")
     app.register_blueprint(auth_bp)
     app.register_blueprint(lancamentos_bp)
     app.register_blueprint(metas_bp)
@@ -66,13 +69,13 @@ def create_app(config: dict | None = None) -> Flask:
     app.register_blueprint(quiz_bp)
 
     @app.get("/")
-    def inicio():
+    def inicio() -> ResponseReturnValue:
         if "usuario_id" not in session:
             return redirect(url_for("auth.login"))
         return redirect(destino_do_perfil(session["perfil"]))
 
     @app.after_request
-    def headers_de_seguranca(resposta):
+    def headers_de_seguranca(resposta: Response) -> Response:
         # Ninguém carrega o app dentro de outro site (clickjacking), o navegador não
         # adivinha o tipo do arquivo e só roda o que vem do próprio app (não há script inline).
         resposta.headers["X-Frame-Options"] = "DENY"
@@ -81,7 +84,7 @@ def create_app(config: dict | None = None) -> Flask:
         return resposta
 
     @app.errorhandler(CSRFError)
-    def token_invalido(_erro):
+    def token_invalido(_erro: CSRFError) -> ResponseReturnValue:
         # Token ausente ou de outra sessão (ex.: a sessão expirou com a página aberta).
         flash("A página expirou. Envie o formulário de novo.", "erro")
         return redirect(url_for("inicio"))

@@ -1,5 +1,6 @@
 """SQL das missões concluídas por cada aluno. O catálogo fica em missao_service.MISSOES."""
 import sqlite3
+from collections.abc import Iterable
 
 # A PK impede concluir (e pontuar) a mesma missão duas vezes (RN-10).
 SQL_CRIAR_TABELA = """
@@ -15,7 +16,7 @@ CREATE TABLE IF NOT EXISTS missoes_concluidas (
 class MissaoRepository:
     """Conclusões de missão por aluno. NÃO faz commit: quem chama decide a transação."""
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection) -> None:
         """Cria o repositório sobre uma conexão já aberta."""
         self.conn = conn
 
@@ -24,7 +25,7 @@ class MissaoRepository:
         """Cria a tabela `missoes_concluidas`, se ainda não existir."""
         conn.executescript(SQL_CRIAR_TABELA)
 
-    def concluir(self, aluno_id, missao_codigo) -> bool:
+    def concluir(self, aluno_id: int, missao_codigo: str) -> bool:
         """Marca a missão como concluída pelo aluno. Não faz commit.
 
         Returns:
@@ -39,7 +40,7 @@ class MissaoRepository:
         )
         return cursor.rowcount == 1
 
-    def contar_por_aluno(self, aluno_ids) -> dict[int, int]:
+    def contar_por_aluno(self, aluno_ids: Iterable[int]) -> dict[int, int]:
         """Quantas missões cada aluno concluiu, para o painel da turma (HU5).
 
         Returns:
@@ -61,7 +62,7 @@ class MissaoRepository:
         ).fetchall()
         return {linha["aluno_id"]: linha["total"] for linha in linhas}
 
-    def concluidas(self, aluno_id) -> set[str]:
+    def concluidas(self, aluno_id: int) -> set[str]:
         """Códigos das missões que o aluno já concluiu."""
         linhas = self.conn.execute(
             "SELECT missao_codigo FROM missoes_concluidas WHERE aluno_id = ?",

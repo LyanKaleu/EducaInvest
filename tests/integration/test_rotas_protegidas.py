@@ -4,7 +4,8 @@ Percorre o mapa de rotas do app em vez de listar URLs à mão: rota criada amanh
 entra na verificação sozinha. Rota pública só passa se estiver em ROTAS_PUBLICAS.
 """
 import pytest
-from flask import url_for
+from flask import Flask, url_for
+from flask.testing import FlaskClient
 
 from app import create_app
 from tests.conftest import entrar
@@ -21,7 +22,7 @@ ROTAS_PUBLICAS = {
 ROTAS_DE_QUALQUER_PERFIL = {"inicio", "auth.sair"}
 
 
-def _requisicoes(app, ignorar):
+def _requisicoes(app: Flask, ignorar: set[str]) -> list[tuple[str, str]]:
     """Lista (método, url) de cada rota fora de `ignorar`, com 1 em todo parâmetro da URL."""
     requisicoes = []
     with app.test_request_context():
@@ -36,13 +37,13 @@ def _requisicoes(app, ignorar):
     return requisicoes
 
 
-def _abrir(cliente, metodo, url):
+def _abrir(cliente: FlaskClient, metodo: str, url: str) -> tuple[int, str]:
     """Faz a requisição e devolve (status, Location)."""
     resposta = cliente.open(url, method=metodo)
     return resposta.status_code, resposta.headers.get("Location", "")
 
 
-def rotas_abertas_a_visitante(app):
+def rotas_abertas_a_visitante(app: Flask) -> list[str]:
     """Rotas não públicas que um visitante sem login consegue usar (devia ir para /login)."""
     # Rota sem proteção costuma quebrar ao ler a sessão vazia: vira 500 na lista, em vez de exceção.
     app.config["PROPAGATE_EXCEPTIONS"] = False
@@ -55,7 +56,7 @@ def rotas_abertas_a_visitante(app):
     return abertas
 
 
-def rotas_sem_perfil_definido(cliente_aluno, cliente_professor, app):
+def rotas_sem_perfil_definido(cliente_aluno: FlaskClient, cliente_professor: FlaskClient, app: Flask) -> list[str]:
     """Rotas restritas em que aluno e professor não são separados (403 para exatamente um)."""
     app.config["PROPAGATE_EXCEPTIONS"] = False
     misturadas = []
@@ -68,15 +69,15 @@ def rotas_sem_perfil_definido(cliente_aluno, cliente_professor, app):
     return misturadas
 
 
-def test_toda_rota_nao_publica_manda_visitante_para_o_login(app):
+def test_toda_rota_nao_publica_manda_visitante_para_o_login(app: Flask) -> None:
     assert rotas_abertas_a_visitante(app) == []
 
 
-def test_toda_rota_restrita_aceita_um_perfil_e_recusa_o_outro(app, cliente_aluno, cliente_professor):
+def test_toda_rota_restrita_aceita_um_perfil_e_recusa_o_outro(app: Flask, cliente_aluno: FlaskClient, cliente_professor: FlaskClient) -> None:
     assert rotas_sem_perfil_definido(cliente_aluno, cliente_professor, app) == []
 
 
-def test_meta_teste_acusa_rota_nova_esquecida_sem_protecao(app):
+def test_meta_teste_acusa_rota_nova_esquecida_sem_protecao(app: Flask) -> None:
     # Prova de que o meta-teste morde: uma rota sem verificação precisa aparecer.
     app.add_url_rule("/rota-esquecida", "rota_esquecida", lambda: "dados")
 
@@ -84,7 +85,7 @@ def test_meta_teste_acusa_rota_nova_esquecida_sem_protecao(app):
 
 
 @pytest.mark.usefixtures("cliente_aluno", "cliente_professor")  # só para cadastrar os dois
-def test_meta_teste_acusa_rota_que_qualquer_perfil_abre(app):
+def test_meta_teste_acusa_rota_que_qualquer_perfil_abre(app: Flask) -> None:
     # Os fixtures já fizeram requisições no `app`, que não aceita mais rotas novas.
     # Um segundo app no MESMO banco reaproveita o aluno e o professor cadastrados.
     outro_app = create_app({**app.config})

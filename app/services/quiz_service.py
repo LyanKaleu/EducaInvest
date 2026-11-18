@@ -188,7 +188,7 @@ def situacao(respostas: dict[str, bool]) -> list[dict]:
     return resultado
 
 
-def buscar(codigo) -> dict | None:
+def buscar(codigo: str) -> dict | None:
     """Pergunta do banco pelo código, ou None se não existir."""
     return next((pergunta for pergunta in PERGUNTAS if pergunta["codigo"] == codigo), None)
 
@@ -205,7 +205,7 @@ def xp_do_acerto(ganho_hoje: int) -> int:
     return max(0, min(XP_POR_ACERTO, TETO_DIARIO_QUIZ - ganho_hoje))
 
 
-def corrigir(pergunta: dict, escolha) -> bool:
+def corrigir(pergunta: dict, escolha: str | None) -> bool:
     """Diz se a alternativa escolhida é a correta da pergunta.
 
     Args:

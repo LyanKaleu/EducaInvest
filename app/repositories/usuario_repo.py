@@ -19,14 +19,17 @@ CREATE TABLE IF NOT EXISTS usuarios (
 class UsuarioRepository:
     """Leitura e gravação de usuários. Não faz commit."""
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection) -> None:
+        """Recebe a conexão aberta; o repositório nunca faz commit."""
         self.conn = conn
 
     @staticmethod
     def criar_tabela(conn: sqlite3.Connection) -> None:
+        """Cria a tabela `usuarios`, se ainda não existir."""
         conn.executescript(SQL_CRIAR_TABELA)
 
-    def criar(self, perfil, apelido, email, senha_hash, consentimento_em=None) -> dict:
+    def criar(self, perfil: str, apelido: str, email: str, senha_hash: str, consentimento_em: str | None = None) -> dict:
+        """Insere um usuário e devolve o registro. Não faz commit."""
         cursor = self.conn.execute(
             """
             INSERT INTO usuarios (perfil, apelido, email, senha_hash, consentimento_em)
@@ -36,14 +39,16 @@ class UsuarioRepository:
         )
         return self.buscar_por_id(cursor.lastrowid)
 
-    def buscar_por_id(self, usuario_id) -> dict | None:
+    def buscar_por_id(self, usuario_id: int) -> dict | None:
+        """O usuário com esse id, ou None."""
         linha = self.conn.execute("SELECT * FROM usuarios WHERE id = ?", (usuario_id,)).fetchone()
         return linha_para_dict(linha)
 
-    def buscar_por_email(self, email) -> dict | None:
+    def buscar_por_email(self, email: str) -> dict | None:
+        """O usuário com esse e-mail (sem diferenciar maiúsculas), ou None."""
         linha = self.conn.execute("SELECT * FROM usuarios WHERE email = ?", (email,)).fetchone()
         return linha_para_dict(linha)
 
-    def atualizar_senha_hash(self, usuario_id, senha_hash) -> None:
+    def atualizar_senha_hash(self, usuario_id: int, senha_hash: str) -> None:
         """Regrava o hash da senha (migração para Argon2id no login)."""
         self.conn.execute("UPDATE usuarios SET senha_hash = ? WHERE id = ?", (senha_hash, usuario_id))

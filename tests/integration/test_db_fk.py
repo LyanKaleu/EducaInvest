@@ -11,7 +11,7 @@ import pytest
 from app.db import conectar
 
 
-def test_conexao_recusa_turma_com_professor_inexistente():
+def test_conexao_recusa_turma_com_professor_inexistente() -> None:
     # professor_id 999 não existe em usuarios; os demais campos passam nos CHECK.
     # Com a FK imposta, o INSERT do filho órfão levanta IntegrityError.
     conn = conectar(":memory:")

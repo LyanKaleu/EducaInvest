@@ -11,6 +11,7 @@ from flask import (
     session,
     url_for,
 )
+from flask.typing import ResponseReturnValue
 
 from app.db import obter_conexao
 from app.filtros import data_br, reais  # noqa: F401 (mantém os nomes importáveis daqui)
@@ -74,7 +75,7 @@ def _form_do_registro(lancamento: dict) -> dict:
     }
 
 
-def _render_form(form, erros=None, lancamento=None, status=200):
+def _render_form(form: dict[str, str], erros: dict[str, str] | None = None, lancamento: dict | None = None, status: int = 200) -> ResponseReturnValue:
     """Formulário de criar (lancamento=None) ou editar, já preenchido com `form`."""
     html = render_template(
         "aluno/lancamento_form.html",
@@ -91,7 +92,8 @@ def _render_form(form, erros=None, lancamento=None, status=200):
 # ---------------------------------------------------------------------------
 
 @bp.get("/")
-def listar():
+def listar() -> ResponseReturnValue:
+    """Lista os lançamentos do aluno, com a busca opcional."""
     busca = request.args.get("busca", "").strip()
     lancamentos = _repo().listar(_aluno_id(), busca or None)
     # Os totais do topo valem para todos os lançamentos, com ou sem busca.
@@ -105,7 +107,8 @@ def listar():
 # ---------------------------------------------------------------------------
 
 @bp.get("/novo")
-def novo():
+def novo() -> ResponseReturnValue:
+    """Formulário de novo lançamento, já com a chave de idempotência."""
     form = {
         "tipo": "saida",  # gasto é o caso mais comum (HU1)
         "data": hoje_no_piaui().isoformat(),
@@ -115,7 +118,8 @@ def novo():
 
 
 @bp.post("/novo")
-def criar():
+def criar() -> ResponseReturnValue:
+    """Grava o lançamento e credita o XP na mesma transação."""
     try:
         dados = validar_lancamento(request.form)
     except ErroValidacao as erro:
@@ -143,13 +147,15 @@ def criar():
 # ---------------------------------------------------------------------------
 
 @bp.get("/<int:lancamento_id>/editar")
-def editar(lancamento_id):
+def editar(lancamento_id: int) -> ResponseReturnValue:
+    """Formulário de edição de um lançamento do aluno."""
     lancamento = _buscar_ou_404(lancamento_id)
     return _render_form(_form_do_registro(lancamento), lancamento=lancamento)
 
 
 @bp.post("/<int:lancamento_id>/editar")
-def atualizar(lancamento_id):
+def atualizar(lancamento_id: int) -> ResponseReturnValue:
+    """Grava a edição de um lançamento do aluno."""
     lancamento = _buscar_ou_404(lancamento_id)
     # Na edição a chave de idempotência é a do registro original e não muda.
     dados_form = {**request.form.to_dict(), "chave_idempotencia": lancamento["chave_idempotencia"]}
@@ -174,13 +180,15 @@ def atualizar(lancamento_id):
 # ---------------------------------------------------------------------------
 
 @bp.get("/<int:lancamento_id>/excluir")
-def confirmar_exclusao(lancamento_id):
+def confirmar_exclusao(lancamento_id: int) -> ResponseReturnValue:
+    """Pede a confirmação antes de excluir o lançamento."""
     lancamento = _buscar_ou_404(lancamento_id)
     return render_template("aluno/lancamento_excluir.html", lancamento=lancamento)
 
 
 @bp.post("/<int:lancamento_id>/excluir")
-def excluir(lancamento_id):
+def excluir(lancamento_id: int) -> ResponseReturnValue:
+    """Exclui um lançamento do aluno."""
     with obter_conexao():
         apagou = _repo().excluir(_aluno_id(), lancamento_id)
     if not apagou:

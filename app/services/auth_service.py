@@ -1,5 +1,6 @@
 """Valida cadastro e login, faz hash de senha e controla o acesso por perfil (RNF04)."""
 import re
+from collections.abc import Mapping
 from typing import override
 
 from pwdlib import PasswordHash
@@ -54,7 +55,8 @@ class HasherLegadoWerkzeug(HasherProtocol):
 SENHAS = PasswordHash((Argon2Hasher(), HasherLegadoWerkzeug()))
 
 
-def validar_cadastro_aluno(dados) -> dict:
+def validar_cadastro_aluno(dados: Mapping[str, str]) -> dict:
+    """Valida o cadastro do aluno e devolve os dados normalizados."""
     erros = {}
     resultado = _validar_conta(dados, erros)
 
@@ -72,7 +74,8 @@ def validar_cadastro_aluno(dados) -> dict:
     return {**resultado, "codigo_turma": codigo}
 
 
-def validar_cadastro_professor(dados) -> dict:
+def validar_cadastro_professor(dados: Mapping[str, str]) -> dict:
+    """Valida o cadastro do professor e devolve os dados normalizados."""
     erros = {}
     resultado = _validar_conta(dados, erros)
     if erros:
@@ -80,7 +83,8 @@ def validar_cadastro_professor(dados) -> dict:
     return resultado
 
 
-def validar_login(dados) -> dict:
+def validar_login(dados: Mapping[str, str]) -> dict:
+    """Valida o formulário de login e devolve e-mail e senha."""
     email = texto_do_campo(dados, "email").lower()
     senha = dados.get("senha") or ""
     erros = {}
@@ -94,6 +98,7 @@ def validar_login(dados) -> dict:
 
 
 def gerar_hash_senha(senha: str) -> str:
+    """Gera o hash Argon2id da senha."""
     return SENHAS.hash(senha)
 
 
@@ -106,7 +111,7 @@ def conferir_senha(hash_senha: str, senha: str) -> tuple[bool, str | None]:
     return SENHAS.verify_and_update(senha, hash_senha)
 
 
-def _validar_conta(dados, erros) -> dict:
+def _validar_conta(dados: Mapping[str, str], erros: dict[str, str]) -> dict:
     """Campos comuns a aluno e professor: apelido, e-mail e senha."""
     apelido = texto_do_campo(dados, "apelido")
     email = texto_do_campo(dados, "email").lower()

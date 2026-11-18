@@ -1,4 +1,5 @@
 """Valida lançamentos (RN-07), calcula saldo e dispara a verificação de missões."""
+from collections.abc import Callable, Mapping
 from datetime import date, datetime, timedelta, timezone
 
 from app.services.erros import ErroValidacao
@@ -34,7 +35,7 @@ def hoje_no_piaui() -> date:
     return datetime.now(FUSO_PIAUI).date()
 
 
-def validar_lancamento(dados, hoje: date | None = None) -> dict:
+def validar_lancamento(dados: Mapping[str, str], hoje: date | None = None) -> dict:
     """Valida o formulário de lançamento e devolve os dados normalizados.
 
     Confere todos os campos antes de responder, para a tela mostrar todos os
@@ -62,7 +63,7 @@ def validar_lancamento(dados, hoje: date | None = None) -> dict:
     hoje = hoje or hoje_no_piaui()
     erros: dict[str, str] = {}
 
-    def campo(nome, conversor, *args):
+    def campo[T](nome: str, conversor: Callable[..., T], *args: object) -> T | None:
         try:
             return conversor(texto_do_campo(dados, nome), *args)
         except ValueError as erro:
@@ -104,14 +105,14 @@ def saldo(somas: dict) -> int:
     return somas["ENTRADA"] - somas["SAIDA"]
 
 
-def _converter_tipo(texto):
+def _converter_tipo(texto: str) -> str:
     tipo = TIPOS.get(texto.casefold())
     if tipo is None:
         raise ValueError("Escolha se é uma entrada ou um gasto.")
     return tipo
 
 
-def _converter_categoria(texto, tipo):
+def _converter_categoria(texto: str, tipo: str | None) -> str | None:
     if not texto:
         raise ValueError("Escolha uma categoria.")
     if tipo is None:  # o erro do tipo já foi informado; não dá para checar a categoria
@@ -125,7 +126,7 @@ def _converter_categoria(texto, tipo):
     raise ValueError("Escolha uma categoria da lista.")
 
 
-def _converter_data(texto, hoje):
+def _converter_data(texto: str, hoje: date) -> date:
     if not texto:
         return hoje  # RNF03: menos toques; sem data, vale o dia de hoje
     data = ler_data(texto)
@@ -134,7 +135,7 @@ def _converter_data(texto, hoje):
     return data
 
 
-def _converter_descricao(texto):
+def _converter_descricao(texto: str) -> str | None:
     if len(texto) > DESCRICAO_MAX:
         raise ValueError(f"A descrição pode ter no máximo {DESCRICAO_MAX} caracteres.")
     return texto or None

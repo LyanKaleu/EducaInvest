@@ -1,5 +1,7 @@
 """Gera código único de turma e valida o nome da turma (RF02)."""
+import random
 import secrets
+from collections.abc import Mapping
 from datetime import date, timedelta
 
 from app.services.erros import ErroValidacao
@@ -19,7 +21,8 @@ NOME_MAX = 60
 JANELA_FREQUENCIA_DIAS = 7
 
 
-def validar_turma(dados) -> dict:
+def validar_turma(dados: Mapping[str, str]) -> dict:
+    """Valida o formulário de nova turma e devolve o nome normalizado."""
     nome = texto_do_campo(dados, "nome")
     if not nome:
         raise ErroValidacao({"nome": "Dê um nome à turma."})
@@ -80,6 +83,7 @@ def painel_da_turma(alunos: list[dict], resumo_xp: dict, missoes: dict, hoje: da
     }
 
 
-def gerar_codigo_turma(aleatorio=None) -> str:
+def gerar_codigo_turma(aleatorio: random.Random | None = None) -> str:
+    """Gera o código de acesso da turma, sem letras que se confundem."""
     aleatorio = aleatorio or secrets.SystemRandom()
     return "".join(aleatorio.choice(ALFABETO_CODIGO) for _ in range(TAMANHO_CODIGO))

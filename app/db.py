@@ -1,7 +1,7 @@
 """Conexão com o SQLite: abre o banco, cria as tabelas e entrega uma conexão por requisição."""
 import sqlite3
 
-from flask import current_app, g
+from flask import Flask, current_app, g
 
 from app.repositories.lancamento_repo import LancamentoRepository
 from app.repositories.meta_repo import MetaRepository
@@ -39,13 +39,13 @@ def obter_conexao() -> sqlite3.Connection:
     return g.db
 
 
-def fechar_conexao(_erro=None) -> None:
+def fechar_conexao(_erro: BaseException | None = None) -> None:
     """Fecha a conexão ao fim da requisição. O que não teve commit é descartado."""
     conn = g.pop("db", None)
     if conn is not None:
         conn.close()
 
 
-def init_app(app) -> None:
+def init_app(app: Flask) -> None:
     """Liga o fechamento automático da conexão ao ciclo de cada requisição."""
     app.teardown_appcontext(fechar_conexao)

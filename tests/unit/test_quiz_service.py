@@ -19,16 +19,16 @@ PERGUNTA = {
 # Correção
 # ---------------------------------------------------------------------------
 
-def test_alternativa_certa_e_acerto():
+def test_alternativa_certa_e_acerto() -> None:
     assert quiz_service.corrigir(PERGUNTA, "b") is True
 
 
-def test_alternativa_errada_e_erro():
+def test_alternativa_errada_e_erro() -> None:
     assert quiz_service.corrigir(PERGUNTA, "a") is False
 
 
 @pytest.mark.parametrize("escolha", [None, "", "   "])
-def test_enviar_sem_escolher_pede_uma_alternativa(escolha):
+def test_enviar_sem_escolher_pede_uma_alternativa(escolha: str | None) -> None:
     with pytest.raises(ErroValidacao) as erro:
         quiz_service.corrigir(PERGUNTA, escolha)
 
@@ -36,7 +36,7 @@ def test_enviar_sem_escolher_pede_uma_alternativa(escolha):
 
 
 @pytest.mark.parametrize("escolha", ["e", "B", "correta"])
-def test_alternativa_que_nao_e_da_pergunta_e_recusada(escolha):
+def test_alternativa_que_nao_e_da_pergunta_e_recusada(escolha: str) -> None:
     with pytest.raises(ErroValidacao) as erro:
         quiz_service.corrigir(PERGUNTA, escolha)
 
@@ -48,7 +48,7 @@ def test_alternativa_que_nao_e_da_pergunta_e_recusada(escolha):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize(("ganho_hoje", "esperado"), [(0, 10), (30, 10), (35, 5), (40, 0), (55, 0)])
-def test_xp_do_acerto_respeita_o_teto_diario(ganho_hoje, esperado):
+def test_xp_do_acerto_respeita_o_teto_diario(ganho_hoje: int, esperado: int) -> None:
     assert quiz_service.xp_do_acerto(ganho_hoje) == esperado
 
 
@@ -57,7 +57,7 @@ def test_xp_do_acerto_respeita_o_teto_diario(ganho_hoje, esperado):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("pergunta", quiz_service.PERGUNTAS, ids=lambda p: p["codigo"])
-def test_cada_pergunta_tem_4_alternativas_e_a_correta_entre_elas(pergunta):
+def test_cada_pergunta_tem_4_alternativas_e_a_correta_entre_elas(pergunta: dict) -> None:
     assert list(pergunta["alternativas"]) == ["a", "b", "c", "d"]
     assert all(texto.strip() for texto in pergunta["alternativas"].values())
     assert len(set(pergunta["alternativas"].values())) == 4, "alternativas repetidas"
@@ -67,7 +67,7 @@ def test_cada_pergunta_tem_4_alternativas_e_a_correta_entre_elas(pergunta):
     assert pergunta["explicacao"].strip()
 
 
-def test_banco_tem_3_perguntas_por_tema_e_codigos_unicos():
+def test_banco_tem_3_perguntas_por_tema_e_codigos_unicos() -> None:
     codigos = [pergunta["codigo"] for pergunta in quiz_service.PERGUNTAS]
     por_tema = dict.fromkeys(quiz_service.TEMAS, 0)
     for pergunta in quiz_service.PERGUNTAS:
@@ -77,12 +77,12 @@ def test_banco_tem_3_perguntas_por_tema_e_codigos_unicos():
     assert por_tema == {"JUROS": 3, "CREDITO": 3, "ORCAMENTO": 3, "INFLACAO": 3}
 
 
-def test_a_alternativa_certa_nao_e_sempre_a_mesma_letra():
+def test_a_alternativa_certa_nao_e_sempre_a_mesma_letra() -> None:
     # Se a certa fosse sempre "b", o aluno acertaria sem ler.
     assert len({pergunta["correta"] for pergunta in quiz_service.PERGUNTAS}) == 4
 
 
-def test_situacao_marca_nova_acertou_e_errou_pelas_respostas_do_aluno():
+def test_situacao_marca_nova_acertou_e_errou_pelas_respostas_do_aluno() -> None:
     respostas = {"JUROS_1": True, "CREDITO_2": False}
 
     status = {item["codigo"]: item["status"] for item in quiz_service.situacao(respostas)}
@@ -93,7 +93,7 @@ def test_situacao_marca_nova_acertou_e_errou_pelas_respostas_do_aluno():
     assert len(status) == 12
 
 
-def test_buscar_devolve_a_pergunta_pelo_codigo_ou_none():
+def test_buscar_devolve_a_pergunta_pelo_codigo_ou_none() -> None:
     primeira = quiz_service.PERGUNTAS[0]
 
     assert quiz_service.buscar(primeira["codigo"]) == primeira

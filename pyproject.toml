@@ -96,6 +96,7 @@ ignore = [
     "D",        # o nome do teste já é a frase do que ele verifica
     "S105", "S106",  # senhas de teste
     "S311",     # random.Random(42) fixo de propósito, para reproduzir o código da turma
+    "FBT001",   # argumento do parametrize: o pytest passa pelo nome, nunca por posição
 ]
 
 [tool.ruff.lint.pydocstyle]

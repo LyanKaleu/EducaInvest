@@ -27,7 +27,7 @@ CREATE INDEX IF NOT EXISTS ix_lancamentos_aluno_data
 """
 
 
-def _escapar_like(texto):
+def _escapar_like(texto: str) -> str:
     """Faz '%' e '_' digitados pelo usuário serem procurados literalmente no LIKE."""
     return texto.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
@@ -39,7 +39,7 @@ class LancamentoRepository:
     Assim, no futuro, o lançamento e o XP podem ser gravados juntos (spec, HU3).
     """
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection) -> None:
         """Cria o repositório sobre uma conexão já aberta.
 
         Args:
@@ -60,8 +60,8 @@ class LancamentoRepository:
         """
         conn.executescript(SQL_CRIAR_TABELA)
 
-    def criar(self, aluno_id, *, tipo, categoria, valor_centavos, data_lancamento,
-              chave_idempotencia, descricao=None) -> dict:
+    def criar(self, aluno_id: int, *, tipo: str, categoria: str, valor_centavos: int, data_lancamento: str,
+              chave_idempotencia: str, descricao: str | None = None) -> dict:
         """Insere um lançamento, ou devolve o já existente se a chave se repetir.
 
         Se o mesmo aluno enviar de novo a mesma `chave_idempotencia` (por
@@ -102,7 +102,7 @@ class LancamentoRepository:
         ).fetchone()
         return linha_para_dict(linha)
 
-    def listar(self, aluno_id, busca=None) -> list[dict]:
+    def listar(self, aluno_id: int, busca: str | None = None) -> list[dict]:
         """Lista os lançamentos de um aluno, do mais recente para o mais antigo.
 
         Args:
@@ -127,7 +127,7 @@ class LancamentoRepository:
         ).fetchall()
         return [dict(linha) for linha in linhas]
 
-    def buscar(self, aluno_id, lancamento_id) -> dict | None:
+    def buscar(self, aluno_id: int, lancamento_id: int) -> dict | None:
         """Busca um lançamento pelo id, só entre os do aluno informado.
 
         Args:
@@ -144,7 +144,7 @@ class LancamentoRepository:
         ).fetchone()
         return linha_para_dict(linha)
 
-    def contar_por_tipo(self, aluno_id) -> dict:
+    def contar_por_tipo(self, aluno_id: int) -> dict:
         """Quantos lançamentos o aluno tem de cada tipo (critério das missões).
 
         Args:
@@ -159,7 +159,7 @@ class LancamentoRepository:
         ).fetchall()
         return {"ENTRADA": 0, "SAIDA": 0, **{linha["tipo"]: linha["qtd"] for linha in linhas}}
 
-    def somar_por_tipo(self, aluno_id) -> dict:
+    def somar_por_tipo(self, aluno_id: int) -> dict:
         """Total em centavos dos lançamentos do aluno, por tipo (base do saldo).
 
         Args:
@@ -174,7 +174,7 @@ class LancamentoRepository:
         ).fetchall()
         return {"ENTRADA": 0, "SAIDA": 0, **{linha["tipo"]: linha["total"] for linha in linhas}}
 
-    def atualizar(self, aluno_id, lancamento_id, campos: dict) -> bool:
+    def atualizar(self, aluno_id: int, lancamento_id: int, campos: dict) -> bool:
         """Altera colunas de um lançamento do aluno. Não faz commit.
 
         Args:
@@ -207,7 +207,7 @@ class LancamentoRepository:
         )
         return cursor.rowcount == 1
 
-    def excluir(self, aluno_id, lancamento_id) -> bool:
+    def excluir(self, aluno_id: int, lancamento_id: int) -> bool:
         """Apaga um lançamento do aluno. Não faz commit.
 
         Args:

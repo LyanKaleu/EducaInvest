@@ -1,4 +1,8 @@
-"""Filtros Jinja usados em todas as telas: dinheiro e data no formato brasileiro."""
+"""Filtros Jinja usados em todas as telas: dinheiro e data no formato brasileiro.
+
+Funções puras, sem Flask: o meta_service também usa `reais`. O registro no Jinja
+fica em create_app (app/__init__.py).
+"""
 
 
 def reais(centavos: int) -> str:
@@ -14,8 +18,3 @@ def data_br(data_iso: str) -> str:
     ano, mes, dia = data_iso.split("-")
     return f"{dia}/{mes}/{ano}"
 
-
-def registrar_filtros(app) -> None:
-    """Disponibiliza `reais` e `data_br` em todos os templates do app."""
-    app.add_template_filter(reais, "reais")
-    app.add_template_filter(data_br, "data_br")

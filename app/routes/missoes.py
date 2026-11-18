@@ -2,6 +2,7 @@
 import sqlite3
 
 from flask import Blueprint, flash, render_template, session
+from flask.typing import ResponseReturnValue
 
 from app.db import obter_conexao
 from app.repositories.lancamento_repo import LancamentoRepository
@@ -19,7 +20,8 @@ exigir_aluno = bp.before_request(exigir_perfil(PERFIL_ALUNO))
 
 
 @bp.get("/")
-def listar():
+def listar() -> ResponseReturnValue:
+    """Trilha de missões do aluno, com XP total e nível."""
     conn = obter_conexao()
     aluno_id = session["usuario_id"]
     contagens = LancamentoRepository(conn).contar_por_tipo(aluno_id)
@@ -42,7 +44,7 @@ def listar():
 # Progresso: chamado pelas rotas de lançamento, DENTRO da transação delas
 # ---------------------------------------------------------------------------
 
-def registrar_progresso(conn: sqlite3.Connection, aluno_id: int, lancamento_id=None) -> dict:
+def registrar_progresso(conn: sqlite3.Connection, aluno_id: int, lancamento_id: int | None = None) -> dict:
     """Credita o XP do lançamento, conclui as missões cumpridas e detecta a subida de nível.
 
     Não faz commit: chame dentro do mesmo `with conn:` que gravou o lançamento,

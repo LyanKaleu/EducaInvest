@@ -9,6 +9,7 @@ from flask import (
     session,
     url_for,
 )
+from flask.typing import ResponseReturnValue
 
 from app.db import obter_conexao
 from app.repositories.missao_repo import MissaoRepository
@@ -35,7 +36,7 @@ def _repo() -> TurmaRepository:
     return TurmaRepository(obter_conexao())
 
 
-def _render_turmas(erros=None, status=200):
+def _render_turmas(erros: dict[str, str] | None = None, status: int = 200) -> ResponseReturnValue:
     turmas = _repo().listar_do_professor(session["usuario_id"])
     html = render_template("professor/turmas.html", turmas=turmas,
                            form=request.form, erros=erros or {})
@@ -43,12 +44,14 @@ def _render_turmas(erros=None, status=200):
 
 
 @bp.get("/turmas")
-def turmas():
+def turmas() -> ResponseReturnValue:
+    """Lista as turmas do professor."""
     return _render_turmas()
 
 
 @bp.post("/turmas")
-def criar_turma():
+def criar_turma() -> ResponseReturnValue:
+    """Cria uma turma do professor com um código de acesso novo."""
     professor_id = session["usuario_id"]
     try:
         dados = validar_turma(request.form)
@@ -71,7 +74,8 @@ def criar_turma():
 
 
 @bp.get("/turmas/<int:turma_id>")
-def turma(turma_id):
+def turma(turma_id: int) -> ResponseReturnValue:
+    """Painel da turma: agregados e uma linha por aluno, sem reais nem e-mail."""
     # Turma de outro professor também dá 404: não revela que o id existe.
     registro = _repo().buscar_do_professor(session["usuario_id"], turma_id)
     if registro is None:

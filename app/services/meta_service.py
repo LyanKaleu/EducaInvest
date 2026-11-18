@@ -1,4 +1,5 @@
 """Valida metas e aportes e calcula o progresso percentual (RN-08)."""
+from collections.abc import Callable, Mapping
 from datetime import date
 
 from app.filtros import reais
@@ -14,7 +15,7 @@ from app.services.lancamento_service import hoje_no_piaui
 NOME_MAX = 60  # o mesmo CHECK da tabela metas
 
 
-def validar_meta(dados, hoje: date | None = None) -> dict:
+def validar_meta(dados: Mapping[str, str], hoje: date | None = None) -> dict:
     """Valida o formulário de nova meta e devolve os dados normalizados.
 
     Confere todos os campos antes de responder, para a tela mostrar todos os
@@ -37,7 +38,7 @@ def validar_meta(dados, hoje: date | None = None) -> dict:
     hoje = hoje or hoje_no_piaui()
     erros: dict[str, str] = {}
 
-    def campo(nome, conversor, *args):
+    def campo[T](nome: str, conversor: Callable[..., T], *args: object) -> T | None:
         try:
             return conversor(texto_do_campo(dados, nome), *args)
         except ValueError as erro:
@@ -60,7 +61,7 @@ def validar_meta(dados, hoje: date | None = None) -> dict:
     }
 
 
-def validar_aporte(dados) -> dict:
+def validar_aporte(dados: Mapping[str, str]) -> dict:
     """Valida o formulário de aporte (campos `valor` e `chave_idempotencia`).
 
     Returns:
@@ -154,7 +155,7 @@ def resumo(metas: list[dict]) -> dict:
     }
 
 
-def _converter_nome(texto):
+def _converter_nome(texto: str) -> str:
     if not texto:
         raise ValueError("Dê um nome para a meta.")
     if len(texto) > NOME_MAX:
@@ -162,7 +163,7 @@ def _converter_nome(texto):
     return texto
 
 
-def _converter_prazo(texto, hoje):
+def _converter_prazo(texto: str, hoje: date) -> date | None:
     if not texto:
         return None
     prazo = ler_data(texto)

@@ -11,6 +11,7 @@ from flask import (
     session,
     url_for,
 )
+from flask.typing import ResponseReturnValue
 
 from app.db import obter_conexao
 from app.repositories.turma_repo import TurmaRepository
@@ -47,7 +48,7 @@ def destino_do_perfil(perfil: str) -> str:
     return url_for("professor.turmas") if perfil == auth_service.PERFIL_PROFESSOR else url_for("painel.ver")
 
 
-def _iniciar_sessao(usuario: dict):
+def _iniciar_sessao(usuario: dict) -> ResponseReturnValue:
     session.clear()  # descarta qualquer sessão anterior (evita fixação de sessão)
     session["usuario_id"] = usuario["id"]
     session["perfil"] = usuario["perfil"]
@@ -55,14 +56,14 @@ def _iniciar_sessao(usuario: dict):
     return redirect(destino_do_perfil(usuario["perfil"]))
 
 
-def _render_cadastro(*, professor: bool, erros=None, status=200):
+def _render_cadastro(*, professor: bool, erros: dict[str, str] | None = None, status: int = 200) -> ResponseReturnValue:
     # Nunca devolve a senha para a página: o template não preenche esse campo.
     html = render_template("auth/cadastro.html", professor=professor,
                            form=request.form, erros=erros or {})
     return html, status
 
 
-def _cadastro_invalido(erros: dict, *, professor: bool):
+def _cadastro_invalido(erros: dict, *, professor: bool) -> ResponseReturnValue:
     """Avisa o erro (flash) e devolve o formulário de cadastro preenchido, com 400."""
     flash(MSG_ERRO_FORM, "erro")
     return _render_cadastro(professor=professor, erros=erros, status=400)
@@ -73,12 +74,14 @@ def _cadastro_invalido(erros: dict, *, professor: bool):
 # ---------------------------------------------------------------------------
 
 @bp.get("/cadastro")
-def cadastro():
+def cadastro() -> ResponseReturnValue:
+    """Formulário de cadastro do aluno."""
     return _render_cadastro(professor=False)
 
 
 @bp.post("/cadastro")
-def cadastrar_aluno():
+def cadastrar_aluno() -> ResponseReturnValue:
+    """Cadastra o aluno na turma do código e já entra na conta."""
     usuarios = UsuarioRepository(obter_conexao())
     turmas = TurmaRepository(obter_conexao())
     try:
@@ -106,12 +109,14 @@ def cadastrar_aluno():
 
 
 @bp.get("/cadastro/professor")
-def cadastro_professor():
+def cadastro_professor() -> ResponseReturnValue:
+    """Formulário de cadastro do professor."""
     return _render_cadastro(professor=True)
 
 
 @bp.post("/cadastro/professor")
-def cadastrar_professor():
+def cadastrar_professor() -> ResponseReturnValue:
+    """Cadastra o professor e já entra na conta."""
     usuarios = UsuarioRepository(obter_conexao())
     try:
         dados = auth_service.validar_cadastro_professor(request.form)
@@ -134,12 +139,14 @@ def cadastrar_professor():
 # ---------------------------------------------------------------------------
 
 @bp.get("/login")
-def login():
+def login() -> ResponseReturnValue:
+    """Formulário de login."""
     return render_template("auth/login.html", form={}, erros={})
 
 
 @bp.post("/login")
-def entrar():
+def entrar() -> ResponseReturnValue:
+    """Confere e-mail e senha, com limite de tentativas, e abre a sessão."""
     try:
         dados = auth_service.validar_login(request.form)
     except ErroValidacao as erro:
@@ -170,6 +177,7 @@ def entrar():
 
 
 @bp.post("/logout")
-def sair():
+def sair() -> ResponseReturnValue:
+    """Encerra a sessão e volta para o login."""
     session.clear()
     return redirect(url_for("auth.login"))

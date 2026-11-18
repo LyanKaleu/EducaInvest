@@ -1,5 +1,6 @@
 """SQL do livro-razão de XP: único lugar com SQL desta entidade (INVARIANTES N6)."""
 import sqlite3
+from collections.abc import Iterable
 from datetime import date
 
 # Livro-razão: o XP só entra por INSERT, e cada origem pontua uma vez por aluno.
@@ -36,7 +37,7 @@ class XpRepository:
     o gerou (spec, HU3 "falha parcial").
     """
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection) -> None:
         """Cria o repositório sobre uma conexão já aberta."""
         self.conn = conn
 
@@ -45,7 +46,7 @@ class XpRepository:
         """Cria a tabela `xp_eventos`, seu índice e os gatilhos, se ainda não existirem."""
         conn.executescript(SQL_CRIAR_TABELA)
 
-    def creditar(self, aluno_id, origem, origem_id, pontos, dia_ref) -> bool:
+    def creditar(self, aluno_id: int, origem: str, origem_id: int | str, pontos: int, dia_ref: str) -> bool:
         """Registra XP para o aluno, se essa origem ainda não pontuou. Não faz commit.
 
         Args:
@@ -71,7 +72,7 @@ class XpRepository:
         )
         return cursor.rowcount == 1
 
-    def pontos_no_dia(self, aluno_id, origem, dia_ref) -> int:
+    def pontos_no_dia(self, aluno_id: int, origem: str, dia_ref: str) -> int:
         """Soma do XP que o aluno ganhou com `origem` no dia `dia_ref` (para o teto diário)."""
         linha = self.conn.execute(
             """
@@ -82,7 +83,7 @@ class XpRepository:
         ).fetchone()
         return linha[0]
 
-    def total(self, aluno_id) -> int:
+    def total(self, aluno_id: int) -> int:
         """Soma de todo o XP do aluno (0 se ele ainda não ganhou nada)."""
         linha = self.conn.execute(
             "SELECT COALESCE(SUM(pontos), 0) FROM xp_eventos WHERE aluno_id = ?",
@@ -90,7 +91,7 @@ class XpRepository:
         ).fetchone()
         return linha[0]
 
-    def resumo_por_aluno(self, aluno_ids) -> dict[int, dict]:
+    def resumo_por_aluno(self, aluno_ids: Iterable[int]) -> dict[int, dict]:
         """XP total e último dia com XP de cada aluno, para o painel da turma (HU5).
 
         Args:
@@ -119,7 +120,7 @@ class XpRepository:
             for linha in linhas
         }
 
-    def dias_ativos(self, aluno_id) -> set[date]:
+    def dias_ativos(self, aluno_id: int) -> set[date]:
         """Dias (fuso do Piauí) em que o aluno ganhou algum XP, sem repetição (RN-13)."""
         linhas = self.conn.execute(
             "SELECT DISTINCT dia_ref FROM xp_eventos WHERE aluno_id = ?",

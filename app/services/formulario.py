@@ -5,13 +5,14 @@ normalizado, ou levantam ValueError com a mensagem que o aluno vai ler.
 """
 import re
 import uuid
+from collections.abc import Mapping
 from datetime import date
 from decimal import Decimal
 
 VALOR_MAXIMO_CENTAVOS = 10_000_000  # R$ 100.000,00: barra erros de digitação. A confirmar.
 
 
-def texto_do_campo(dados, nome: str) -> str:
+def texto_do_campo(dados: Mapping[str, str], nome: str) -> str:
     """Lê um campo de texto e remove os espaços das pontas.
 
     Args:

@@ -11,6 +11,7 @@ from flask import (
     session,
     url_for,
 )
+from flask.typing import ResponseReturnValue
 
 from app.db import obter_conexao
 from app.filtros import reais
@@ -55,7 +56,7 @@ def _com_progresso(meta: dict) -> dict:
 # Listar
 # ---------------------------------------------------------------------------
 
-def _render_lista(aporte_com_erro=None, status=200):
+def _render_lista(aporte_com_erro: dict | None = None, status: int = 200) -> ResponseReturnValue:
     """Lista de metas. `aporte_com_erro` traz `meta_id`, `erros` e `form` do aporte recusado."""
     metas = [_com_progresso(meta) for meta in _repo().listar(_aluno_id())]
     html = render_template("aluno/metas.html", metas=metas, resumo=meta_service.resumo(metas),
@@ -64,7 +65,8 @@ def _render_lista(aporte_com_erro=None, status=200):
 
 
 @bp.get("/")
-def listar():
+def listar() -> ResponseReturnValue:
+    """Lista as metas do aluno, com o resumo e os atalhos de aporte."""
     return _render_lista()
 
 
@@ -77,18 +79,20 @@ def _nova_chave() -> str:
 # Criar
 # ---------------------------------------------------------------------------
 
-def _render_form(form, erros=None, status=200):
+def _render_form(form: dict[str, str], erros: dict[str, str] | None = None, status: int = 200) -> ResponseReturnValue:
     return render_template("aluno/meta_form.html", form=form, erros=erros or {}), status
 
 
 @bp.get("/nova")
-def nova():
+def nova() -> ResponseReturnValue:
+    """Formulário de nova meta, já com a chave de idempotência."""
     # A chave evita duplicar a meta se o envio for repetido (N2).
     return _render_form({"chave_idempotencia": str(uuid.uuid4())})
 
 
 @bp.post("/nova")
-def criar():
+def criar() -> ResponseReturnValue:
+    """Grava a meta do aluno."""
     try:
         dados = meta_service.validar_meta(request.form)
     except ErroValidacao as erro:
@@ -105,13 +109,13 @@ def criar():
 # Aportar
 # ---------------------------------------------------------------------------
 
-def _aporte_recusado(meta_id, erro: ErroValidacao):
+def _aporte_recusado(meta_id: int, erro: ErroValidacao) -> ResponseReturnValue:
     # A lista volta com o erro no campo e o valor e a chave preservados (nada foi gravado).
     flash(MSG_ERRO_APORTE, "erro")
     return _render_lista({"meta_id": meta_id, "erros": erro.erros, "form": request.form}, 400)
 
 
-def _recusa_do_aporte(meta: dict, dados: dict):
+def _recusa_do_aporte(meta: dict, dados: dict) -> ResponseReturnValue | None:
     """Resposta 400 se a meta já concluiu ou o aporte passa do que falta; None se cabe."""
     if meta["concluida"]:  # meta cheia fecha: não aceita mais aportes
         flash("Essa meta já foi concluída.", "erro")
@@ -126,7 +130,8 @@ def _recusa_do_aporte(meta: dict, dados: dict):
 
 
 @bp.post("/<int:meta_id>/aportes")
-def aportar(meta_id):
+def aportar(meta_id: int) -> ResponseReturnValue:
+    """Registra um aporte na meta, limitado ao que falta para o alvo."""
     meta = _com_progresso(_buscar_ou_404(meta_id))
     try:
         dados = meta_service.validar_aporte(request.form)

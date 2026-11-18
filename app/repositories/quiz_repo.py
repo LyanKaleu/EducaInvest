@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS quiz_respostas (
 class QuizRepository:
     """Respostas de quiz por aluno. NÃO faz commit: quem chama decide a transação."""
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection) -> None:
         """Cria o repositório sobre uma conexão já aberta."""
         self.conn = conn
 
@@ -28,7 +28,7 @@ class QuizRepository:
         conn.executescript(SQL_CRIAR_TABELA)
 
     def responder(
-        self, aluno_id, pergunta_codigo, alternativa, *, correta: bool
+        self, aluno_id: int, pergunta_codigo: str, alternativa: str, *, correta: bool
     ) -> bool:
         """Grava a resposta do aluno, se ele ainda não respondeu essa pergunta. Não faz commit.
 
@@ -45,7 +45,7 @@ class QuizRepository:
         )
         return cursor.rowcount == 1
 
-    def resposta(self, aluno_id, pergunta_codigo) -> dict | None:
+    def resposta(self, aluno_id: int, pergunta_codigo: str) -> dict | None:
         """Resposta do aluno a uma pergunta: {"alternativa", "correta"}, ou None se não respondeu."""
         linha = self.conn.execute(
             """
@@ -58,7 +58,7 @@ class QuizRepository:
             return None
         return {"alternativa": linha["alternativa"], "correta": bool(linha["correta"])}
 
-    def acertos_por_pergunta(self, aluno_id) -> dict[str, bool]:
+    def acertos_por_pergunta(self, aluno_id: int) -> dict[str, bool]:
         """{código: acertou} de todas as perguntas que o aluno já respondeu."""
         linhas = self.conn.execute(
             "SELECT pergunta_codigo, correta FROM quiz_respostas WHERE aluno_id = ?",

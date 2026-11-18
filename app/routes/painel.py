@@ -1,5 +1,6 @@
 """Rota da tela inicial do aluno: saldo, XP, nível, sequência de dias, missão e meta em andamento."""
 from flask import Blueprint, render_template, session
+from flask.typing import ResponseReturnValue
 
 from app.db import obter_conexao
 from app.repositories.lancamento_repo import LancamentoRepository
@@ -23,7 +24,8 @@ exigir_aluno = bp.before_request(exigir_perfil(PERFIL_ALUNO))
 
 
 @bp.get("/")
-def ver():
+def ver() -> ResponseReturnValue:
+    """Tela inicial do aluno: saldo, XP, nível, sequência, missão e meta."""
     conn = obter_conexao()
     aluno_id = session["usuario_id"]
     lancamentos = LancamentoRepository(conn)

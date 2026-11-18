@@ -47,7 +47,7 @@ class MetaRepository:
     O repositório NÃO faz commit: quem chama decide a transação com `with conn:`.
     """
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection) -> None:
         """Cria o repositório sobre uma conexão já aberta (com `row_factory = sqlite3.Row`)."""
         self.conn = conn
 
@@ -56,7 +56,7 @@ class MetaRepository:
         """Cria as tabelas `metas` e `aportes_meta`, se ainda não existirem."""
         conn.executescript(SQL_CRIAR_TABELA)
 
-    def criar(self, aluno_id, nome, valor_alvo_centavos, prazo, chave_idempotencia) -> dict:
+    def criar(self, aluno_id: int, nome: str, valor_alvo_centavos: int, prazo: str | None, chave_idempotencia: str) -> dict:
         """Insere uma meta, ou devolve a já existente se a chave se repetir. Não faz commit.
 
         Args:
@@ -86,7 +86,7 @@ class MetaRepository:
         ).fetchone()
         return linha_para_dict(linha)
 
-    def listar(self, aluno_id) -> list[dict]:
+    def listar(self, aluno_id: int) -> list[dict]:
         """Metas do aluno, da mais recente para a mais antiga, com `guardado_centavos`.
 
         Returns:
@@ -95,14 +95,14 @@ class MetaRepository:
         linhas = self.conn.execute(SQL_METAS_COM_GUARDADO.format(filtro=""), (aluno_id,)).fetchall()
         return [dict(linha) for linha in linhas]
 
-    def buscar(self, aluno_id, meta_id) -> dict | None:
+    def buscar(self, aluno_id: int, meta_id: int) -> dict | None:
         """Uma meta do aluno com `guardado_centavos`, ou None se não existir ou for de outro aluno."""
         linha = self.conn.execute(
             SQL_METAS_COM_GUARDADO.format(filtro="AND m.id = ?"), (aluno_id, meta_id)
         ).fetchone()
         return linha_para_dict(linha)
 
-    def aporte_registrado(self, aluno_id, meta_id, chave_idempotencia) -> bool:
+    def aporte_registrado(self, aluno_id: int, meta_id: int, chave_idempotencia: str) -> bool:
         """Se este envio (chave) já gravou um aporte nesta meta do aluno (reenvio, N2)."""
         linha = self.conn.execute(
             """
@@ -113,7 +113,7 @@ class MetaRepository:
         ).fetchone()
         return linha is not None
 
-    def aportar(self, aluno_id, meta_id, valor_centavos, chave_idempotencia) -> bool:
+    def aportar(self, aluno_id: int, meta_id: int, valor_centavos: int, chave_idempotencia: str) -> bool:
         """Registra um aporte numa meta do aluno. Não faz commit.
 
         O INSERT só acontece se a meta for do aluno e o aporte couber no que

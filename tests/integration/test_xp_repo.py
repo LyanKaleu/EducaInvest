@@ -1,5 +1,6 @@
 """Garantias do banco no XP e nas missões concluídas (INVARIANTES N6), sem passar pela rota."""
 import sqlite3
+from collections.abc import Iterator
 from datetime import date
 
 import pytest
@@ -12,32 +13,32 @@ DIA = "2026-11-04"
 
 
 @pytest.fixture
-def conn():
+def conn() -> Iterator[sqlite3.Connection]:
     conexao = conectar(":memory:")
     yield conexao
     conexao.close()
 
 
 @pytest.fixture
-def repo(conn):
+def repo(conn: sqlite3.Connection) -> XpRepository:
     return XpRepository(conn)
 
 
-def test_mesma_origem_pontua_uma_vez_so(repo):
+def test_mesma_origem_pontua_uma_vez_so(repo: XpRepository) -> None:
     assert repo.creditar(aluno_id=1, origem="MISSAO", origem_id="REG_3_GASTOS", pontos=30, dia_ref=DIA)
     assert not repo.creditar(aluno_id=1, origem="MISSAO", origem_id="REG_3_GASTOS", pontos=30, dia_ref=DIA)
 
     assert repo.total(1) == 30
 
 
-def test_mesma_origem_pontua_para_alunos_diferentes(repo):
+def test_mesma_origem_pontua_para_alunos_diferentes(repo: XpRepository) -> None:
     repo.creditar(aluno_id=1, origem="MISSAO", origem_id="REG_3_GASTOS", pontos=30, dia_ref=DIA)
     repo.creditar(aluno_id=2, origem="MISSAO", origem_id="REG_3_GASTOS", pontos=30, dia_ref=DIA)
 
     assert (repo.total(1), repo.total(2)) == (30, 30)
 
 
-def test_pontos_no_dia_somam_so_a_origem_e_o_dia_pedidos(repo):
+def test_pontos_no_dia_somam_so_a_origem_e_o_dia_pedidos(repo: XpRepository) -> None:
     repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="1", pontos=10, dia_ref=DIA)
     repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="2", pontos=10, dia_ref=DIA)
     repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="3", pontos=10, dia_ref="2026-11-03")
@@ -46,26 +47,26 @@ def test_pontos_no_dia_somam_so_a_origem_e_o_dia_pedidos(repo):
     assert repo.pontos_no_dia(1, "LANCAMENTO", DIA) == 20
 
 
-def test_banco_recusa_pontos_zero_ou_negativos(repo):
+def test_banco_recusa_pontos_zero_ou_negativos(repo: XpRepository) -> None:
     with pytest.raises(sqlite3.IntegrityError):
         repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="1", pontos=-10, dia_ref=DIA)
 
 
-def test_banco_recusa_apagar_xp(repo, conn):
+def test_banco_recusa_apagar_xp(repo: XpRepository, conn: sqlite3.Connection) -> None:
     repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="1", pontos=10, dia_ref=DIA)
 
     with pytest.raises(sqlite3.IntegrityError, match="XP nunca diminui"):
         conn.execute("DELETE FROM xp_eventos")
 
 
-def test_banco_recusa_alterar_xp(repo, conn):
+def test_banco_recusa_alterar_xp(repo: XpRepository, conn: sqlite3.Connection) -> None:
     repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="1", pontos=10, dia_ref=DIA)
 
     with pytest.raises(sqlite3.IntegrityError, match="XP nunca diminui"):
         conn.execute("UPDATE xp_eventos SET pontos = 1")
 
 
-def test_missao_conclui_uma_vez_so_por_aluno(conn):
+def test_missao_conclui_uma_vez_so_por_aluno(conn: sqlite3.Connection) -> None:
     # Garantia própria da PK de missoes_concluidas, sem depender do service nem do XP.
     repo = MissaoRepository(conn)
 
@@ -75,7 +76,7 @@ def test_missao_conclui_uma_vez_so_por_aluno(conn):
     assert repo.concluidas(1) == {"REG_3_GASTOS"}
 
 
-def test_dias_ativos_sao_distintos_e_so_do_aluno(repo):
+def test_dias_ativos_sao_distintos_e_so_do_aluno(repo: XpRepository) -> None:
     repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="1", pontos=10, dia_ref="2026-11-09")
     repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="2", pontos=10, dia_ref="2026-11-10")
     repo.creditar(aluno_id=1, origem="MISSAO", origem_id="REG_3_GASTOS", pontos=30, dia_ref="2026-11-10")
@@ -84,7 +85,7 @@ def test_dias_ativos_sao_distintos_e_so_do_aluno(repo):
     assert repo.dias_ativos(1) == {date(2026, 11, 9), date(2026, 11, 10)}
 
 
-def test_resumo_por_aluno_soma_o_xp_e_traz_o_ultimo_dia_ativo(repo):
+def test_resumo_por_aluno_soma_o_xp_e_traz_o_ultimo_dia_ativo(repo: XpRepository) -> None:
     repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="1", pontos=10, dia_ref="2026-11-01")
     repo.creditar(aluno_id=1, origem="MISSAO", origem_id="REG_3_GASTOS", pontos=30, dia_ref="2026-11-09")
     repo.creditar(aluno_id=1, origem="LANCAMENTO", origem_id="2", pontos=10, dia_ref="2026-11-05")

@@ -2,10 +2,14 @@
 import re
 import uuid
 from datetime import date
+from pathlib import Path
 
 import pytest
+from flask import Flask
+from flask.testing import FlaskClient
 from pwdlib import PasswordHash
 from pwdlib.hashers.argon2 import Argon2Hasher
+from werkzeug.test import TestResponse
 
 from app import create_app
 from app.services import auth_service
@@ -15,7 +19,7 @@ HOJE = date(2026, 11, 4)
 
 
 @pytest.fixture(autouse=True)
-def hash_de_senha_rapido(monkeypatch):
+def hash_de_senha_rapido(monkeypatch: pytest.MonkeyPatch) -> None:
     """Troca o Argon2id de produção (64 MiB, lento de propósito) por um barato, só nos testes."""
     barato = Argon2Hasher(time_cost=1, memory_cost=8, parallelism=1)
     monkeypatch.setattr(auth_service, "SENHAS",
@@ -23,7 +27,7 @@ def hash_de_senha_rapido(monkeypatch):
 
 
 @pytest.fixture
-def form_valido():
+def form_valido() -> dict[str, str]:
     """Formulário de um gasto válido, como o navegador envia."""
     return {
         "tipo": "saida",
@@ -35,7 +39,7 @@ def form_valido():
     }
 
 
-def _criar_app(tmp_path, **config):
+def _criar_app(tmp_path: Path, **config: object) -> Flask:
     return create_app({
         "TESTING": True,
         "SECRET_KEY": "chave-de-teste",
@@ -47,19 +51,19 @@ def _criar_app(tmp_path, **config):
 
 
 @pytest.fixture
-def app(tmp_path):
+def app(tmp_path: Path) -> Flask:
     """App de teste com banco novo em uma pasta temporária a cada teste."""
     return _criar_app(tmp_path)
 
 
 @pytest.fixture
-def cliente(cliente_aluno):
+def cliente(cliente_aluno: FlaskClient) -> FlaskClient:
     """Cliente padrão dos testes de lançamentos: um aluno logado."""
     return cliente_aluno
 
 
 @pytest.fixture
-def cliente_outro_aluno(app, turma, cliente_aluno):  # noqa: ARG001
+def cliente_outro_aluno(app: Flask, turma: dict[str, int | str], cliente_aluno: FlaskClient) -> FlaskClient:  # noqa: ARG001
     """Segundo aluno, na mesma turma e no MESMO banco do primeiro."""
     # `cliente_aluno` só garante que o primeiro aluno se cadastra antes. Fixture não
     # aceita @pytest.mark.usefixtures, por isso o noqa do ARG001 acima.
@@ -69,7 +73,7 @@ def cliente_outro_aluno(app, turma, cliente_aluno):  # noqa: ARG001
 
 
 @pytest.fixture
-def cliente_sem_login(app):
+def cliente_sem_login(app: Flask) -> FlaskClient:
     return app.test_client()
 
 
@@ -80,39 +84,47 @@ def cliente_sem_login(app):
 SENHA = "senha-segura-123"
 
 
-def cadastrar_professor(cliente, email="prof.ana@escola.br", apelido="Prof. Ana"):
+def cadastrar_professor(
+    cliente: FlaskClient, email: str = "prof.ana@escola.br", apelido: str = "Prof. Ana"
+) -> TestResponse:
     return cliente.post("/cadastro/professor",
                         data={"apelido": apelido, "email": email, "senha": SENHA})
 
 
-def criar_turma(cliente_professor, nome="2º A"):
+def criar_turma(cliente_professor: FlaskClient, nome: str = "2º A") -> TestResponse:
     return cliente_professor.post("/professor/turmas", data={"nome": nome})
 
 
-def cadastrar_aluno(cliente, codigo, email="gabriel@escola.br", apelido="Gabriel", **extra):
+def cadastrar_aluno(
+    cliente: FlaskClient,
+    codigo: str,
+    email: str = "gabriel@escola.br",
+    apelido: str = "Gabriel",
+    **extra: str,
+) -> TestResponse:
     dados = {"apelido": apelido, "email": email, "senha": SENHA,
              "codigo_turma": codigo, "consentimento": "sim", **extra}
     return cliente.post("/cadastro", data=dados)
 
 
-def entrar(cliente, email, senha=SENHA):
+def entrar(cliente: FlaskClient, email: str, senha: str = SENHA) -> TestResponse:
     return cliente.post("/login", data={"email": email, "senha": senha})
 
 
 @pytest.fixture
-def cliente_anonimo(app):
+def cliente_anonimo(app: Flask) -> FlaskClient:
     return app.test_client()
 
 
 @pytest.fixture
-def cliente_professor(app):
+def cliente_professor(app: Flask) -> FlaskClient:
     cliente = app.test_client()
     cadastrar_professor(cliente)
     return cliente
 
 
 @pytest.fixture
-def turma(cliente_professor):
+def turma(cliente_professor: FlaskClient) -> dict[str, int | str]:
     """Cria a turma "2º A" e devolve {"id": ..., "codigo": ...} lidos da página de turmas."""
     criar_turma(cliente_professor)
     html = cliente_professor.get("/professor/turmas").get_data(as_text=True)
@@ -124,14 +136,14 @@ def turma(cliente_professor):
 
 
 @pytest.fixture
-def cliente_aluno(app, turma):
+def cliente_aluno(app: Flask, turma: dict[str, int | str]) -> FlaskClient:
     cliente = app.test_client()
     cadastrar_aluno(cliente, turma["codigo"])
     return cliente
 
 
 @pytest.fixture
-def lancamento_existente(cliente, form_valido):
+def lancamento_existente(cliente: FlaskClient, form_valido: dict[str, str]) -> dict[str, int]:
     """Gasto de R$ 25,00 do aluno logado, criado pela rota. Devolve {"id": ...}."""
     cliente.post("/lancamentos/novo", data=form_valido)
     html = cliente.get("/lancamentos/").get_data(as_text=True)
