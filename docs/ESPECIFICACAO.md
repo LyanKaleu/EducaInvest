@@ -35,7 +35,7 @@ O EducaInvest é um app web para jovens que estão começando a lidar com dinhei
 | RNF01 | Leve e tolerante a conexão instável | Páginas renderizadas no servidor, sem JavaScript. Todo formulário de criação leva uma chave de idempotência, então reenviar depois de uma falha de rede não duplica nada. Com erro, o formulário volta preenchido |
 | RNF02 | Privacidade (LGPD) | Coleta mínima (apelido, e-mail, senha, turma), sem CPF nem dados bancários. A autorização do aluno é obrigatória e fica gravada com data e hora. O professor nunca vê valores em reais nem e-mail |
 | RNF03 | Usabilidade | Registrar um gasto: *Início → Registrar gasto* (tipo e data já preenchidos) → valor, categoria e *Salvar*. Áreas de toque de 44px, contraste AA e mensagens junto ao campo |
-| RNF04 | Segurança | Senha com hash `scrypt`. Toda rota exige login e um perfil, e um meta-teste acusa rota nova sem proteção. Registro de outro usuário responde 404. Cookie de sessão `SameSite=Lax`. O HTTPS vem da hospedagem |
+| RNF04 | Segurança | Senha com hash Argon2id; a conta antiga, em `scrypt`, passa para Argon2id no primeiro login. Toda rota exige login e um perfil, e um meta-teste acusa rota nova sem proteção. Registro de outro usuário responde 404. Cookie de sessão `SameSite=Lax`. O HTTPS vem da hospedagem |
 
 ## 4. Regras de negócio
 

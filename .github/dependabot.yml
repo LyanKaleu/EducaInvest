@@ -1,0 +1,34 @@
+# Atualização de versões: uma vez por semana, um PR por ecossistema, sempre para a develop.
+# O gate roda no PR; só entra no merge se passar. Versão nova major vem em PR separado,
+# porque costuma quebrar algo e não deve travar as atualizações pequenas.
+# O GitHub lê este arquivo da branch padrão (main): passa a valer depois do merge lá.
+# O ecossistema uv atualiza o pyproject.toml e o uv.lock no mesmo PR.
+version: 2
+updates:
+  - package-ecosystem: uv
+    directory: "/"
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Fortaleza
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      dependencias-python:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Fortaleza
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      acoes-do-github:
+        update-types: [minor, patch]

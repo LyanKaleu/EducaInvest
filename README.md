@@ -63,13 +63,12 @@ Os dados das telas são fictícios.
 
 ## Rodar localmente
 
-Precisa de Python 3.14. O banco SQLite é criado sozinho no primeiro acesso.
+Precisa do [uv](https://docs.astral.sh/uv/getting-started/installation/), que instala o Python 3.14 e as versões exatas do `uv.lock`. O banco SQLite é criado sozinho no primeiro acesso.
 
 ```bash
 git clone https://github.com/LyanKaleu/EducaInvest.git && cd EducaInvest
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-python -m pip install -r requirements.txt
-python run.py                                        # http://127.0.0.1:5000
+uv sync          # cria o .venv com o Python e as dependências do uv.lock
+uv run run.py    # http://127.0.0.1:5000
 ```
 
 O `run.py` liga o modo debug: use só na sua máquina e nunca com `host="0.0.0.0"`, porque o depurador deixa executar código no servidor.
@@ -79,8 +78,7 @@ Em produção, sirva `create_app()` por um servidor WSGI, com a variável `SECRE
 ## Testes
 
 ```bash
-python -m pip install -r requirements-dev.txt
-bash gate.sh   # lint, contratos de arquitetura e testes
+bash gate.sh   # lint, contratos de arquitetura e testes (o uv sync já instala as ferramentas)
 ```
 
 ## Próximos passos

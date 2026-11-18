@@ -1,7 +1,9 @@
 """Valida cadastro e login, faz hash de senha e controla o acesso por perfil (RNF04)."""
 import re
 
-from werkzeug.security import check_password_hash, generate_password_hash
+from pwdlib import PasswordHash
+from pwdlib.hashers.argon2 import Argon2Hasher
+from werkzeug.security import check_password_hash
 
 from app.services.erros import ErroValidacao
 from app.services.formulario import texto_do_campo
@@ -14,9 +16,33 @@ SENHA_MIN, SENHA_MAX = 8, 128
 EMAIL_RE = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
 CODIGO_RE = re.compile(r"[A-Z0-9]{6,8}")
 
-# Algoritmo do hash de senha (o padrão do Werkzeug). Os testes trocam por um
-# mais rápido; em produção fica sempre o scrypt, lento de propósito.
-METODO_HASH = "scrypt"
+
+
+class HasherLegadoWerkzeug:
+    """Confere os hashes antigos do Werkzeug (scrypt), de antes do Argon2id. Nunca gera hash.
+
+    Pega tudo o que não é Argon2: formato desconhecido cai no check_password_hash, que
+    responde False em vez de derrubar o login.
+    """
+
+    @classmethod
+    def identify(cls, hash: str | bytes) -> bool:
+        return not Argon2Hasher.identify(hash)
+
+    def hash(self, password, *, salt=None) -> str:
+        raise NotImplementedError("hash novo é sempre Argon2id")
+
+    def verify(self, password, hash) -> bool:
+        return check_password_hash(hash, password)
+
+    def check_needs_rehash(self, hash) -> bool:
+        return True
+
+
+# Hash de senha: Argon2id com os parâmetros padrão do argon2-cffi (t=3, 64 MiB, p=4),
+# lento de propósito. O legado só confere, e o login regrava o hash em Argon2id.
+# Os testes trocam por um Argon2id barato (tests/conftest.py).
+SENHAS = PasswordHash((Argon2Hasher(), HasherLegadoWerkzeug()))
 
 
 def validar_cadastro_aluno(dados) -> dict:
@@ -59,11 +85,16 @@ def validar_login(dados) -> dict:
 
 
 def gerar_hash_senha(senha: str) -> str:
-    return generate_password_hash(senha, method=METODO_HASH)
+    return SENHAS.hash(senha)
 
 
-def senha_confere(hash_senha: str, senha: str) -> bool:
-    return check_password_hash(hash_senha, senha)
+def conferir_senha(hash_senha: str, senha: str) -> tuple[bool, str | None]:
+    """(a senha confere?, hash novo para gravar ou None).
+
+    O hash novo só vem quando a senha confere e o hash guardado está num formato antigo
+    ou com parâmetros desatualizados. Uma verificação só: o Argon2 é lento de propósito.
+    """
+    return SENHAS.verify_and_update(senha, hash_senha)
 
 
 def _validar_conta(dados, erros) -> dict:
