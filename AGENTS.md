@@ -4,7 +4,7 @@ Protótipo (MVP) de gestão financeira gamificada para jovens de 16 a 24 anos.
 Priorize o núcleo demonstrável. Nada de abstração "para o futuro".
 
 ## Stack
-Python 3.14 · Flask 3.1 · SQLite via `sqlite3` da stdlib (sem ORM) · Jinja renderizado no servidor, sem JavaScript · pytest
+Python 3.14 · Flask 3.1 · SQLite via `sqlite3` da stdlib (sem ORM) · Jinja renderizado no servidor, com JS puro só como melhoria progressiva (`app/static/js/`, sem framework e sem build) · pytest
 
 ## Comandos
 Dependências com [uv](https://docs.astral.sh/uv/): o `uv.lock` fixa a árvore inteira e o `.python-version` fixa o Python (3.14). Os mesmos comandos valem no Git Bash e no PowerShell.
@@ -49,7 +49,7 @@ Monólito Flask em camadas, com HTML renderizado no servidor. Não troque framew
 - **Não entra sem gatilho:** ORM, schemas (pydantic, marshmallow), camada de API, framework de JavaScript, Docker/Gunicorn, Redis/Celery, microsserviços, troca para Django ou FastAPI.
 - **Evolução, nesta ordem:**
   1. Executor de migrações: scripts SQL numerados com `PRAGMA user_version`, sem dependência nova. Entra antes da primeira alteração de tabela com dados reais.
-  2. PWA com JavaScript só como melhoria progressiva: toda tela continua funcionando sem ele. O PR do PWA troca a regra "sem JavaScript" aqui, no DESIGN.md e na especificação.
+  2. PWA (manifest e service worker) sobre o JS de melhoria progressiva, que já existe desde o movimento (`app/static/js/`): toda tela continua funcionando sem ele.
   3. PostgreSQL: os repositórios são reescritos com as mesmas assinaturas, e o estado em memória vai para o banco. SQLAlchemy Core e Alembic são avaliados nesse momento, não antes.
   4. `app/api/` ao lado de `app/routes/`, chamando os mesmos services, só se um cliente nativo for necessário.
 - **Gatilhos, ou quando a arquitetura atual deixa de servir:**
@@ -69,7 +69,7 @@ Monólito Flask em camadas, com HTML renderizado no servidor. Não troque framew
 - Rota nova: Blueprint com `before_request(exigir_perfil(...))`. Rota pública só entra pela lista `ROTAS_PUBLICAS` em tests/integration/test_rotas_protegidas.py.
 - Tabela nova: `criar_tabela()` no repositório e chamada em app/db.py.
 - Formulário POST novo leva `<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">` (Flask-WTF). O meta-teste em tests/integration/test_seguranca.py acusa o que faltar. Nos testes o CSRF fica desligado (`WTF_CSRF_ENABLED=False` em tests/conftest.py).
-- Tela nova ou alterada segue o DESIGN.md. Sem `style` inline (a CSP bloqueia), e a tela funciona sem JavaScript: escolhas são rádios estilizados com `:has`.
+- Tela nova ou alterada segue o DESIGN.md. Sem `style` inline (a CSP bloqueia), e a tela funciona sem JavaScript: escolhas são rádios estilizados com `:has`. O JS de `app/static/js/` só acrescenta (movimento, pílula, contador): nunca é o único caminho, nunca é inline (a CSP bloqueia) e o CSS que depende dele fica sob `.js`.
 - Antes de criar um arquivo, abra o irmão equivalente (ex.: os `lancamento_*`) e siga o padrão dele.
 
 ## Fluxo de trabalho
@@ -90,7 +90,9 @@ Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. Se 
 - `dev-dirigido-por-ia`: o método deste projeto (tarefa em 4 campos, ciclo de 8 passos, revisão em contexto novo, PR com evidência, uma tarefa por sessão). Exceção: a skill diz para pular o plano quando o diff cabe numa frase; aqui o plan mode é sempre obrigatório.
 - `engenheiro-software-ia`: postura em toda tarefa (recomende um caminho e justifique, questione pedido ambíguo, prefira o simples, diga o que foi verificado e o que não foi).
 - `tdd`: todo código novo ou correção (seams, fatias verticais, anti-padrões de teste).
-- `ui-taste`: toda tela nova ou alterada. Mantenha o visual atual (CSS em `app/static/css/`, um arquivo por assunto, sem framework, sem JavaScript) e, antes de dar como pronta, abra a tela no celular (375px) e no desktop e confira os estados (vazio, erro, sucesso).
+- `ui-taste`: toda tela nova ou alterada. Mantenha o visual atual (CSS em `app/static/css/`, um arquivo por assunto, sem framework; JS só como melhoria progressiva) e, antes de dar como pronta, abra a tela no celular (375px) e no desktop e confira os estados (vazio, erro, sucesso).
+- `transitions-dev` e `transitions-polish` (transitions.dev): toda transição nova e todo ajuste de tempo. O padrão vem da referência da transição; o tempo, dos tokens de movimento do `tokens.css` (o uso decide o token, não o número mais próximo).
+- `design-taste-frontend` (tasteskill.dev): só as referências de movimento e acabamento. Os scripts dela pedem Node, que o projeto não usa.
 - `seo-audit`: não se aplica ao MVP (o app fica atrás de login). Não adicione nada de SEO.
 
 ## Git (regras do grupo)

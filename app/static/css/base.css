@@ -80,7 +80,22 @@ p { margin: 0 0 1rem; }
 /* ---------- Avisos (flash) e erros ---------- */
 
 .aviso { padding: .75rem 1rem; border-radius: var(--raio); border-left: 6px solid; }
-.aviso-sucesso { background: var(--sucesso-fundo); border-color: var(--primaria); }
+/* Sucesso vira toast: flutua no rodapé, acima do menu do aluno, sem empurrar a tela, e some
+   sozinho (movimento.css). Nada se perde: o que ele confirma já aparece na própria tela. */
+.aviso-sucesso {
+  position: fixed; z-index: 20; inset-inline: 1rem; max-width: 28rem; margin-inline: auto;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: .6rem;
+  background: var(--sucesso-fundo); border: 1px solid var(--sucesso-borda); border-left: 6px solid var(--primaria);
+}
+.com-menu-aluno .aviso-sucesso { bottom: calc(var(--altura-menu) + .75rem + env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 48rem) { .com-menu-aluno .aviso-sucesso { bottom: 1.5rem; } }
+.aviso .check {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  background: var(--primaria); color: var(--texto-sobre-cor);
+}
+.aviso .check svg { overflow: visible; }
 .aviso-erro { background: var(--erro-fundo); border-color: var(--perigo); }
 /* Comemoração (missão, nível, meta concluída): cartão verde com troféu. O movimento fica em movimento.css. */
 .aviso-conquista {

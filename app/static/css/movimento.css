@@ -1,4 +1,5 @@
-/* Movimento: troca de página, entrada dos avisos, comemoração, toque e barras. Só CSS, sem JavaScript.
+/* Movimento: troca de página, entrada dos avisos, comemoração, toque, barras, erros, toast, quiz e painel.
+   Padrões do transitions.dev. O JS (app/static/js/) só acrescenta: sem ele, tudo aqui funciona.
    O movimento completo fica em prefers-reduced-motion: no-preference. Quem pede menos movimento recebe
    a versão suave no fim do arquivo: só opacidade e cor, sem deslocamento, salto nem confete.
    Fora desses dois blocos, a tela é parada. Só transform e opacity se movem (clip-path só na barra). */
@@ -22,10 +23,36 @@
   ::view-transition-old(root) { animation: sai-pagina calc(var(--duracao-pagina) * .6) var(--ease-out) both; }
   ::view-transition-new(root) { animation: entra-pagina var(--duracao-pagina) var(--ease-out) both; }
 
+  /* Com direção (direcao.js): a página desliza de lado, com um leve desfoque, como duas telas
+     lado a lado. Ir para a direita no menu ou entrar num detalhe avança; o contrário volta. */
+  html:active-view-transition-type(avanca)::view-transition-old(root) { animation: sai-para-esquerda var(--duracao-curta) var(--ease-out) both; }
+  html:active-view-transition-type(avanca)::view-transition-new(root) { animation: entra-da-direita var(--duracao-curta) var(--ease-out) both; }
+  html:active-view-transition-type(volta)::view-transition-old(root) { animation: sai-para-direita var(--duracao-curta) var(--ease-out) both; }
+  html:active-view-transition-type(volta)::view-transition-new(root) { animation: entra-da-esquerda var(--duracao-curta) var(--ease-out) both; }
+
   /* ---------- Avisos ---------- */
 
   /* O aviso aparece a cada lançamento salvo (dezenas de vezes por dia): entrada curta e sem espera. */
   .aviso { animation: entra-aviso var(--duracao-aviso) var(--ease-out) backwards; }
+
+  /* Toast de sucesso (transitions.dev: toast + success check). Sobe com fade e desfoque, fica
+     --tempo-do-toast e sai mais rápido do que entrou. O mouse ou o foco em cima pausam a saída.
+     O check gira, assenta com uma passada e o traço se desenha. */
+  .aviso-sucesso {
+    animation:
+      entra-toast var(--duracao-media) var(--ease-out) backwards,
+      sai-toast var(--duracao-curta) var(--ease-out) var(--tempo-do-toast) forwards;
+  }
+  .aviso-sucesso .check {
+    animation:
+      aparece-check var(--duracao-lenta) var(--ease-out) 120ms backwards,
+      assenta-check var(--duracao-lenta) var(--ease-mola) 120ms backwards;
+  }
+  /* 21 = comprimento do traço do check (19,8) arredondado para cima. */
+  .aviso-sucesso .check path {
+    stroke-dasharray: 21; stroke-dashoffset: 21;
+    animation: desenha-traco var(--duracao-lenta) var(--ease-out) 200ms forwards;
+  }
 
   /* Comemoração (missão, nível, meta concluída): evento raro, então pode encantar.
      O cartão dá um pequeno salto, o troféu balança e o confete cai uma vez só. */
@@ -73,6 +100,64 @@
   .menu-aluno .icone { transition: transform var(--duracao-toque) var(--ease-out), background-color var(--duracao-cor) ease; }
   .menu-aluno a:active .icone { transform: scale(.95); }
 
+  /* ---------- Erros e escolhas nos formulários ---------- */
+
+  /* Campo (ou grupo de chips) que voltou com erro treme uma vez, logo depois da troca de página
+     (transitions.dev: error state shake, 80/60/80/60 ms). A mensagem entra junto. */
+  [aria-invalid="true"], fieldset[aria-describedby^="erro-"] { animation: treme-erro 280ms linear 250ms; }
+  .erro-campo { animation: entra-erro var(--duracao-curta) var(--ease-out) 200ms backwards; }
+
+  /* Chip e alternativa marcados assentam com uma pequena mola. */
+  /* (O nth-child só sobe a especificidade acima da cascata do quiz, para a mola vir sem atraso.) */
+  .chip:has(input:checked), .alternativas label.alt:nth-child(n of .alt):has(input:checked) { animation: marca-escolha var(--duracao-curta) var(--ease-mola); }
+
+  /* Pílula do Gasto/Entrada deslizando (transitions.dev: tabs sliding). Posição e largura vêm do JS. */
+  .js .segmento .pilula {
+    transition:
+      transform var(--duracao-curta) var(--ease-out),
+      width var(--duracao-curta) var(--ease-out),
+      background-color var(--duracao-curta) ease;
+  }
+
+  /* ---------- Quiz ---------- */
+
+  /* A pergunta entra em cascata: enunciado, depois cada alternativa, subindo de um desfoque
+     (transitions.dev: texts reveal, 40 ms entre linhas). */
+  h1.enunciado, .alternativas .alt, .alternativas-respondidas .alt, .resultado {
+    animation: revela-texto var(--duracao-lenta) ease-in-out backwards;
+  }
+  :is(.alternativas, .alternativas-respondidas) .alt:nth-child(1 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 2); }
+  :is(.alternativas, .alternativas-respondidas) .alt:nth-child(2 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 3); }
+  :is(.alternativas, .alternativas-respondidas) .alt:nth-child(3 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 4); }
+  :is(.alternativas, .alternativas-respondidas) .alt:nth-child(4 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 5); }
+  :is(.alternativas, .alternativas-respondidas) .alt:nth-child(5 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 6); }
+  .resultado { animation-delay: calc(var(--duracao-escalonar) * 7); }
+
+  /* Depois de responder: a certa assenta com mola e a escolhida errada treme, quando a cascata
+     já passou. As duas mantêm a revelação antes. */
+  .alternativas-respondidas .alt.certa:nth-child(n of .alt) {
+    animation: revela-texto var(--duracao-lenta) ease-in-out backwards, marca-escolha var(--duracao-curta) var(--ease-mola) 420ms backwards;
+  }
+  .alternativas-respondidas .alt.errada:nth-child(n of .alt) {
+    animation: revela-texto var(--duracao-lenta) ease-in-out backwards, treme-erro 280ms linear 420ms;
+  }
+
+  /* ---------- Painel: sequência e nível ---------- */
+
+  /* As 7 marcas da sequência acendem em cascata, do dia mais antigo até hoje. */
+  .dias .dia.ativo { animation: acende-dia var(--duracao-curta) var(--ease-mola) backwards; }
+  .dias .dia:nth-child(2) { animation-delay: calc(var(--duracao-escalonar) * 1); }
+  .dias .dia:nth-child(3) { animation-delay: calc(var(--duracao-escalonar) * 2); }
+  .dias .dia:nth-child(4) { animation-delay: calc(var(--duracao-escalonar) * 3); }
+  .dias .dia:nth-child(5) { animation-delay: calc(var(--duracao-escalonar) * 4); }
+  .dias .dia:nth-child(6) { animation-delay: calc(var(--duracao-escalonar) * 5); }
+  .dias .dia:nth-child(7) { animation-delay: calc(var(--duracao-escalonar) * 6); }
+
+  /* Subiu de nível desde a última visita (movimento.js): o cartão dá o salto da comemoração. */
+  .indicador.nivel.subiu { animation: salta-conquista 450ms var(--ease-salto) 200ms backwards; }
+  /* A barra que o JS enche não precisa da revelação abaixo. */
+  progress.enchendo { animation: none; }
+
   /* ---------- Barras: a barra se desenha da esquerda ao abrir a tela ---------- */
 
   /* O navegador não anima o preenchimento (::-webkit-progress-value), então a barra inteira se
@@ -90,6 +175,9 @@
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 150ms; }
 
   .aviso { animation: aparece 200ms ease backwards; }
+  .erro-campo { animation: aparece 200ms ease backwards; }
+  /* O toast continua saindo sozinho, só com esmaecimento. */
+  .aviso-sucesso { animation: aparece 200ms ease backwards, some 200ms ease var(--tempo-do-toast) forwards; }
 
   button, .botao, .chip, .segmento-opcao, label.alt {
     transition:
@@ -101,6 +189,10 @@
 
 @keyframes sai-pagina { to { opacity: 0; } }
 @keyframes entra-pagina { from { opacity: 0; transform: translateY(8px); } }
+@keyframes sai-para-esquerda { to { opacity: 0; transform: translateX(-8px); filter: blur(var(--desfoque-medio)); } }
+@keyframes entra-da-direita { from { opacity: 0; transform: translateX(8px); filter: blur(var(--desfoque-medio)); } }
+@keyframes sai-para-direita { to { opacity: 0; transform: translateX(8px); filter: blur(var(--desfoque-medio)); } }
+@keyframes entra-da-esquerda { from { opacity: 0; transform: translateX(-8px); filter: blur(var(--desfoque-medio)); } }
 @keyframes entra-aviso { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes salta-conquista {
   from { opacity: 0; transform: scale(.92); }
@@ -120,3 +212,79 @@
 }
 @keyframes revela-barra { from { clip-path: inset(0 100% 0 0); } }
 @keyframes aparece { from { opacity: 0; } }
+/* A saída do toast é só visual: sem visibility: hidden, o texto continua para o leitor de tela
+   (o aviso do teto de XP só existe ali). No último quadro ele salta para fora da tela, para não
+   cobrir o rodapé invisível (pointer-events não é animável). */
+@keyframes some {
+  99% { opacity: 0; transform: none; }
+  to { opacity: 0; transform: translateY(100vh); }
+}
+@keyframes entra-toast {
+  from { opacity: 0; transform: translateY(16px) scale(.97); filter: blur(var(--desfoque-pequeno)); }
+}
+@keyframes sai-toast {
+  99% { opacity: 0; transform: translateY(8px) scale(.98); filter: blur(var(--desfoque-pequeno)); }
+  to { opacity: 0; transform: translateY(100vh); }
+}
+@keyframes aparece-check { from { opacity: 0; transform: rotate(80deg); filter: blur(4px); } }
+@keyframes assenta-check { from { translate: 0 6px; } }
+@keyframes desenha-traco { to { stroke-dashoffset: 0; } }
+/* Paradas = durações acumuladas dos 4 trechos (80, 60, 80, 60 ms de 280 ms). */
+@keyframes treme-erro {
+  0%     { transform: translateX(0);    animation-timing-function: var(--ease-out); }
+  28.57% { transform: translateX(6px);  animation-timing-function: var(--ease-out); }
+  57.14% { transform: translateX(-6px); animation-timing-function: var(--ease-out); }
+  78.57% { transform: translateX(4px);  animation-timing-function: var(--ease-out); }
+  100%   { transform: translateX(0); }
+}
+@keyframes entra-erro { from { opacity: 0; transform: translateY(-4px); } }
+@keyframes marca-escolha { from { transform: scale(.94); } }
+@keyframes acende-dia { from { opacity: 0; transform: scale(.4); } }
+@keyframes revela-texto { from { opacity: 0; transform: translateY(12px); filter: blur(var(--desfoque-medio)); } }
+
+/* ---------- Estrutura que só existe com JavaScript (movimento.js) ---------- */
+
+/* Gasto/Entrada: com JS, a cor da opção marcada sai do rótulo e vai para uma pílula que desliza
+   por baixo dele. Sem JS, a opção marcada pinta o próprio fundo (aluno.css). */
+.js .segmento { position: relative; }
+.js .segmento .segmento-opcao,
+.js .segmento .segmento-opcao:has(input:checked) { z-index: 1; background: transparent; }
+.js .segmento .pilula {
+  position: absolute; top: 0; left: 0; z-index: 0; pointer-events: none;
+  border-radius: var(--raio); background: var(--primaria);
+}
+.js .segmento[data-marcada="gasto"] .pilula { background: var(--perigo); }
+.js .segmento:not([data-marcada]) .pilula { opacity: 0; }
+
+/* Tambor do XP (transitions.dev: spinning counter). Só existe quando o XP subiu e o aluno não pediu
+   menos movimento; o contador.js lê estas variáveis e move cada dígito quadro a quadro. */
+.t-reel {
+  --reel-step-dur: 130ms;
+  --reel-stagger: 90ms;
+  --reel-ease: cubic-bezier(0.35, -0.02, 0.43, 1);
+  --reel-cell: 1.2em;
+  --reel-side-scale: 0.7;
+  --reel-side-offset: 0.52em;
+  --reel-side-blur: max(0.067em, 0.171em - 2.1px);
+  --reel-side-opacity: 0.17;
+  --reel-center-scale: 0.9;
+  --reel-center-blur: 0.042em;
+  --reel-antic-dur: 100ms;
+  --reel-antic-scale: 0.94;
+  --reel-antic-lift: 0.125em;
+  --reel-land-dur: 740ms;
+  --reel-land-peak: 1.03;
+  display: inline-flex; align-items: center; height: var(--reel-cell); vertical-align: bottom;
+  font-variant-numeric: tabular-nums;
+}
+.t-reel-col { position: relative; display: inline-block; height: var(--reel-cell); line-height: var(--reel-cell); }
+.t-reel-sizer { visibility: hidden; }
+.t-reel-digit {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  will-change: transform, filter, opacity;
+}
+.t-reel-sep { display: inline-block; height: var(--reel-cell); line-height: var(--reel-cell); }
+
+/* Segura o toast enquanto o aluno lê: o mouse em cima pausa a saída, e um toque nele (movimento.js)
+   o deixa parado até o próximo toque. */
+.aviso-sucesso:hover, .aviso-sucesso.segurado { animation-play-state: paused; }
