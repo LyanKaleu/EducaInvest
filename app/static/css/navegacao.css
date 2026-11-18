@@ -8,7 +8,7 @@
   background: var(--fundo); border-bottom: 1px solid var(--divisoria);
 }
 .marca {
-  font-weight: 700; font-size: 1.15rem; text-decoration: none; color: var(--primaria);
+  font-weight: 700; font-size: 1.15rem; text-decoration: none; color: var(--primaria-texto);
   display: inline-flex; align-items: center; min-height: 44px;
 }
 /* Quem está logado: apelido e perfil, ao lado da marca. Encolhe com reticências para o topo
@@ -53,10 +53,10 @@ button.link:hover { color: var(--texto); background: none; }
 .menu-aluno .icone { display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 1rem; }
 .menu-aluno a:hover { color: var(--texto); }
 /* Página atual: verde, em negrito e com um traço embaixo do ícone (não só a cor). */
-.menu-aluno [aria-current="page"] { color: var(--primaria); font-weight: 700; }
+.menu-aluno [aria-current="page"] { color: var(--primaria-texto); font-weight: 700; }
 .menu-aluno [aria-current="page"] .icone { background: var(--sucesso-fundo); }
 /* "Novo" é a ação principal: círculo verde cheio. */
-.menu-aluno .item-novo { color: var(--primaria); font-weight: 700; }
+.menu-aluno .item-novo { color: var(--primaria-texto); font-weight: 700; }
 .menu-aluno .item-novo .icone { background: var(--primaria); color: var(--texto-sobre-cor); }
 .menu-aluno .item-novo[aria-current="page"] .icone { background: var(--primaria-escura); }
 

@@ -1,4 +1,7 @@
-/* Tokens do visual: cores, raio e medidas. Todo o resto usa estas variáveis. */
+/* Tokens do visual: cores, raio e medidas. Todo o resto usa estas variáveis; nenhum outro arquivo
+   tem cor fixa (o teste tests/unit/test_css_tokens.py confere).
+   Verde e vermelho têm dois papéis: o token base (--primaria, --perigo) é FUNDO com texto branco,
+   faixa e borda decorativa; o "-texto" é a cor de TEXTO e de contorno sobre fundo neutro. */
 
 :root {
   --texto: #1a1a1a;
@@ -8,11 +11,18 @@
   --suave: #f3f4f2;          /* fundo da página */
   --divisoria: #d6d6d3;      /* borda dos cartões (decorativa) */
   --borda: #6b6b6b;          /* borda de campos e barras: contraste 5,3:1 */
-  --primaria: #1b6e3a;       /* verde: marca, entradas, botão principal, XP */
-  --primaria-escura: #14532b;
-  --perigo: #b3261e;         /* vermelho: gastos, erros e excluir */
+  --cartao-hover: #fafbfa;   /* fundo do cartão-link com o mouse em cima */
+  --primaria: #1b6e3a;       /* verde de fundo: botão principal, cartão do saldo, selo */
+  --primaria-escura: #14532b; /* fundo do botão principal no hover */
+  --primaria-texto: #1b6e3a; /* verde de texto: links, marca, entradas, XP */
+  --primaria-texto-hover: #14532b;
+  --perigo: #b3261e;         /* vermelho de fundo: botão de excluir, saldo negativo */
+  --perigo-escura: #8f1e18;  /* fundo do botão de excluir no hover */
+  --perigo-texto: #b3261e;   /* vermelho de texto: gastos e erros */
   --foco: #1a5fb4;           /* azul: foco do teclado e missão em andamento */
+  --foco-fundo: #eef3fb;     /* alternativa do quiz marcada */
   --sucesso-fundo: #e7f4ea;
+  --sucesso-borda: #b9dcc3;
   --erro-fundo: #fbeaea;
   --texto-sobre-cor: #ffffff; /* sobre --primaria, --perigo e --foco passa de 6:1 */
   --raio: 8px;
