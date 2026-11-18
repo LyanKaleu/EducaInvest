@@ -1,4 +1,5 @@
-/* Movimento: troca de página, entrada dos avisos, comemoração, toque e barras. Só CSS, sem JavaScript.
+/* Movimento: troca de página, entrada dos avisos, comemoração, toque, barras, erros, toast, quiz e painel.
+   Padrões do transitions.dev. O JS (app/static/js/) só acrescenta: sem ele, tudo aqui funciona.
    O movimento completo fica em prefers-reduced-motion: no-preference. Quem pede menos movimento recebe
    a versão suave no fim do arquivo: só opacidade e cor, sem deslocamento, salto nem confete.
    Fora desses dois blocos, a tela é parada. Só transform e opacity se movem (clip-path só na barra). */
@@ -123,22 +124,22 @@
   /* A pergunta entra em cascata: enunciado, depois cada alternativa, subindo de um desfoque
      (transitions.dev: texts reveal, 40 ms entre linhas). */
   h1.enunciado, .alternativas .alt, .alternativas-respondidas .alt, .resultado {
-    animation: revela-texto var(--duracao-lenta) var(--ease-out) backwards;
+    animation: revela-texto var(--duracao-lenta) ease-in-out backwards;
   }
   :is(.alternativas, .alternativas-respondidas) .alt:nth-child(1 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 2); }
   :is(.alternativas, .alternativas-respondidas) .alt:nth-child(2 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 3); }
   :is(.alternativas, .alternativas-respondidas) .alt:nth-child(3 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 4); }
   :is(.alternativas, .alternativas-respondidas) .alt:nth-child(4 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 5); }
   :is(.alternativas, .alternativas-respondidas) .alt:nth-child(5 of .alt) { animation-delay: calc(var(--duracao-escalonar) * 6); }
-  .resultado { animation-delay: calc(var(--duracao-escalonar) * 8); }
+  .resultado { animation-delay: calc(var(--duracao-escalonar) * 7); }
 
   /* Depois de responder: a certa assenta com mola e a escolhida errada treme, quando a cascata
      já passou. As duas mantêm a revelação antes. */
   .alternativas-respondidas .alt.certa:nth-child(n of .alt) {
-    animation: revela-texto var(--duracao-lenta) var(--ease-out) backwards, marca-escolha var(--duracao-curta) var(--ease-mola) 420ms backwards;
+    animation: revela-texto var(--duracao-lenta) ease-in-out backwards, marca-escolha var(--duracao-curta) var(--ease-mola) 420ms backwards;
   }
   .alternativas-respondidas .alt.errada:nth-child(n of .alt) {
-    animation: revela-texto var(--duracao-lenta) var(--ease-out) backwards, treme-erro 280ms linear 420ms;
+    animation: revela-texto var(--duracao-lenta) ease-in-out backwards, treme-erro 280ms linear 420ms;
   }
 
   /* ---------- Painel: sequência e nível ---------- */
@@ -188,10 +189,10 @@
 
 @keyframes sai-pagina { to { opacity: 0; } }
 @keyframes entra-pagina { from { opacity: 0; transform: translateY(8px); } }
-@keyframes sai-para-esquerda { to { opacity: 0; transform: translateX(-16px); filter: blur(var(--desfoque-medio)); } }
-@keyframes entra-da-direita { from { opacity: 0; transform: translateX(16px); filter: blur(var(--desfoque-medio)); } }
-@keyframes sai-para-direita { to { opacity: 0; transform: translateX(16px); filter: blur(var(--desfoque-medio)); } }
-@keyframes entra-da-esquerda { from { opacity: 0; transform: translateX(-16px); filter: blur(var(--desfoque-medio)); } }
+@keyframes sai-para-esquerda { to { opacity: 0; transform: translateX(-8px); filter: blur(var(--desfoque-medio)); } }
+@keyframes entra-da-direita { from { opacity: 0; transform: translateX(8px); filter: blur(var(--desfoque-medio)); } }
+@keyframes sai-para-direita { to { opacity: 0; transform: translateX(8px); filter: blur(var(--desfoque-medio)); } }
+@keyframes entra-da-esquerda { from { opacity: 0; transform: translateX(-8px); filter: blur(var(--desfoque-medio)); } }
 @keyframes entra-aviso { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes salta-conquista {
   from { opacity: 0; transform: scale(.92); }

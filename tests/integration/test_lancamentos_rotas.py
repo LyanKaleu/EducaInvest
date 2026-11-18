@@ -153,7 +153,9 @@ def test_aviso_de_sucesso_traz_o_check_escondido_do_leitor_de_tela(
         "/lancamentos/novo", data=form_valido, follow_redirects=True
     ).get_data(as_text=True)
 
-    aviso = re.search(r'<p class="aviso aviso-sucesso".*?</p>', html, re.S)
+    aviso = re.search(
+        r'<p class="aviso aviso-sucesso".*?</p>', html, re.DOTALL
+    )
     assert aviso, "o aviso de sucesso deve aparecer depois de salvar"
     assert '<span class="check" aria-hidden="true">' in aviso.group(0)
 
