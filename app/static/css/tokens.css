@@ -37,4 +37,38 @@
   --duracao-pagina: 240ms;   /* troca de página: abaixo de 300ms, a página fica inerte durante a troca */
   --duracao-aviso: 200ms;    /* o aviso aparece a cada lançamento salvo */
   --confete-dourado: #f5c542; /* decorativo, só no confete */
+  --confete-claro: #e7f4ea;   /* decorativo, só no confete */
+
+  /* Campos de data, rádios, caixas de seleção e barra de rolagem acompanham o tema. */
+  color-scheme: light dark;
+}
+
+/* Tema escuro: segue a preferência do sistema (celular ou computador), sem botão e sem JavaScript.
+   Só as cores mudam. Os pares de texto e fundo passam no AA (o teste tests/unit/test_css_tokens.py
+   calcula o contraste de cada um). O verde e o vermelho de fundo continuam escuros, com texto branco;
+   os de texto clareiam para aparecer sobre o fundo escuro. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --texto: #e6ece8;
+    --texto-suave: #a9b4ae;
+    --texto-descricao: #c3ccc7;
+    --fundo: #1b2320;
+    --suave: #111715;
+    --divisoria: #2e3a35;
+    --borda: #7d8a84;
+    --cartao-hover: #222c28;
+    --primaria: #1d7340;
+    --primaria-escura: #165c33;
+    --primaria-texto: #6fd09a;
+    --primaria-texto-hover: #9be3b9;
+    --perigo: #c2362c;
+    --perigo-escura: #a12a21;
+    --perigo-texto: #ff8f85;
+    --foco: #7ab3f5;
+    --foco-fundo: #1c2a3b;
+    --sucesso-fundo: #173323;
+    --sucesso-borda: #2c5a3e;
+    --erro-fundo: #3a1d1b;
+    --confete-claro: #9be3b9;
+  }
 }

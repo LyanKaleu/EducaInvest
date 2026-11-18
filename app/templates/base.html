@@ -5,6 +5,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}EducaInvest{% endblock %} · EducaInvest</title>
+  {# Cor da barra do navegador no celular, igual ao topo em cada tema (--fundo do tokens.css). #}
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b2320" media="(prefers-color-scheme: dark)">
   {# Um arquivo por assunto, nesta ordem (a ordem importa na cascata). Sem @import nem build:
      os <link> baixam em paralelo e ficam no cache. #}
   {% for folha in ('tokens', 'base', 'navegacao', 'aluno', 'professor', 'entrada', 'movimento') %}

@@ -15,3 +15,87 @@ def test_nenhuma_cor_fixa_fora_dos_tokens():
     }
 
     assert {nome: cores for nome, cores in cores_fixas.items() if cores} == {}
+
+
+# ---------------------------------------------------------------------------
+# Contraste WCAG dos tokens, no tema claro e no escuro
+# ---------------------------------------------------------------------------
+
+TEXTO_NORMAL = 4.5   # WCAG 1.4.3 (AA)
+COMPONENTE = 3.0     # WCAG 1.4.11: borda de campo e anel de foco
+
+# (cor da frente, cor do fundo, mínimo). Cada par existe na tela, em algum componente.
+PARES = [
+    ("texto", "fundo", TEXTO_NORMAL),
+    ("texto", "suave", TEXTO_NORMAL),
+    ("texto-suave", "fundo", TEXTO_NORMAL),
+    ("texto-suave", "suave", TEXTO_NORMAL),
+    ("texto-descricao", "fundo", TEXTO_NORMAL),
+    ("texto", "cartao-hover", TEXTO_NORMAL),
+    ("texto", "sucesso-fundo", TEXTO_NORMAL),
+    ("texto", "erro-fundo", TEXTO_NORMAL),
+    ("texto", "foco-fundo", TEXTO_NORMAL),
+    ("fundo", "texto", TEXTO_NORMAL),                    # chip marcado
+    ("texto-sobre-cor", "primaria", TEXTO_NORMAL),       # botão, cartão do saldo, selo
+    ("texto-sobre-cor", "primaria-escura", TEXTO_NORMAL),
+    ("texto-sobre-cor", "perigo", TEXTO_NORMAL),         # excluir, saldo negativo
+    ("texto-sobre-cor", "perigo-escura", TEXTO_NORMAL),
+    ("primaria-texto", "fundo", TEXTO_NORMAL),
+    ("primaria-texto", "suave", TEXTO_NORMAL),
+    ("primaria-texto", "sucesso-fundo", TEXTO_NORMAL),   # selo de XP
+    ("primaria-texto-hover", "fundo", TEXTO_NORMAL),
+    ("perigo-texto", "fundo", TEXTO_NORMAL),
+    ("perigo-texto", "suave", TEXTO_NORMAL),
+    ("perigo-texto", "erro-fundo", TEXTO_NORMAL),        # alerta de inativos
+    ("borda", "fundo", COMPONENTE),
+    ("borda", "suave", COMPONENTE),
+    ("foco", "fundo", COMPONENTE),
+    ("foco", "suave", COMPONENTE),
+]
+
+
+def _tokens(bloco):
+    return dict(re.findall(r"--([\w-]+):\s*(#[0-9a-fA-F]{6})", bloco))
+
+
+def temas():
+    """{"claro": {token: cor}, "escuro": {token: cor}}; o escuro herda do claro o que não redefine."""
+    texto = (PASTA_CSS / "tokens.css").read_text(encoding="utf-8")
+    claro = _tokens(re.search(r"^:root\s*\{(.*?)^\}", texto, re.S | re.M).group(1))
+    bloco_escuro = re.search(r"@media \(prefers-color-scheme: dark\)\s*\{\s*:root\s*\{(.*?)\}", texto, re.S)
+    assert bloco_escuro, "o tokens.css precisa do bloco @media (prefers-color-scheme: dark)"
+    return {"claro": claro, "escuro": {**claro, **_tokens(bloco_escuro.group(1))}}
+
+
+def contraste(frente, fundo):
+    def luminancia(cor):
+        canais = [int(cor[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+        r, g, b = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in canais]
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+    claro, escuro = sorted([luminancia(frente), luminancia(fundo)], reverse=True)
+    return (claro + 0.05) / (escuro + 0.05)
+
+
+def test_pares_de_cor_passam_no_contraste_aa_nos_dois_temas():
+    falhas = [
+        f"{tema}: --{frente} sobre --{fundo} = {contraste(cores[frente], cores[fundo]):.2f} (mínimo {minimo})"
+        for tema, cores in temas().items()
+        for frente, fundo, minimo in PARES
+        if contraste(cores[frente], cores[fundo]) < minimo
+    ]
+
+    assert falhas == []
+
+
+def test_tema_escuro_troca_o_fundo_da_pagina():
+    cores = temas()
+
+    assert contraste(cores["escuro"]["suave"], "#000000") < 1.5   # fundo escuro de verdade
+    assert cores["escuro"]["texto"] != cores["claro"]["texto"]
+
+
+def test_contraste_bate_com_valores_conhecidos():
+    """A conta segue a fórmula da WCAG: preto no branco é 21:1, e #767676 no branco é 4,54:1."""
+    assert round(contraste("#000000", "#ffffff"), 2) == 21.0
+    assert round(contraste("#767676", "#ffffff"), 2) == 4.54
