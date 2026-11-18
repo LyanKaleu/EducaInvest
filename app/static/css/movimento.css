@@ -110,6 +110,22 @@
       background-color var(--duracao-curta) ease;
   }
 
+  /* ---------- Painel: sequência e nível ---------- */
+
+  /* As 7 marcas da sequência acendem em cascata, do dia mais antigo até hoje. */
+  .dias .dia.ativo { animation: acende-dia var(--duracao-curta) var(--ease-mola) backwards; }
+  .dias .dia:nth-child(2) { animation-delay: calc(var(--duracao-escalonar) * 1); }
+  .dias .dia:nth-child(3) { animation-delay: calc(var(--duracao-escalonar) * 2); }
+  .dias .dia:nth-child(4) { animation-delay: calc(var(--duracao-escalonar) * 3); }
+  .dias .dia:nth-child(5) { animation-delay: calc(var(--duracao-escalonar) * 4); }
+  .dias .dia:nth-child(6) { animation-delay: calc(var(--duracao-escalonar) * 5); }
+  .dias .dia:nth-child(7) { animation-delay: calc(var(--duracao-escalonar) * 6); }
+
+  /* Subiu de nível desde a última visita (movimento.js): o cartão dá o salto da comemoração. */
+  .indicador.nivel.subiu { animation: salta-conquista 450ms var(--ease-salto) 200ms backwards; }
+  /* A barra que o JS enche não precisa da revelação abaixo. */
+  progress.enchendo { animation: none; }
+
   /* ---------- Barras: a barra se desenha da esquerda ao abrir a tela ---------- */
 
   /* O navegador não anima o preenchimento (::-webkit-progress-value), então a barra inteira se
@@ -180,6 +196,7 @@
 }
 @keyframes entra-erro { from { opacity: 0; transform: translateY(-4px); } }
 @keyframes marca-escolha { from { transform: scale(.94); } }
+@keyframes acende-dia { from { opacity: 0; transform: scale(.4); } }
 
 /* ---------- Estrutura que só existe com JavaScript (movimento.js) ---------- */
 
@@ -194,6 +211,35 @@
 }
 .js .segmento[data-marcada="gasto"] .pilula { background: var(--perigo); }
 .js .segmento:not([data-marcada]) .pilula { opacity: 0; }
+
+/* Tambor do XP (transitions.dev: spinning counter). Só existe quando o XP subiu e o aluno não pediu
+   menos movimento; o contador.js lê estas variáveis e move cada dígito quadro a quadro. */
+.t-reel {
+  --reel-step-dur: 130ms;
+  --reel-stagger: 90ms;
+  --reel-ease: cubic-bezier(0.35, -0.02, 0.43, 1);
+  --reel-cell: 1.2em;
+  --reel-side-scale: 0.7;
+  --reel-side-offset: 0.52em;
+  --reel-side-blur: max(0.067em, 0.171em - 2.1px);
+  --reel-side-opacity: 0.17;
+  --reel-center-scale: 0.9;
+  --reel-center-blur: 0.042em;
+  --reel-antic-dur: 100ms;
+  --reel-antic-scale: 0.94;
+  --reel-antic-lift: 0.125em;
+  --reel-land-dur: 740ms;
+  --reel-land-peak: 1.03;
+  display: inline-flex; align-items: center; height: var(--reel-cell); vertical-align: bottom;
+  font-variant-numeric: tabular-nums;
+}
+.t-reel-col { position: relative; display: inline-block; height: var(--reel-cell); line-height: var(--reel-cell); }
+.t-reel-sizer { visibility: hidden; }
+.t-reel-digit {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  will-change: transform, filter, opacity;
+}
+.t-reel-sep { display: inline-block; height: var(--reel-cell); line-height: var(--reel-cell); }
 
 /* Pausa a saída do toast enquanto o aluno lê com o mouse em cima ou navega por ele (WCAG 2.2.1). */
 .aviso-sucesso:hover, .aviso-sucesso:focus-within { animation-play-state: paused; }
