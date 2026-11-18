@@ -56,6 +56,7 @@ Monólito Flask em camadas, com HTML renderizado no servidor. Não troque framew
   - mais de um processo ou servidor escrevendo: PostgreSQL;
   - várias escolas ou backup automático obrigatório: PostgreSQL e modelo de escola;
   - app na App Store, câmera, biometria ou widget: API e cliente nativo;
+  - entrada em JSON vinda de fora (o lote do gerador de perguntas com IA ou o corpo da `app/api/`): Pydantic só nessa fronteira. Os formulários continuam com `ErroValidacao` nos services, porque a regra de negócio depende do banco e do relógio e a mensagem é em português, por campo;
   - um domínio com mais de uns 5 arquivos por camada, ou duas pessoas se atrapalhando no mesmo diretório: fatias por domínio;
   - gargalo medido, não suposto: cache ou fila.
 
