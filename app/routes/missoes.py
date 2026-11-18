@@ -1,4 +1,7 @@
-"""Rota das missões, conquistas, XP e nível do aluno, e o progresso gerado por cada registro (HU3)."""
+"""Rota das missões, conquistas, XP e nível do aluno (HU3).
+
+Também calcula o progresso gerado por cada registro.
+"""
 
 import sqlite3
 
@@ -34,7 +37,8 @@ def listar() -> ResponseReturnValue:
         missoes=missao_service.situacao(contagens, concluidas),
         xp_total=xp_total,
         nivel=xp_service.nivel(xp_total),
-        # XP de registros ganho hoje, para o aluno ver quanto falta do teto diário (RN-11).
+        # XP de registros ganho hoje, para o aluno ver quanto falta do teto
+        # diário (RN-11).
         xp_registros_hoje=xp_repo.pontos_no_dia(
             aluno_id, "LANCAMENTO", hoje_no_piaui().isoformat()
         ),
@@ -51,7 +55,7 @@ def listar() -> ResponseReturnValue:
 def registrar_progresso(
     conn: sqlite3.Connection, aluno_id: int, lancamento_id: int | None = None
 ) -> dict:
-    """Credita o XP do lançamento, conclui as missões cumpridas e detecta a subida de nível.
+    """Credita o XP, conclui as missões cumpridas e detecta subida de nível.
 
     Não faz commit: chame dentro do mesmo `with conn:` que gravou o lançamento,
     para que lançamento e XP sejam gravados juntos ou nenhum dos dois (HU3).
@@ -63,7 +67,8 @@ def registrar_progresso(
             None na edição, que só reavalia as missões.
 
     Returns:
-        dict: `xp_lancamento` (XP creditado pelo registro), `teto_atingido` (bool),
+        dict: `xp_lancamento` (XP creditado pelo registro), `teto_atingido`
+            (bool),
         `conquistas` (missões concluídas agora) e `novo_nivel` (dict de
         `xp_service.nivel`, ou None se o nível não mudou).
     """
@@ -78,7 +83,8 @@ def registrar_progresso(
             xp_repo.pontos_no_dia(aluno_id, "LANCAMENTO", hoje)
         )
         teto_atingido = pontos == 0
-        # Reenvio da mesma chave devolve o mesmo lançamento: o UNIQUE barra o 2º crédito.
+        # Reenvio da mesma chave devolve o mesmo lançamento: o UNIQUE barra o
+        # 2º crédito.
         if pontos and xp_repo.creditar(
             aluno_id, "LANCAMENTO", lancamento_id, pontos, hoje
         ):
@@ -107,7 +113,7 @@ def registrar_progresso(
 
 
 def avisar_conquistas(progresso: dict) -> None:
-    """Mostra (flash) as conquistas e a subida de nível do `registrar_progresso`.
+    """Avisa (flash) as conquistas e o nível novo do `registrar_progresso`.
 
     Usam a categoria "conquista", que o CSS mostra como comemoração.
     """

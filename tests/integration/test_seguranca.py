@@ -1,4 +1,6 @@
-"""Proteções da auditoria de segurança: CSRF, headers, cookie e prazo da sessão (achados 3 a 5)."""
+"""Proteções da auditoria de segurança: CSRF, headers, cookie e prazo da sessão
+(achados 3 a 5).
+"""
 
 import re
 from collections.abc import Iterator
@@ -16,11 +18,12 @@ TEMPLATES = Path(__file__).resolve().parents[2] / "app" / "templates"
 
 @pytest.fixture
 def cliente_com_csrf(
-    tmp_path: Path, cliente_professor: FlaskClient
-) -> FlaskClient:  # noqa: ARG001
-    """Cliente de um app com CSRF ligado, no mesmo banco onde a Prof. Ana já está cadastrada."""
-    # `cliente_professor` só cadastra a Prof. Ana antes. Fixture não aceita
-    # @pytest.mark.usefixtures, por isso o noqa do ARG001 acima.
+    tmp_path: Path,
+    cliente_professor: FlaskClient,  # noqa: ARG001
+) -> FlaskClient:
+    """App com CSRF ligado, no banco onde a Prof. Ana já está cadastrada."""
+    # `cliente_professor` só cadastra a Prof. Ana antes.
+    # Fixture não aceita @pytest.mark.usefixtures, daí o noqa do ARG001.
     return _criar_app(tmp_path, WTF_CSRF_ENABLED=True).test_client()
 
 
@@ -115,7 +118,8 @@ def formularios_post() -> Iterator[tuple[str, str]]:
 
 
 def test_os_templates_tem_formularios_post() -> None:
-    # Guarda do meta-teste abaixo: se o regex parar de achar formulários, ele passaria vazio.
+    # Guarda do meta-teste abaixo: se o regex parar de achar formulários, ele
+    # passaria vazio.
     assert len(list(formularios_post())) >= 9
 
 
@@ -148,7 +152,9 @@ def test_resposta_tem_headers_de_seguranca(
 
 
 def cookie_de_sessao(config: dict[str, object], tmp_path: Path) -> str:
-    """Set-Cookie da sessão criada ao abrir o login (o token CSRF vai para a sessão)."""
+    """Set-Cookie da sessão criada ao abrir o login (o token CSRF vai para a
+    sessão).
+    """
     app = create_app(
         {"SECRET_KEY": "chave", "DATABASE": str(tmp_path / "x.db"), **config}
     )
@@ -167,7 +173,8 @@ def test_cookie_de_sessao_so_viaja_por_https_fora_de_debug(
 
 
 def test_cookie_de_sessao_funciona_por_http_em_debug(tmp_path: Path) -> None:
-    # O servidor de desenvolvimento é http://127.0.0.1: com Secure, o login não funcionaria.
+    # O servidor de desenvolvimento é http://127.0.0.1: com Secure, o login não
+    # funcionaria.
     assert "; Secure" not in cookie_de_sessao({"DEBUG": True}, tmp_path)
 
 
@@ -179,7 +186,9 @@ def test_cookie_de_sessao_funciona_por_http_em_debug(tmp_path: Path) -> None:
 def adiantar_relogio_da_sessao(
     monkeypatch: pytest.MonkeyPatch, horas: int
 ) -> None:
-    """Relógio do cookie assinado (itsdangerous) `horas` à frente: a fronteira de tempo."""
+    """Relógio do cookie assinado (itsdangerous) `horas` à frente: a fronteira
+    de tempo.
+    """
     agora = TimestampSigner.get_timestamp(None)
     monkeypatch.setattr(
         TimestampSigner, "get_timestamp", lambda _self: agora + horas * 3600

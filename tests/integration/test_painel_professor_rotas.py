@@ -1,4 +1,6 @@
-"""Painel da turma do professor: XP médio, missões, frequência e linha por aluno (HU5, RN-18)."""
+"""Painel da turma do professor: XP médio, missões, frequência e linha por
+aluno (HU5, RN-18).
+"""
 
 import re
 import uuid
@@ -111,9 +113,12 @@ def test_aluno_de_outra_turma_nao_entra_na_media(
 
 
 def item_do_ranking(html: str, apelido: str) -> str:
-    """Texto do item do ranking do aluno, sem tags e com espaços simples, ou None."""
+    """Texto do item do ranking do aluno, sem tags e com espaços simples, ou
+    None.
+    """
     item = re.search(
-        rf'<li class="aluno-ranking[^"]*">\s*.*?<strong class="apelido">{apelido}</strong>.*?</li>',
+        r'<li class="aluno-ranking[^"]*">\s*.*?'
+        rf'<strong class="apelido">{apelido}</strong>.*?</li>',
         html,
         re.DOTALL,
     )
@@ -145,8 +150,9 @@ def test_ranking_mostra_cada_aluno_sem_email(
 def test_ranking_fica_em_ordem_de_xp_com_empate_por_apelido(
     app: Flask, cliente_professor: FlaskClient, turma: dict[str, int | str]
 ) -> None:
-    # Ranking por XP (decisão do redesign v2). No empate vale o apelido, sem diferenciar
-    # maiúsculas: "bruno" e "Gabriel" empatam em 0 XP, e a ordem binária poria "Gabriel" antes.
+    # Ranking por XP (decisão do redesign v2). No empate vale o apelido, sem
+    # diferenciar maiúsculas: "bruno" e "Gabriel" empatam em 0 XP, e a ordem
+    # binária poria "Gabriel" antes.
     ana = app.test_client()
     assert (
         cadastrar_aluno(

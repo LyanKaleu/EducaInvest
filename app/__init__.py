@@ -1,4 +1,7 @@
-"""Fábrica da aplicação: cria o app Flask, configura, liga o banco e registra as rotas."""
+"""Fábrica da aplicação Flask.
+
+Cria o app, configura, liga o banco e registra as rotas.
+"""
 
 import os
 import secrets
@@ -22,40 +25,49 @@ from app.routes.quiz import bp as quiz_bp
 
 
 def create_app(config: dict | None = None) -> Flask:
-    """Cria o app. `config` sobrescreve os valores padrão (usado em testes e no run.py).
+    """Cria o app.
+
+    `config` sobrescreve os valores padrão (usado em testes e no run.py).
 
     Raises:
-        RuntimeError: se não houver SECRET_KEY e o app não estiver em teste nem em debug.
+        RuntimeError: se não houver SECRET_KEY e o app não estiver em teste nem
+            em debug.
     """
     app = Flask(__name__)
     app.config.from_mapping(
         SECRET_KEY=os.environ.get("SECRET_KEY"),
         # instance/ fica fora do Git (.gitignore) e guarda o arquivo do banco.
         DATABASE=str(Path(app.instance_path) / "educainvest.db"),
-        # Cookie de sessão não é enviado em POST vindo de outro site (reduz CSRF).
+        # Cookie de sessão não é enviado em POST vindo de outro site (reduz
+        # CSRF).
         SESSION_COOKIE_SAMESITE="Lax",
-        # O Flask recusa cookie de sessão gravado há mais de 12 h (o padrão era 31 dias):
-        # um cookie roubado perde a validade sozinho.
+        # O Flask recusa cookie de sessão gravado há mais de 12 h (o padrão era
+        # 31 dias): um cookie roubado perde a validade sozinho.
         PERMANENT_SESSION_LIFETIME=timedelta(hours=12),
-        # O token CSRF vive o mesmo tempo da sessão: formulário aberto há horas não quebra.
+        # O token CSRF vive o mesmo tempo da sessão: formulário aberto há horas
+        # não quebra.
         WTF_CSRF_TIME_LIMIT=None,
     )
     if config:
         app.config.update(config)
-    # Fora do servidor de desenvolvimento (http://127.0.0.1), o cookie só viaja por HTTPS.
+    # Fora do servidor de desenvolvimento (http://127.0.0.1), o cookie só viaja
+    # por HTTPS.
     app.config["SESSION_COOKIE_SECURE"] = not app.config["DEBUG"]
 
     if not app.config["SECRET_KEY"]:
         if not (app.config.get("TESTING") or app.config.get("DEBUG")):
             raise RuntimeError(
-                "Defina a variável de ambiente SECRET_KEY antes de iniciar o app. "
-                'Gere uma com: python -c "import secrets; print(secrets.token_hex(32))"'
+                "Defina a variável de ambiente SECRET_KEY antes de iniciar o "
+                'app. Gere uma com: python -c "import secrets; '
+                'print(secrets.token_hex(32))"'
             )
-        # Só em teste/desenvolvimento: chave aleatória (sessões caem ao reiniciar).
+        # Só em teste/desenvolvimento: chave aleatória (sessões caem ao
+        # reiniciar).
         app.config["SECRET_KEY"] = secrets.token_hex(32)
 
     Path(app.instance_path).mkdir(parents=True, exist_ok=True)
-    # Todo POST exige o csrf_token do formulário (o SameSite=Lax não barra o CSRF de login).
+    # Todo POST exige o csrf_token do formulário (o SameSite=Lax não barra o
+    # CSRF de login).
     CSRFProtect(app)
     db.init_app(app)
     # Filtros de dinheiro e data disponíveis em todos os templates.
@@ -77,8 +89,9 @@ def create_app(config: dict | None = None) -> Flask:
 
     @app.after_request
     def headers_de_seguranca(resposta: Response) -> Response:
-        # Ninguém carrega o app dentro de outro site (clickjacking), o navegador não
-        # adivinha o tipo do arquivo e só roda o que vem do próprio app (não há script inline).
+        # Ninguém carrega o app dentro de outro site (clickjacking), o
+        # navegador não adivinha o tipo do arquivo e só roda o que vem do
+        # próprio app (não há script inline).
         resposta.headers["X-Frame-Options"] = "DENY"
         resposta.headers["X-Content-Type-Options"] = "nosniff"
         resposta.headers["Content-Security-Policy"] = (
@@ -88,7 +101,8 @@ def create_app(config: dict | None = None) -> Flask:
 
     @app.errorhandler(CSRFError)
     def token_invalido(_erro: CSRFError) -> ResponseReturnValue:
-        # Token ausente ou de outra sessão (ex.: a sessão expirou com a página aberta).
+        # Token ausente ou de outra sessão (ex.: a sessão expirou com a página
+        # aberta).
         flash("A página expirou. Envie o formulário de novo.", "erro")
         return redirect(url_for("inicio"))
 

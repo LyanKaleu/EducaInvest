@@ -66,7 +66,7 @@ def _centavos_para_campo(centavos: int) -> str:
 
 
 def _form_do_registro(lancamento: dict) -> dict:
-    """Converte um registro do banco nos valores que o formulário de edição mostra."""
+    """Converte um registro do banco nos valores do formulário de edição."""
     return {
         "tipo": lancamento["tipo"].lower(),
         "categoria": lancamento["categoria"],
@@ -82,7 +82,10 @@ def _render_form(
     lancamento: dict | None = None,
     status: int = 200,
 ) -> ResponseReturnValue:
-    """Formulário de criar (lancamento=None) ou editar, já preenchido com `form`."""
+    """Formulário de criar ou editar, já preenchido com `form`.
+
+    `lancamento=None` é a criação.
+    """
     html = render_template(
         "aluno/lancamento_form.html",
         form=form,
@@ -152,7 +155,8 @@ def criar() -> ResponseReturnValue:
         flash(f"Lançamento salvo! +{progresso['xp_lancamento']} XP", "sucesso")
     elif progresso["teto_atingido"]:
         flash(
-            "Lançamento salvo. Você já ganhou o máximo de XP por registros hoje "
+            "Lançamento salvo. Você já ganhou o máximo de XP por registros "
+            "hoje "
             f"({TETO_DIARIO_LANCAMENTOS} XP).",
             "sucesso",
         )

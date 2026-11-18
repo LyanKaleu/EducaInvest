@@ -1,4 +1,6 @@
-"""Testes das regras de turma (RF02, HU5): nome e código de acesso. Só o service."""
+"""Testes das regras de turma (RF02, HU5): nome e código de acesso. Só o
+service.
+"""
 
 import random
 from datetime import date
@@ -59,14 +61,15 @@ def test_codigo_da_turma_e_reproduzivel_com_gerador_fixo() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Painel da turma (HU5, RN-18): agregados e linha por aluno, sem valores em reais.
+# Painel da turma (HU5, RN-18): agregados e linha por aluno, sem valores em
+# reais.
 # ---------------------------------------------------------------------------
 
 HOJE_PAINEL = date(2026, 11, 11)
 
 
 def alunos(*apelidos: str) -> list[dict[str, int | str]]:
-    """Alunos da turma como `listar_alunos` devolve: id (1, 2, ...) e apelido."""
+    """Alunos como `listar_alunos` devolve: id (1, 2, ...) e apelido."""
     return [
         {"id": i, "apelido": apelido}
         for i, apelido in enumerate(apelidos, start=1)

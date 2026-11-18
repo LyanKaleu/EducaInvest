@@ -37,7 +37,8 @@ def _aluno_id() -> int:
 
 
 def _repo() -> MetaRepository:
-    # A mesma conexão da requisição: `with obter_conexao():` controla a transação.
+    # A mesma conexão da requisição: `with obter_conexao():` controla a
+    # transação.
     return MetaRepository(obter_conexao())
 
 
@@ -66,7 +67,10 @@ def _com_progresso(meta: dict) -> dict:
 def _render_lista(
     aporte_com_erro: dict | None = None, status: int = 200
 ) -> ResponseReturnValue:
-    """Lista de metas. `aporte_com_erro` traz `meta_id`, `erros` e `form` do aporte recusado."""
+    """Lista de metas.
+
+    `aporte_com_erro` traz `meta_id`, `erros` e `form` do aporte recusado.
+    """
     metas = [_com_progresso(meta) for meta in _repo().listar(_aluno_id())]
     html = render_template(
         "aluno/metas.html",
@@ -132,7 +136,8 @@ def criar() -> ResponseReturnValue:
 
 
 def _aporte_recusado(meta_id: int, erro: ErroValidacao) -> ResponseReturnValue:
-    # A lista volta com o erro no campo e o valor e a chave preservados (nada foi gravado).
+    # A lista volta com o erro no campo e o valor e a chave preservados (nada
+    # foi gravado).
     flash(MSG_ERRO_APORTE, "erro")
     return _render_lista(
         {"meta_id": meta_id, "erros": erro.erros, "form": request.form}, 400
@@ -140,7 +145,10 @@ def _aporte_recusado(meta_id: int, erro: ErroValidacao) -> ResponseReturnValue:
 
 
 def _recusa_do_aporte(meta: dict, dados: dict) -> ResponseReturnValue | None:
-    """Resposta 400 se a meta já concluiu ou o aporte passa do que falta; None se cabe."""
+    """Resposta 400 se a meta concluiu ou o aporte passa do que falta.
+
+    None se o aporte cabe.
+    """
     if meta["concluida"]:  # meta cheia fecha: não aceita mais aportes
         flash("Essa meta já foi concluída.", "erro")
         return _render_lista(status=400)
@@ -163,12 +171,14 @@ def aportar(meta_id: int) -> ResponseReturnValue:
         dados = meta_service.validar_aporte(request.form)
     except ErroValidacao as erro:
         return _aporte_recusado(meta_id, erro)
-    # Valida antes para checar o reenvio com a chave normalizada, a mesma que foi gravada.
+    # Valida antes para checar o reenvio com a chave normalizada, a mesma que
+    # foi gravada.
     if _repo().aporte_registrado(
         _aluno_id(), meta_id, dados["chave_idempotencia"]
     ):
-        # Reenvio de um aporte já gravado (clique duplo, falha de rede): responde como
-        # sucesso, mesmo que esse aporte tenha concluído a meta (N2).
+        # Reenvio de um aporte já gravado (clique duplo, falha de rede):
+        # responde como sucesso, mesmo que esse aporte tenha concluído a meta
+        # (N2).
         return redirect(url_for(".listar"))
     recusa = _recusa_do_aporte(meta, dados)
     if recusa:
@@ -179,8 +189,9 @@ def aportar(meta_id: int) -> ResponseReturnValue:
     if not gravou and not _repo().aporte_registrado(
         _aluno_id(), meta_id, dados["chave_idempotencia"]
     ):
-        # Outro aporte entrou entre a conferência acima e o INSERT, e o banco recusou
-        # este para não passar do alvo. Confere de novo com o guardado atual.
+        # Outro aporte entrou entre a conferência acima e o INSERT, e o banco
+        # recusou este para não passar do alvo. Confere de novo com o guardado
+        # atual.
         return _recusa_do_aporte(
             _com_progresso(_buscar_ou_404(meta_id)), dados
         )

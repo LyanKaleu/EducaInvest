@@ -1,4 +1,7 @@
-"""Rota da tela inicial do aluno: saldo, XP, nível, sequência de dias, missão e meta em andamento."""
+"""Rota da tela inicial do aluno.
+
+Mostra saldo, XP, nível, sequência de dias, missão e meta em andamento.
+"""
 
 from flask import Blueprint, render_template, session
 from flask.typing import ResponseReturnValue
@@ -53,7 +56,8 @@ def ver() -> ResponseReturnValue:
         ultimos_dias=xp_service.ultimos_dias(dias_ativos, hoje),
         # A próxima missão a cumprir; None quando a trilha foi concluída.
         missao=next((m for m in missoes if m["status"] == "ATIVA"), None),
-        # A meta em andamento mais perto de concluir; o aporte não entra no saldo.
+        # A meta em andamento mais perto de concluir; o aporte não entra no
+        # saldo.
         meta=meta_service.mais_perto_de_concluir(metas),
         tem_metas=bool(metas),
     )

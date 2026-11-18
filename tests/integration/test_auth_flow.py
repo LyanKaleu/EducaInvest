@@ -1,4 +1,6 @@
-"""Fluxo HTTP de cadastro com código de turma, login, logout e acesso por perfil (RF01, RNF04, HU5)."""
+"""Fluxo HTTP de cadastro com código de turma, login, logout e acesso por
+perfil (RF01, RNF04, HU5).
+"""
 
 import pytest
 from flask import Flask
@@ -229,8 +231,9 @@ def test_bloqueio_de_um_email_nao_afeta_outro(
 def test_chutes_simultaneos_nao_furam_o_limite(
     monkeypatch: pytest.MonkeyPatch, app: Flask
 ) -> None:
-    # 6 chutes chegam juntos: cada um dispara o próximo enquanto confere a senha (o hash
-    # é lento), então nenhum terminou quando o 6º chega. O 6º, com a senha certa, não entra.
+    # 6 chutes chegam juntos: cada um dispara o próximo enquanto confere a
+    # senha (o hash é lento), então nenhum terminou quando o 6º chega. O 6º,
+    # com a senha certa, não entra.
     original = auth_service.conferir_senha
     disparados = []
     sexto = {}
@@ -272,7 +275,8 @@ def test_login_certo_zera_as_falhas(app: Flask) -> None:
 def test_login_com_hash_scrypt_antigo_entra_e_regrava_em_argon2id(
     app: Flask,
 ) -> None:
-    # Conta de antes do Argon2id: o hash guardado é o scrypt padrão do Werkzeug.
+    # Conta de antes do Argon2id: o hash guardado é o scrypt padrão do
+    # Werkzeug.
     conn = conectar(app.config["DATABASE"])
     with conn:
         conn.execute(

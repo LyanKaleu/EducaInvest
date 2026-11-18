@@ -24,7 +24,8 @@ def validar_meta(dados: Mapping[str, str], hoje: date | None = None) -> dict:
 
     Args:
         dados: objeto com `.get(nome)` (`request.form` ou dict), com os campos
-            `nome`, `alvo`, `prazo` (opcional) e `chave_idempotencia`, como texto.
+            `nome`, `alvo`, `prazo` (opcional) e `chave_idempotencia`, como
+            texto.
         hoje: data considerada "hoje" para recusar prazo no passado. Se for
             None, usa `hoje_no_piaui()`. Os testes passam uma data fixa.
 
@@ -104,7 +105,10 @@ def conferir_limite_do_aporte(
     if valor_centavos > falta:
         raise ErroValidacao(
             {
-                "valor": f"Faltam só {reais(falta)} para concluir esta meta. Guarde até esse valor."
+                "valor": (
+                    f"Faltam só {reais(falta)} para concluir esta meta. "
+                    "Guarde até esse valor."
+                )
             }
         )
 
@@ -155,7 +159,8 @@ def resumo(metas: list[dict]) -> dict:
     """Números do topo da tela de metas.
 
     Args:
-        metas: metas do aluno, cada uma com `valor_alvo_centavos` e `guardado_centavos`.
+        metas: metas do aluno, cada uma com `valor_alvo_centavos` e
+            `guardado_centavos`.
 
     Returns:
         dict: `guardado` (soma em centavos do que está em todas as metas),

@@ -1,4 +1,7 @@
-"""Limite de tentativas: bloqueia uma chave (o e-mail do login) depois de muitas tentativas seguidas."""
+"""Limite de tentativas de login.
+
+Bloqueia uma chave (o e-mail do login) depois de muitas tentativas seguidas.
+"""
 
 import threading
 import time
@@ -41,11 +44,15 @@ class LimiteDeTentativas:
         return agora - janela[0] >= self.janela_segundos
 
     def tentar(self, chave: str) -> bool:
-        """Conta uma tentativa. False se a chave já esgotou as tentativas da janela."""
+        """Conta uma tentativa.
+
+        False se a chave já esgotou as tentativas da janela.
+        """
         with self._trava:
             agora = self.relogio()
             if len(self._tentativas) >= self.max_chaves:
-                # Muitas chaves (ex.: script com e-mails aleatórios): descarta as vencidas.
+                # Muitas chaves (ex.: script com e-mails aleatórios): descarta
+                # as vencidas.
                 self._tentativas = {
                     c: j
                     for c, j in self._tentativas.items()

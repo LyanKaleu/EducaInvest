@@ -1,4 +1,6 @@
-"""Tela inicial do aluno: saldo, XP, nível, sequência e missão em andamento (HU1 saldo, HU3 RN-13)."""
+"""Tela inicial do aluno: saldo, XP, nível, sequência e missão em andamento
+(HU1 saldo, HU3 RN-13).
+"""
 
 import re
 import uuid
@@ -28,7 +30,9 @@ def painel(cliente: FlaskClient) -> str:
 
 
 def valor(html: str, id_: str) -> str:
-    """Texto do elemento com `id_` na tela (ex.: o saldo), sem espaços nas pontas."""
+    """Texto do elemento com `id_` na tela (ex.: o saldo), sem espaços nas
+    pontas.
+    """
     encontrado = re.search(rf'id="{id_}"[^>]*>([^<]*)<', html)
     assert encontrado, f"a tela deve ter o elemento #{id_}"
     return encontrado.group(1).strip()

@@ -1,14 +1,19 @@
-"""SQL das respostas de quiz de cada aluno. O banco de perguntas fica em quiz_service.PERGUNTAS."""
+"""SQL das respostas de quiz de cada aluno.
+
+O banco de perguntas fica em quiz_service.PERGUNTAS.
+"""
 
 import sqlite3
 
-# A PK garante uma única resposta por pergunta (RN-16: a primeira vale), inclusive no
-# clique duplo: o segundo INSERT cai no ON CONFLICT e não muda nada.
+# A PK garante uma única resposta por pergunta (RN-16: a primeira vale),
+# inclusive no clique duplo: o segundo INSERT cai no ON CONFLICT e não muda
+# nada.
 SQL_CRIAR_TABELA = """
 CREATE TABLE IF NOT EXISTS quiz_respostas (
     aluno_id         INTEGER NOT NULL,
     pergunta_codigo  TEXT    NOT NULL CHECK (length(pergunta_codigo) > 0),
-    alternativa      TEXT    NOT NULL CHECK (alternativa IN ('a', 'b', 'c', 'd')),
+    alternativa      TEXT    NOT NULL
+                     CHECK (alternativa IN ('a', 'b', 'c', 'd')),
     correta          INTEGER NOT NULL CHECK (correta IN (0, 1)),
     respondida_em    TEXT    NOT NULL DEFAULT (datetime('now')),
     PRIMARY KEY (aluno_id, pergunta_codigo)
@@ -17,7 +22,10 @@ CREATE TABLE IF NOT EXISTS quiz_respostas (
 
 
 class QuizRepository:
-    """Respostas de quiz por aluno. NÃO faz commit: quem chama decide a transação."""
+    """Respostas de quiz por aluno.
+
+    NÃO faz commit: quem chama decide a transação.
+    """
 
     def __init__(self, conn: sqlite3.Connection) -> None:
         """Cria o repositório sobre uma conexão já aberta."""
@@ -36,14 +44,18 @@ class QuizRepository:
         *,
         correta: bool,
     ) -> bool:
-        """Grava a resposta do aluno, se ele ainda não respondeu essa pergunta. Não faz commit.
+        """Grava a resposta, se o aluno ainda não respondeu a pergunta.
+
+        Não faz commit.
 
         Returns:
-            bool: True se gravou agora; False se já havia resposta (a primeira vale).
+            bool: True se gravou agora; False se já havia resposta (a primeira
+                vale).
         """
         cursor = self.conn.execute(
             """
-            INSERT INTO quiz_respostas (aluno_id, pergunta_codigo, alternativa, correta)
+            INSERT INTO quiz_respostas
+                (aluno_id, pergunta_codigo, alternativa, correta)
             VALUES (?, ?, ?, ?)
             ON CONFLICT (aluno_id, pergunta_codigo) DO NOTHING
             """,
@@ -52,7 +64,10 @@ class QuizRepository:
         return cursor.rowcount == 1
 
     def resposta(self, aluno_id: int, pergunta_codigo: str) -> dict | None:
-        """Resposta do aluno a uma pergunta: {"alternativa", "correta"}, ou None se não respondeu."""
+        """Resposta do aluno a uma pergunta, ou None se não respondeu.
+
+        Formato: {"alternativa", "correta"}.
+        """
         linha = self.conn.execute(
             """
             SELECT alternativa, correta FROM quiz_respostas
@@ -70,7 +85,8 @@ class QuizRepository:
     def acertos_por_pergunta(self, aluno_id: int) -> dict[str, bool]:
         """{código: acertou} de todas as perguntas que o aluno já respondeu."""
         linhas = self.conn.execute(
-            "SELECT pergunta_codigo, correta FROM quiz_respostas WHERE aluno_id = ?",
+            "SELECT pergunta_codigo, correta FROM quiz_respostas WHERE "
+            "aluno_id = ?",
             (aluno_id,),
         ).fetchall()
         return {

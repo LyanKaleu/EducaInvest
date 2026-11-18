@@ -1,4 +1,4 @@
-"""Calcula o XP do lançamento com teto diário, o nível e a sequência de dias (RN-11 a RN-13)."""
+"""XP do lançamento com teto, nível e sequência de dias (RN-11 a RN-13)."""
 
 from datetime import date, timedelta
 
@@ -8,7 +8,8 @@ TETO_DIARIO_LANCAMENTOS = (
     50  # só o XP de registros conta para o teto; missão fica fora
 )
 
-# (nível, nome, XP mínimo), do menor para o maior. Mesmo seed de docs/educainvest_schema.sql.
+# (nível, nome, XP mínimo), do menor para o maior. Mesmo seed de
+# docs/educainvest_schema.sql.
 NIVEIS = (
     (1, "Iniciante", 0),
     (2, "Aprendiz", 100),
@@ -20,7 +21,8 @@ def xp_do_lancamento(ganho_hoje: int) -> int:
     """XP que um novo lançamento rende, respeitando o teto diário de registros.
 
     Args:
-        ganho_hoje: XP que o aluno já ganhou hoje com registros (fuso do Piauí).
+        ganho_hoje: XP que o aluno já ganhou hoje com registros (fuso do
+            Piauí).
 
     Returns:
         int: `XP_POR_LANCAMENTO`, ou só o que falta para o teto, ou 0 se o teto
@@ -82,7 +84,7 @@ def sequencia(dias_ativos: set[date], hoje: date) -> int:
 def ultimos_dias(
     dias_ativos: set[date], hoje: date, quantidade: int = 7
 ) -> list[bool]:
-    """Se o aluno ganhou XP em cada um dos últimos dias, do mais antigo até hoje.
+    """Se o aluno teve XP em cada um dos últimos dias, do mais antigo a hoje.
 
     Alimenta as marcas da sequência na tela inicial.
 

@@ -1,4 +1,6 @@
-"""Testes das rotas de metas e aportes (HU2) com banco SQLite temporário (tmp_path)."""
+"""Testes das rotas de metas e aportes (HU2) com banco SQLite temporário
+(tmp_path).
+"""
 
 import re
 import sqlite3
@@ -48,7 +50,9 @@ def aportar(
 
 @pytest.fixture
 def meta_fone(cliente: FlaskClient) -> int:
-    """Meta "Fone" de R$ 200,00 do aluno logado, criada pela rota. Devolve o id."""
+    """Meta "Fone" de R$ 200,00 do aluno logado, criada pela rota. Devolve o
+    id.
+    """
     criar_meta(cliente, "Fone", "200,00")
     encontrado = re.search(r'data-meta-id="(\d+)"', lista(cliente))
     assert encontrado, "a meta criada deve aparecer na lista"
@@ -159,7 +163,8 @@ def test_meta_concluida_recusa_novo_aporte(
 def test_aporte_acima_do_que_falta_retorna_400_e_a_meta_nao_conclui(
     cliente: FlaskClient, meta_fone: int
 ) -> None:
-    # Sem resgate nem exclusão de aporte, um dígito a mais fecharia a meta para sempre.
+    # Sem resgate nem exclusão de aporte, um dígito a mais fecharia a meta para
+    # sempre.
     aportar(cliente, meta_fone, "170,00")
     chave = str(uuid.uuid4())
 
@@ -169,7 +174,8 @@ def test_aporte_acima_do_que_falta_retorna_400_e_a_meta_nao_conclui(
     html = resposta.get_data(as_text=True)
     assert (
         f'<p class="erro-campo" id="erro-valor-{meta_fone}">'
-        "Faltam só R$ 30,00 para concluir esta meta. Guarde até esse valor.</p>"
+        "Faltam só R$ 30,00 para concluir esta meta. Guarde até esse "
+        "valor.</p>"
     ) in html
     # O digitado volta no formulário, com a mesma chave: nada foi gravado.
     assert 'value="100.000,00"' in html
@@ -188,8 +194,8 @@ def test_aporte_zero_ou_negativo_retorna_400_e_o_progresso_nao_muda(
     assert resposta.status_code == 400
     html = resposta.get_data(as_text=True)
     assert (
-        f'<p class="erro-campo" id="erro-valor-{meta_fone}">O valor precisa ser maior que zero.</p>'
-        in html
+        f'<p class="erro-campo" id="erro-valor-{meta_fone}">'
+        "O valor precisa ser maior que zero.</p>" in html
     )
     assert "R$ 50,00 de R$ 200,00 · 25%" in lista(cliente)
 
@@ -251,7 +257,8 @@ def test_reenvio_do_aporte_com_a_mesma_chave_nao_duplica(
 def test_reenvio_do_aporte_que_concluiu_a_meta_responde_como_sucesso(
     cliente: FlaskClient, meta_fone: int
 ) -> None:
-    # Clique duplo no aporte que completa o alvo: o 2º envio não pode virar "meta já concluída".
+    # Clique duplo no aporte que completa o alvo: o 2º envio não pode virar
+    # "meta já concluída".
     aportar(cliente, meta_fone, "190,00")
     chave = str(uuid.uuid4())
     aportar(cliente, meta_fone, "10,00", chave=chave)
@@ -265,7 +272,8 @@ def test_reenvio_do_aporte_que_concluiu_a_meta_responde_como_sucesso(
 def test_reenvio_do_aporte_com_a_chave_em_maiusculas_responde_como_sucesso(
     cliente: FlaskClient, meta_fone: int
 ) -> None:
-    # A chave é gravada normalizada (minúsculas): o reenvio precisa ser reconhecido em outra grafia.
+    # A chave é gravada normalizada (minúsculas): o reenvio precisa ser
+    # reconhecido em outra grafia.
     aportar(cliente, meta_fone, "190,00")
     chave = str(uuid.uuid4()).upper()
     aportar(cliente, meta_fone, "10,00", chave=chave)
@@ -277,7 +285,8 @@ def test_reenvio_do_aporte_com_a_chave_em_maiusculas_responde_como_sucesso(
 
 
 # ---------------------------------------------------------------------------
-# Corrida: outro aporte é gravado entre a conferência da rota e o INSERT (auditoria, achado 7)
+# Corrida: outro aporte é gravado entre a conferência da rota e o INSERT
+# (auditoria, achado 7)
 # ---------------------------------------------------------------------------
 
 
@@ -288,10 +297,11 @@ def aporte_concorrente_depois_da_conferencia(
     centavos: int,
     chave: str,
 ) -> None:
-    """Na 1ª conferência de reenvio, outra requisição grava e commita um aporte nesta meta.
+    """Na 1ª conferência de reenvio, outra requisição grava e commita um aporte
+    nesta meta.
 
-    Simula a corrida real: a rota já leu o "guardado" e conferiu o limite, mas o
-    INSERT dela ainda não rodou. O outro aporte entra por outra conexão, como
+    Simula a corrida real: a rota já leu o "guardado" e conferiu o limite, mas
+    o INSERT dela ainda não rodou. O outro aporte entra por outra conexão, como
     entraria por outro processo.
     """
     original = MetaRepository.aporte_registrado
@@ -306,8 +316,8 @@ def aporte_concorrente_depois_da_conferencia(
             outra = sqlite3.connect(app.config["DATABASE"])
             with outra:
                 outra.execute(
-                    "INSERT INTO aportes_meta (meta_id, valor_centavos, chave_idempotencia)"
-                    " VALUES (?, ?, ?)",
+                    "INSERT INTO aportes_meta (meta_id, valor_centavos, "
+                    "chave_idempotencia) VALUES (?, ?, ?)",
                     (meta_id, centavos, chave),
                 )
             outra.close()
@@ -407,7 +417,9 @@ def test_meta_concluida_fica_separada_das_em_andamento(
 
 
 def atalhos(html: str, meta_id: int) -> list[str]:
-    """{valor: chave} de cada atalho de aporte da meta, como o navegador enviaria."""
+    """{valor: chave} de cada atalho de aporte da meta, como o navegador
+    enviaria.
+    """
     cartao = re.search(
         rf'data-meta-id="{meta_id}".*?</li>', html, re.DOTALL
     ).group(0)

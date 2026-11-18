@@ -1,4 +1,7 @@
-"""SQL das missões concluídas por cada aluno. O catálogo fica em missao_service.MISSOES."""
+"""SQL das missões concluídas por cada aluno.
+
+O catálogo fica em missao_service.MISSOES.
+"""
 
 import sqlite3
 from collections.abc import Iterable
@@ -15,7 +18,10 @@ CREATE TABLE IF NOT EXISTS missoes_concluidas (
 
 
 class MissaoRepository:
-    """Conclusões de missão por aluno. NÃO faz commit: quem chama decide a transação."""
+    """Conclusões de missão por aluno.
+
+    NÃO faz commit: quem chama decide a transação.
+    """
 
     def __init__(self, conn: sqlite3.Connection) -> None:
         """Cria o repositório sobre uma conexão já aberta."""
@@ -34,7 +40,8 @@ class MissaoRepository:
         """
         cursor = self.conn.execute(
             """
-            INSERT INTO missoes_concluidas (aluno_id, missao_codigo) VALUES (?, ?)
+            INSERT INTO missoes_concluidas (aluno_id, missao_codigo)
+            VALUES (?, ?)
             ON CONFLICT (aluno_id, missao_codigo) DO NOTHING
             """,
             (aluno_id, missao_codigo),

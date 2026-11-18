@@ -1,4 +1,6 @@
-"""Testes do limite de tentativas de login (auditoria, achado 1). Só o service, relógio falso."""
+"""Testes do limite de tentativas de login (auditoria, achado 1). Só o service,
+relógio falso.
+"""
 
 from app.services.limite_service import LimiteDeTentativas
 
@@ -33,7 +35,8 @@ def test_as_5_primeiras_tentativas_passam() -> None:
 
 
 def test_a_sexta_tentativa_e_recusada() -> None:
-    # A tentativa conta antes de a senha ser conferida: não depende de registrar a falha depois.
+    # A tentativa conta antes de a senha ser conferida: não depende de
+    # registrar a falha depois.
     limite, _ = limite_com_relogio()
     tentar(limite, "ana@x.br", 5)
 
@@ -82,7 +85,8 @@ def test_bloqueio_de_uma_chave_nao_afeta_outra() -> None:
 
 
 def test_janelas_vencidas_sao_descartadas_quando_ha_muitas_chaves() -> None:
-    # E-mails aleatórios não podem fazer a memória crescer até o servidor reiniciar.
+    # E-mails aleatórios não podem fazer a memória crescer até o servidor
+    # reiniciar.
     limite, relogio = limite_com_relogio(max_chaves=3)
     for email in ["a@x.br", "b@x.br", "c@x.br"]:
         limite.tentar(email)

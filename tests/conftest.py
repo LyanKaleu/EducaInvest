@@ -1,4 +1,6 @@
-"""Fixtures compartilhadas: app de teste, banco SQLite temporário e cliente HTTP."""
+"""Fixtures compartilhadas: app de teste, banco SQLite temporário e cliente
+HTTP.
+"""
 
 import re
 import uuid
@@ -21,7 +23,9 @@ HOJE = date(2026, 11, 4)
 
 @pytest.fixture(autouse=True)
 def hash_de_senha_rapido(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Troca o Argon2id de produção (64 MiB, lento de propósito) por um barato, só nos testes."""
+    """Troca o Argon2id de produção (64 MiB, lento de propósito) por um barato,
+    só nos testes.
+    """
     barato = Argon2Hasher(time_cost=1, memory_cost=8, parallelism=1)
     monkeypatch.setattr(
         auth_service,
@@ -49,7 +53,8 @@ def _criar_app(tmp_path: Path, **config: object) -> Flask:
             "TESTING": True,
             "SECRET_KEY": "chave-de-teste",
             "DATABASE": str(tmp_path / "teste.db"),
-            # CSRF desligado nos testes de regra; tests/integration/test_seguranca.py liga.
+            # CSRF desligado nos testes de regra;
+            # tests/integration/test_seguranca.py liga.
             "WTF_CSRF_ENABLED": False,
             **config,
         }
@@ -70,11 +75,13 @@ def cliente(cliente_aluno: FlaskClient) -> FlaskClient:
 
 @pytest.fixture
 def cliente_outro_aluno(
-    app: Flask, turma: dict[str, int | str], cliente_aluno: FlaskClient
-) -> FlaskClient:  # noqa: ARG001
+    app: Flask,
+    turma: dict[str, int | str],
+    cliente_aluno: FlaskClient,  # noqa: ARG001
+) -> FlaskClient:
     """Segundo aluno, na mesma turma e no MESMO banco do primeiro."""
-    # `cliente_aluno` só garante que o primeiro aluno se cadastra antes. Fixture não
-    # aceita @pytest.mark.usefixtures, por isso o noqa do ARG001 acima.
+    # `cliente_aluno` só garante que o primeiro aluno se cadastra antes.
+    # Fixture não aceita @pytest.mark.usefixtures, daí o noqa do ARG001.
     outro = app.test_client()
     cadastrar_aluno(
         outro, turma["codigo"], email="beatriz@escola.br", apelido="Beatriz"
@@ -88,7 +95,8 @@ def cliente_sem_login(app: Flask) -> FlaskClient:
 
 
 # ---------------------------------------------------------------------------
-# Login + turma (RF01, RF02): professor, turma e aluno criados pelas rotas HTTP.
+# Login + turma (RF01, RF02): professor, turma e aluno criados pelas rotas
+# HTTP.
 # ---------------------------------------------------------------------------
 
 SENHA = "senha-segura-123"
@@ -149,7 +157,9 @@ def cliente_professor(app: Flask) -> FlaskClient:
 
 @pytest.fixture
 def turma(cliente_professor: FlaskClient) -> dict[str, int | str]:
-    """Cria a turma "2º A" e devolve {"id": ..., "codigo": ...} lidos da página de turmas."""
+    """Cria a turma "2º A" e devolve {"id": ..., "codigo": ...} lidos da página
+    de turmas.
+    """
     criar_turma(cliente_professor)
     html = cliente_professor.get("/professor/turmas").get_data(as_text=True)
     codigo = re.search(
@@ -172,7 +182,9 @@ def cliente_aluno(app: Flask, turma: dict[str, int | str]) -> FlaskClient:
 def lancamento_existente(
     cliente: FlaskClient, form_valido: dict[str, str]
 ) -> dict[str, int]:
-    """Gasto de R$ 25,00 do aluno logado, criado pela rota. Devolve {"id": ...}."""
+    """Gasto de R$ 25,00 do aluno logado, criado pela rota. Devolve {"id":
+    ...}.
+    """
     cliente.post("/lancamentos/novo", data=form_valido)
     html = cliente.get("/lancamentos/").get_data(as_text=True)
     encontrado = re.search(r'href="/lancamentos/(\d+)/editar"', html)

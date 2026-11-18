@@ -1,4 +1,6 @@
-"""Testes das rotas de lançamentos (HU1) com banco SQLite temporário (tmp_path)."""
+"""Testes das rotas de lançamentos (HU1) com banco SQLite temporário
+(tmp_path).
+"""
 
 import re
 from datetime import timedelta
@@ -382,7 +384,7 @@ def test_confirmacao_de_exclusao_inexistente_retorna_404(
     assert cliente.get("/lancamentos/9999/excluir").status_code == 404
 
 
-def test_confirmacao_de_exclusao_de_outro_aluno_retorna_404_sem_mostrar_o_valor(
+def test_confirmar_exclusao_de_outro_aluno_retorna_404_sem_mostrar_valor(
     cliente_outro_aluno: FlaskClient, lancamento_existente: dict[str, int]
 ) -> None:
     resposta = cliente_outro_aluno.get(

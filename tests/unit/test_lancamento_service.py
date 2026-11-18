@@ -1,4 +1,6 @@
-"""Testes das regras de lançamento (HU1, RN-07): só o validador, sem Flask nem banco."""
+"""Testes das regras de lançamento (HU1, RN-07): só o validador, sem Flask nem
+banco.
+"""
 
 import pytest
 

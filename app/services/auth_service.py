@@ -1,4 +1,4 @@
-"""Valida cadastro e login, faz hash de senha e controla o acesso por perfil (RNF04)."""
+"""Cadastro, login, hash de senha e acesso por perfil (RNF04)."""
 
 import re
 from collections.abc import Mapping
@@ -22,13 +22,16 @@ CODIGO_RE = re.compile(r"[A-Z0-9]{6,8}")
 
 
 class HasherLegadoWerkzeug(HasherProtocol):
-    """Confere os hashes antigos do Werkzeug (scrypt), de antes do Argon2id. Nunca gera hash.
+    """Confere os hashes antigos do Werkzeug (scrypt), de antes do Argon2id.
 
-    Pega tudo o que não é Argon2: formato desconhecido cai no check_password_hash, que
-    responde False em vez de derrubar o login.
+    Nunca gera hash.
+
+    Pega tudo o que não é Argon2: formato desconhecido cai no
+    check_password_hash, que responde False em vez de derrubar o login.
     """
 
-    # Os nomes dos parâmetros (inclusive `hash`) vêm do HasherProtocol do pwdlib.
+    # Os nomes dos parâmetros (inclusive `hash`) vêm do HasherProtocol do
+    # pwdlib.
     @classmethod
     @override
     def identify(cls, hash: str | bytes) -> bool:
@@ -47,9 +50,9 @@ class HasherLegadoWerkzeug(HasherProtocol):
         return True
 
 
-# Hash de senha: Argon2id com os parâmetros padrão do argon2-cffi (t=3, 64 MiB, p=4),
-# lento de propósito. O legado só confere, e o login regrava o hash em Argon2id.
-# Os testes trocam por um Argon2id barato (tests/conftest.py).
+# Hash de senha: Argon2id com os parâmetros padrão do argon2-cffi (t=3, 64 MiB,
+# p=4), lento de propósito. O legado só confere, e o login regrava o hash em
+# Argon2id. Os testes trocam por um Argon2id barato (tests/conftest.py).
 SENHAS = PasswordHash((Argon2Hasher(), HasherLegadoWerkzeug()))
 
 
@@ -105,8 +108,9 @@ def gerar_hash_senha(senha: str) -> str:
 def conferir_senha(hash_senha: str, senha: str) -> tuple[bool, str | None]:
     """(a senha confere?, hash novo para gravar ou None).
 
-    O hash novo só vem quando a senha confere e o hash guardado está num formato antigo
-    ou com parâmetros desatualizados. Uma verificação só: o Argon2 é lento de propósito.
+    O hash novo só vem quando a senha confere e o hash guardado está num
+    formato antigo ou com parâmetros desatualizados. Uma verificação só: o
+    Argon2 é lento de propósito.
     """
     return SENHAS.verify_and_update(senha, hash_senha)
 

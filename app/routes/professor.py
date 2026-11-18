@@ -1,4 +1,4 @@
-"""Rotas do professor: criar turma, ver o código e o painel da turma (RF02, HU5)."""
+"""Rotas do professor: criar turma, ver o código e o painel (RF02, HU5)."""
 
 from flask import (
     Blueprint,
@@ -86,7 +86,7 @@ def criar_turma() -> ResponseReturnValue:
 
 @bp.get("/turmas/<int:turma_id>")
 def turma(turma_id: int) -> ResponseReturnValue:
-    """Painel da turma: agregados e uma linha por aluno, sem reais nem e-mail."""
+    """Painel da turma: agregados e linha por aluno, sem reais nem e-mail."""
     # Turma de outro professor também dá 404: não revela que o id existe.
     registro = _repo().buscar_do_professor(session["usuario_id"], turma_id)
     if registro is None:

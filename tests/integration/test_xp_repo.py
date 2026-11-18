@@ -1,4 +1,6 @@
-"""Garantias do banco no XP e nas missões concluídas (INVARIANTES N6), sem passar pela rota."""
+"""Garantias do banco no XP e nas missões concluídas (INVARIANTES N6), sem
+passar pela rota.
+"""
 
 import sqlite3
 from collections.abc import Iterator
@@ -126,7 +128,8 @@ def test_banco_recusa_alterar_xp(
 
 
 def test_missao_conclui_uma_vez_so_por_aluno(conn: sqlite3.Connection) -> None:
-    # Garantia própria da PK de missoes_concluidas, sem depender do service nem do XP.
+    # Garantia própria da PK de missoes_concluidas, sem depender do service nem
+    # do XP.
     repo = MissaoRepository(conn)
 
     assert repo.concluir(aluno_id=1, missao_codigo="REG_3_GASTOS")
@@ -200,7 +203,8 @@ def test_resumo_por_aluno_soma_o_xp_e_traz_o_ultimo_dia_ativo(
         dia_ref="2026-11-10",
     )
 
-    # Aluno 3 fica de fora (não pedido) e aluno 2 não aparece (nunca ganhou XP).
+    # Aluno 3 fica de fora (não pedido) e aluno 2 não aparece (nunca ganhou
+    # XP).
     assert repo.resumo_por_aluno([1, 2]) == {
         1: {"xp": 50, "ultimo_dia": date(2026, 11, 9)}
     }

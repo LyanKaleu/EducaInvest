@@ -24,7 +24,8 @@ def test_lancamento_perto_do_teto_vale_so_o_que_falta() -> None:
 
 
 def test_lancamento_nunca_vale_xp_negativo() -> None:
-    # Se o teto baixar um dia, quem já passou dele não perde nem "deve" XP (RN-12).
+    # Se o teto baixar um dia, quem já passou dele não perde nem "deve" XP
+    # (RN-12).
     assert xp_service.xp_do_lancamento(ganho_hoje=80) == 0
 
 

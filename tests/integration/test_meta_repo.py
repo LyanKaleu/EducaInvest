@@ -1,4 +1,6 @@
-"""Garantias do banco nos aportes de meta, sem passar pela rota (auditoria, achado 7)."""
+"""Garantias do banco nos aportes de meta, sem passar pela rota (auditoria,
+achado 7).
+"""
 
 from collections.abc import Iterator
 
@@ -25,8 +27,8 @@ def meta_de_100_reais(repo: MetaRepository) -> int:
 def test_banco_recusa_aporte_que_passa_do_alvo(
     repo: MetaRepository, meta_de_100_reais: int
 ) -> None:
-    # Dois aportes simultâneos passam pela checagem da rota com o mesmo "guardado";
-    # o segundo chega aqui quando só faltam R$ 30,00.
+    # Dois aportes simultâneos passam pela checagem da rota com o mesmo
+    # "guardado"; o segundo chega aqui quando só faltam R$ 30,00.
     repo.aportar(ALUNO, meta_de_100_reais, 7000, "chave-1")
 
     assert repo.aportar(ALUNO, meta_de_100_reais, 5000, "chave-2") is False

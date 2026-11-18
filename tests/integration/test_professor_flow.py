@@ -1,4 +1,6 @@
-"""Fluxo HTTP do professor: criar turma, ver o código e a lista de alunos (RF02, HU5)."""
+"""Fluxo HTTP do professor: criar turma, ver o código e a lista de alunos
+(RF02, HU5).
+"""
 
 import re
 

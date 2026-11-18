@@ -11,13 +11,14 @@ from app.services.xp_service import NIVEIS, nivel
 
 # Sem 0/O e 1/I/L, que se confundem ao copiar do quadro ou ditar em sala.
 ALFABETO_CODIGO = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
-# 8 caracteres: 31⁸ ≈ 852 bilhões de códigos, inviável de achar por tentativa e erro.
-# Turmas antigas, de 6, continuam valendo (o cadastro e a tabela aceitam 6 a 8).
+# 8 caracteres: 31⁸ ≈ 852 bilhões de códigos, inviável de achar por tentativa e
+# erro. Turmas antigas, de 6, continuam valendo (o cadastro e a tabela aceitam
+# 6 a 8).
 TAMANHO_CODIGO = 8
 NOME_MAX = 60
 
-# Frequência no painel do professor: aluno ativo é quem ganhou XP (a mesma regra
-# de "dia ativo" da sequência, RN-15) nos últimos 7 dias, contando hoje.
+# Frequência no painel do professor: aluno ativo é quem ganhou XP (a mesma
+# regra de "dia ativo" da sequência, RN-15) nos últimos 7 dias, contando hoje.
 # A spec deixa "dia ativo" em aberto. A confirmar pelo grupo.
 JANELA_FREQUENCIA_DIAS = 7
 
@@ -37,11 +38,12 @@ def validar_turma(dados: Mapping[str, str]) -> dict:
 def painel_da_turma(
     alunos: list[dict], resumo_xp: dict, missoes: dict, hoje: date
 ) -> dict:
-    """Progresso da turma para o professor, sem nenhum valor em reais (HU5, RN-18).
+    """Progresso da turma para o professor, sem valor em reais (HU5, RN-18).
 
     Args:
         alunos: alunos da turma, cada um com `id` e `apelido`.
-        resumo_xp: `{aluno_id: {"xp": int, "ultimo_dia": date}}` de quem já ganhou XP.
+        resumo_xp: `{aluno_id: {"xp": int, "ultimo_dia": date}}` de quem já
+            ganhou XP.
         missoes: `{aluno_id: int}` com as missões concluídas de cada aluno.
         hoje: dia de hoje no fuso do Piauí.
 
@@ -83,7 +85,8 @@ def painel_da_turma(
         "missoes_concluidas": sum(linha["missoes"] for linha in linhas),
         "ativos": sum(linha["ativo"] for linha in linhas),
         "alunos": linhas,
-        # sorted é estável: no empate de XP fica a ordem recebida (a do apelido).
+        # sorted é estável: no empate de XP fica a ordem recebida (a do
+        # apelido).
         "ranking": sorted(linhas, key=lambda linha: -linha["xp"]),
         "inativos": [
             linha["apelido"] for linha in linhas if not linha["ativo"]

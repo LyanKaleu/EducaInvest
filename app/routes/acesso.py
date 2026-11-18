@@ -7,7 +7,7 @@ from flask.typing import ResponseReturnValue
 
 
 def exigir_perfil(perfil: str) -> Callable[[], ResponseReturnValue | None]:
-    """Cria a verificação `before_request` que só deixa passar o `perfil` informado.
+    """Cria o `before_request` que só deixa passar o `perfil` informado.
 
     Args:
         perfil: perfil exigido ("ALUNO" ou "PROFESSOR").

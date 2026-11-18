@@ -1,4 +1,6 @@
-"""Leitura e conversão de campos de formulário (texto, valor em reais, data, chave), compartilhadas pelos services.
+"""Leitura e conversão de campos de formulário, compartilhadas pelos services.
+
+Campos: texto, valor em reais, data e chave.
 
 Os conversores recebem o texto já sem espaços nas pontas e devolvem o valor
 normalizado, ou levantam ValueError com a mensagem que o aluno vai ler.
@@ -23,14 +25,17 @@ def texto_do_campo(dados: Mapping[str, str], nome: str) -> str:
         nome: nome do campo.
 
     Returns:
-        str: o texto sem espaços nas pontas, ou "" se o campo faltar ou for None.
+        str: o texto sem espaços nas pontas, ou "" se o campo faltar ou for
+            None.
     """
     valor = dados.get(nome)
     return "" if valor is None else str(valor).strip()
 
 
 def converter_valor(texto: str) -> int:
-    """Converte um valor em reais digitado ("25,50", "1.234,56", "25.50") em centavos.
+    """Converte um valor em reais digitado em centavos.
+
+    Aceita "25,50", "1.234,56" e "25.50".
 
     Raises:
         ValueError: se estiver vazio, mal formatado, for zero ou negativo, ou
@@ -93,5 +98,6 @@ def converter_chave(texto: str) -> str:
         return str(uuid.UUID(texto))
     except ValueError:
         raise ValueError(
-            "Não foi possível identificar este envio. Recarregue a página e tente de novo."
+            "Não foi possível identificar este envio. Recarregue a página e "
+            "tente de novo."
         ) from None

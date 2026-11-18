@@ -123,7 +123,10 @@ def test_aporte_acima_do_que_falta_e_recusado_com_o_valor_restante() -> None:
     )
 
     assert erros == {
-        "valor": "Faltam só R$ 30,00 para concluir esta meta. Guarde até esse valor."
+        "valor": (
+            "Faltam só R$ 30,00 para concluir esta meta. Guarde até esse "
+            "valor."
+        )
     }
 
 
@@ -174,7 +177,7 @@ def meta(id_: int, alvo: int, guardado: int) -> dict[str, int]:
     }
 
 
-def test_destaca_a_meta_em_andamento_com_maior_percentual_e_ignora_concluidas() -> (
+def test_destaca_meta_em_andamento_de_maior_percentual_sem_as_concluidas() -> (
     None
 ):
     metas = [

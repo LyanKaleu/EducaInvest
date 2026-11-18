@@ -1,4 +1,6 @@
-"""Configuração segura do app: os 2 bloqueantes da revisão (SECRET_KEY e aluno de demonstração)."""
+"""Configuração segura do app: os 2 bloqueantes da revisão (SECRET_KEY e aluno
+de demonstração).
+"""
 
 from pathlib import Path
 

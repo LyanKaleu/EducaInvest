@@ -1,4 +1,4 @@
-"""Valida lançamentos (RN-07), calcula saldo e dispara a verificação de missões."""
+"""Valida lançamentos (RN-07), calcula o saldo e confere as missões."""
 
 from collections.abc import Callable, Mapping
 from datetime import date, datetime, timedelta, timezone
@@ -11,13 +11,15 @@ from app.services.formulario import (
     texto_do_campo,
 )
 
-# O Piauí fica em UTC-3 o ano todo (sem horário de verão). Usamos o deslocamento
-# fixo porque, no Windows, zoneinfo("America/Fortaleza") exige instalar o pacote tzdata.
+# O Piauí fica em UTC-3 o ano todo (sem horário de verão). Usamos o
+# deslocamento fixo porque, no Windows, zoneinfo("America/Fortaleza") exige
+# instalar o pacote tzdata.
 FUSO_PIAUI = timezone(timedelta(hours=-3), "America/Fortaleza")
 
 TIPOS = {"entrada": "ENTRADA", "saida": "SAIDA", "saída": "SAIDA"}
 
-# Lista fixa (mesma do seed em docs/educainvest_schema.sql). A confirmar pelo grupo.
+# Lista fixa (mesma do seed em docs/educainvest_schema.sql). A confirmar pelo
+# grupo.
 CATEGORIAS = {
     "ENTRADA": ("Mesada", "Trabalho/bico", "Benefício", "Outras entradas"),
     "SAIDA": (
@@ -109,10 +111,13 @@ def validar_lancamento(
 
 
 def saldo(somas: dict) -> int:
-    """Saldo do aluno em centavos: entradas menos gastos (RN-08). Pode ser negativo.
+    """Saldo do aluno em centavos: entradas menos gastos (RN-08).
+
+    Pode ser negativo.
 
     Args:
-        somas: {"ENTRADA": centavos, "SAIDA": centavos}, como em `somar_por_tipo`.
+        somas: {"ENTRADA": centavos, "SAIDA": centavos}, como em
+            `somar_por_tipo`.
     """
     return somas["ENTRADA"] - somas["SAIDA"]
 

@@ -1,4 +1,6 @@
-"""Fluxo HTTP do quiz: responder, ver a explicação e ganhar XP uma vez só (HU4)."""
+"""Fluxo HTTP do quiz: responder, ver a explicação e ganhar XP uma vez só
+(HU4).
+"""
 
 import re
 import sqlite3
@@ -11,13 +13,15 @@ from werkzeug.test import TestResponse
 
 from app.repositories.xp_repo import XpRepository
 
-# Pergunta do banco usada nos testes: R$ 1.000 a 10% ao ano por 2 anos, juros compostos.
-# Gabarito conferido à mão: R$ 1.210 é a letra "c"; "a" (R$ 1.200) é a conta de juros simples.
+# Pergunta do banco usada nos testes: R$ 1.000 a 10% ao ano por 2 anos, juros
+# compostos. Gabarito conferido à mão: R$ 1.210 é a letra "c"; "a" (R$ 1.200) é
+# a conta de juros simples.
 PERGUNTA = "JUROS_1"
 CERTA = "c"
 ERRADA = "a"
 
-# Gabarito de outras perguntas, conferido à mão no texto do banco (para o teto diário).
+# Gabarito de outras perguntas, conferido à mão no texto do banco (para o teto
+# diário).
 GABARITO = {
     "JUROS_1": "c",
     "JUROS_2": "b",
@@ -31,7 +35,9 @@ AVISO_TETO = "Você já ganhou os 40 XP do quiz hoje."
 def responder(
     cliente: FlaskClient, codigo: str, alternativa: str | None = None
 ) -> TestResponse:
-    """Envia a resposta pela rota e devolve a resposta HTTP final (já redirecionada)."""
+    """Envia a resposta pela rota e devolve a resposta HTTP final (já
+    redirecionada).
+    """
     dados = {} if alternativa is None else {"alternativa": alternativa}
     return cliente.post(f"/quiz/{codigo}", data=dados, follow_redirects=True)
 
@@ -73,7 +79,8 @@ def test_enviar_sem_escolher_retorna_400_e_nao_registra(
     html = resposta.get_data(as_text=True)
     assert resposta.status_code == 400
     assert "Escolha uma alternativa." in html
-    # Nada foi gravado: a pergunta continua aberta e o acerto depois ainda rende XP.
+    # Nada foi gravado: a pergunta continua aberta e o acerto depois ainda
+    # rende XP.
     assert 'name="alternativa"' in cliente.get(f"/quiz/{PERGUNTA}").get_data(
         as_text=True
     )
@@ -84,7 +91,8 @@ def test_enviar_sem_escolher_retorna_400_e_nao_registra(
 def test_errar_e_depois_mandar_a_certa_nao_muda_a_resposta_nem_da_xp(
     cliente: FlaskClient,
 ) -> None:
-    # RN-16: uma resposta por pergunta, a primeira vale (reenvio ou nova tentativa).
+    # RN-16: uma resposta por pergunta, a primeira vale (reenvio ou nova
+    # tentativa).
     responder(cliente, PERGUNTA, ERRADA)
 
     html = responder(cliente, PERGUNTA, CERTA).get_data(as_text=True)
@@ -108,7 +116,8 @@ def test_quinto_acerto_do_dia_passa_do_teto_e_nao_da_xp(
         responder(cliente, codigo, GABARITO[codigo])
     assert xp_total(cliente) == 40
 
-    # O aviso aparece ANTES de responder, para o aluno decidir se responde hoje.
+    # O aviso aparece ANTES de responder, para o aluno decidir se responde
+    # hoje.
     assert AVISO_TETO in cliente.get("/quiz/CREDITO_2").get_data(as_text=True)
 
     html = responder(cliente, "CREDITO_2", GABARITO["CREDITO_2"]).get_data(
@@ -144,8 +153,9 @@ def test_menu_do_aluno_tem_link_para_o_quiz(cliente: FlaskClient) -> None:
 def test_alternativa_com_espacos_vale_como_a_letra_e_nao_quebra(
     cliente: FlaskClient,
 ) -> None:
-    # Formulário adulterado (" c"): o service aceita a letra sem os espaços; a rota tem
-    # que gravar a mesma letra, senão o CHECK do banco derruba a página com 500.
+    # Formulário adulterado (" c"): o service aceita a letra sem os espaços; a
+    # rota tem que gravar a mesma letra, senão o CHECK do banco derruba a
+    # página com 500.
     resposta = responder(cliente, PERGUNTA, f" {CERTA} ")
 
     assert resposta.status_code == 200

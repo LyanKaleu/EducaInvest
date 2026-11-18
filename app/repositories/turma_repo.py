@@ -8,9 +8,11 @@ SQL_CRIAR_TABELA = """
 CREATE TABLE IF NOT EXISTS turmas (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
     professor_id   INTEGER NOT NULL REFERENCES usuarios (id),
-    nome           TEXT    NOT NULL CHECK (length(trim(nome)) BETWEEN 1 AND 60),
+    nome           TEXT    NOT NULL
+                   CHECK (length(trim(nome)) BETWEEN 1 AND 60),
     codigo_acesso  TEXT    NOT NULL UNIQUE
-                   CHECK (length(codigo_acesso) BETWEEN 6 AND 8 AND codigo_acesso = upper(codigo_acesso)),
+                   CHECK (length(codigo_acesso) BETWEEN 6 AND 8
+                          AND codigo_acesso = upper(codigo_acesso)),
     criado_em      TEXT    NOT NULL DEFAULT (datetime('now')),
     UNIQUE (professor_id, nome)
 );
@@ -42,18 +44,27 @@ class TurmaRepository:
         conn.executescript(SQL_CRIAR_TABELA)
 
     def criar(self, professor_id: int, nome: str, codigo_acesso: str) -> dict:
-        """Insere uma turma do professor e devolve o registro. Não faz commit."""
+        """Insere uma turma do professor e devolve o registro.
+
+        Não faz commit.
+        """
         cursor = self.conn.execute(
-            "INSERT INTO turmas (professor_id, nome, codigo_acesso) VALUES (?, ?, ?)",
+            "INSERT INTO turmas (professor_id, nome, codigo_acesso) VALUES "
+            "(?, ?, ?)",
             (professor_id, nome, codigo_acesso),
         )
         return self.buscar_do_professor(professor_id, cursor.lastrowid)
 
     def listar_do_professor(self, professor_id: int) -> list[dict]:
-        """Turmas do professor, cada uma com `total_alunos` (quantos alunos estão matriculados)."""
+        """Turmas do professor, cada uma com `total_alunos`.
+
+        `total_alunos` é quantos alunos estão matriculados.
+        """
         linhas = self.conn.execute(
             """
-            SELECT t.*, (SELECT COUNT(*) FROM matriculas m WHERE m.turma_id = t.id) AS total_alunos
+            SELECT t.*,
+                   (SELECT COUNT(*) FROM matriculas m WHERE m.turma_id = t.id)
+                       AS total_alunos
             FROM turmas t WHERE t.professor_id = ? ORDER BY t.nome
             """,
             (professor_id,),
@@ -78,9 +89,10 @@ class TurmaRepository:
         return linha_para_dict(linha)
 
     def existe_nome(self, professor_id: int, nome: str) -> bool:
-        """Se o professor já tem turma com esse nome, sem diferenciar maiúsculas."""
+        """Se o professor já tem turma com esse nome, ignorando maiúsculas."""
         linha = self.conn.execute(
-            "SELECT 1 FROM turmas WHERE professor_id = ? AND nome = ? COLLATE NOCASE",
+            "SELECT 1 FROM turmas WHERE professor_id = ? AND nome = ? "
+            "COLLATE NOCASE",
             (professor_id, nome),
         ).fetchone()
         return linha is not None

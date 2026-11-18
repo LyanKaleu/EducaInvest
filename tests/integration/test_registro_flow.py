@@ -21,7 +21,9 @@ def registrar(
     tipo: str = "saida",
     categoria: str = "Alimentação",
 ) -> TestResponse | None:
-    """Registra `vezes` lançamentos pela rota e devolve a resposta do último (já redirecionada)."""
+    """Registra `vezes` lançamentos pela rota e devolve a resposta do último
+    (já redirecionada).
+    """
     resposta = None
     for _ in range(vezes):
         form = {
@@ -106,7 +108,8 @@ def test_lancamento_credita_10_xp_e_avisa(cliente: FlaskClient) -> None:
 def test_lancamento_acima_do_teto_e_salvo_sem_xp_e_avisa(
     cliente: FlaskClient,
 ) -> None:
-    # Entradas, para nenhuma missão de gastos interferir: 5 x 10 XP = teto de 50.
+    # Entradas, para nenhuma missão de gastos interferir: 5 x 10 XP = teto de
+    # 50.
     registrar(cliente, vezes=5, tipo="entrada", categoria="Mesada")
     assert xp_total(cliente) == 50
 
@@ -215,7 +218,8 @@ def test_aluno_sobe_para_o_nivel_2_ao_passar_de_100_xp(
 def test_falha_ao_creditar_xp_nao_salva_o_lancamento(
     cliente: FlaskClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # Spec, HU3 "falha parcial": lançamento e XP gravados juntos ou nenhum dos dois.
+    # Spec, HU3 "falha parcial": lançamento e XP gravados juntos ou nenhum dos
+    # dois.
     def falhar(*_args: object, **_kwargs: object) -> Never:
         raise sqlite3.OperationalError("disco cheio (simulado)")
 
@@ -252,7 +256,9 @@ def test_missoes_mostra_o_xp_de_registros_de_hoje_e_o_teto(
 
 
 def categoria_do_aviso(html: str, trecho: str) -> str | None:
-    """Categoria (sucesso, erro, conquista) do aviso que contém `trecho`, ou None."""
+    """Categoria (sucesso, erro, conquista) do aviso que contém `trecho`, ou
+    None.
+    """
     for categoria, corpo in re.findall(
         r'<p class="aviso aviso-(\w+)"[^>]*>(.*?)</p>', html, re.DOTALL
     ):

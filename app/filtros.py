@@ -1,19 +1,26 @@
-"""Filtros Jinja usados em todas as telas: dinheiro e data no formato brasileiro.
+"""Filtros Jinja das telas: dinheiro e data no formato brasileiro.
 
-Funções puras, sem Flask: o meta_service também usa `reais`. O registro no Jinja
-fica em create_app (app/__init__.py).
+Funções puras, sem Flask: o meta_service também usa `reais`. O registro no
+Jinja fica em create_app (app/__init__.py).
 """
 
 
 def reais(centavos: int) -> str:
-    """Formata centavos como dinheiro: 123456 -> 'R$ 1.234,56'; -1050 -> '-R$ 10,50'."""
-    # divmod de negativo arredonda para baixo (-1050 -> -11 e 50): formata o módulo e põe o sinal.
+    """Formata centavos como dinheiro brasileiro.
+
+    123456 -> 'R$ 1.234,56'; -1050 -> '-R$ 10,50'.
+    """
+    # divmod de negativo arredonda para baixo (-1050 -> -11 e 50): formata o
+    # módulo e põe o sinal.
     inteiro, resto = divmod(abs(centavos), 100)
     sinal = "-" if centavos < 0 else ""
     return f"{sinal}R$ {inteiro:,}".replace(",", ".") + f",{resto:02d}"
 
 
 def data_br(data_iso: str) -> str:
-    """Formata uma data ISO no padrão brasileiro: '2026-11-04' -> '04/11/2026'."""
+    """Formata uma data ISO no padrão brasileiro.
+
+    '2026-11-04' -> '04/11/2026'.
+    """
     ano, mes, dia = data_iso.split("-")
     return f"{dia}/{mes}/{ano}"

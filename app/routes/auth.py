@@ -1,4 +1,7 @@
-"""Rotas de cadastro (aluno com código de turma, professor), login e logout (RF01)."""
+"""Rotas de cadastro, login e logout (RF01).
+
+O aluno se cadastra com o código da turma; o professor, sem código.
+"""
 
 from datetime import UTC, datetime
 
@@ -25,16 +28,18 @@ bp = Blueprint("auth", __name__)
 
 MSG_ERRO_FORM = "Não foi possível continuar. Confira os campos destacados."
 MSG_LOGIN_INVALIDO = "E-mail ou senha incorretos."
-# Esta mensagem revela se um e-mail já tem conta (enumeração). Risco ACEITO no MVP
-# (ver ESTADO.md): sem envio de e-mail não dá para o "cadastro silencioso", e limitar
-# por IP brigaria com a turma saindo pelo mesmo Wi-Fi da escola. A UX de mandar logar vale mais.
+# Esta mensagem revela se um e-mail já tem conta (enumeração). Risco ACEITO no
+# MVP (ver ESTADO.md): sem envio de e-mail não dá para o "cadastro silencioso",
+# e limitar por IP brigaria com a turma saindo pelo mesmo Wi-Fi da escola. A UX
+# de mandar logar vale mais.
 MSG_EMAIL_EM_USO = "Este e-mail já está cadastrado."
 MSG_MUITAS_TENTATIVAS = (
     "Muitas tentativas para este e-mail. Espere 15 minutos e tente de novo."
 )
 
-# Contra senha por tentativa e erro: 5 senhas erradas bloqueiam o e-mail por 15 min.
-# Conta por e-mail, não por IP: a turma inteira sai pelo mesmo Wi-Fi da escola.
+# Contra senha por tentativa e erro: 5 senhas erradas bloqueiam o e-mail por 15
+# min. Conta por e-mail, não por IP: a turma inteira sai pelo mesmo Wi-Fi da
+# escola.
 FALHAS_DE_LOGIN = 5
 JANELA_DE_LOGIN_SEGUNDOS = 15 * 60
 
@@ -57,7 +62,8 @@ def destino_do_perfil(perfil: str) -> str:
 
 
 def _iniciar_sessao(usuario: dict) -> ResponseReturnValue:
-    session.clear()  # descarta qualquer sessão anterior (evita fixação de sessão)
+    # Descarta qualquer sessão anterior (evita fixação de sessão).
+    session.clear()
     session["usuario_id"] = usuario["id"]
     session["perfil"] = usuario["perfil"]
     session["apelido"] = usuario[
@@ -80,7 +86,7 @@ def _render_cadastro(
 
 
 def _cadastro_invalido(erros: dict, *, professor: bool) -> ResponseReturnValue:
-    """Avisa o erro (flash) e devolve o formulário de cadastro preenchido, com 400."""
+    """Avisa o erro (flash) e devolve o cadastro preenchido, com 400."""
     flash(MSG_ERRO_FORM, "erro")
     return _render_cadastro(professor=professor, erros=erros, status=400)
 
@@ -177,9 +183,11 @@ def entrar() -> ResponseReturnValue:
         ), 400
 
     limite = _limite_de_login()
-    # A tentativa conta antes de conferir a senha: chutes simultâneos não furam o teto.
+    # A tentativa conta antes de conferir a senha: chutes simultâneos não furam
+    # o teto.
     if not limite.tentar(dados["email"]):
-        # Bloqueia mesmo com a senha certa: senão o chute continuaria até acertar.
+        # Bloqueia mesmo com a senha certa: senão o chute continuaria até
+        # acertar.
         flash(MSG_MUITAS_TENTATIVAS, "erro")
         return render_template(
             "auth/login.html", form=request.form, erros={}
@@ -193,13 +201,15 @@ def entrar() -> ResponseReturnValue:
             usuario["senha_hash"], dados["senha"]
         )
     if not confere:
-        # Mesma mensagem nos dois casos: não revela quais e-mails estão cadastrados.
+        # Mesma mensagem nos dois casos: não revela quais e-mails estão
+        # cadastrados.
         flash(MSG_LOGIN_INVALIDO, "erro")
         return render_template(
             "auth/login.html", form=request.form, erros={}
         ), 401
     if hash_novo:
-        # Conta antiga (scrypt) ou parâmetros desatualizados: regrava em Argon2id.
+        # Conta antiga (scrypt) ou parâmetros desatualizados: regrava em
+        # Argon2id.
         with obter_conexao():
             usuarios.atualizar_senha_hash(usuario["id"], hash_novo)
     limite.limpar(dados["email"])

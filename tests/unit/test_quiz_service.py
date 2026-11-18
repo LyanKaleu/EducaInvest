@@ -5,7 +5,8 @@ import pytest
 from app.services import quiz_service
 from app.services.erros import ErroValidacao
 
-# Pergunta escrita à mão: os testes não dependem do texto do catálogo, que o grupo vai revisar.
+# Pergunta escrita à mão: os testes não dependem do texto do catálogo, que o
+# grupo vai revisar.
 PERGUNTA = {
     "codigo": "TESTE_1",
     "tema": "JUROS",

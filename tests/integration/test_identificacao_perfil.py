@@ -1,7 +1,9 @@
-"""Escolha do perfil no cadastro e identificação de quem está logado (RF01, usabilidade).
+"""Escolha do perfil no cadastro e identificação de quem está logado (RF01,
+usabilidade).
 
 Padrão de mercado (Google Classroom, Khan Academy, Upwork): o tipo de usuário é
-escolhido no cadastro, o login é um só, e depois de entrar a tela mostra o perfil.
+escolhido no cadastro, o login é um só, e depois de entrar a tela mostra o
+perfil.
 """
 
 import re
@@ -117,7 +119,8 @@ def test_apelido_no_topo_nao_executa_html(
 def test_sessao_antiga_sem_apelido_mostra_so_o_perfil(
     cliente_aluno: FlaskClient,
 ) -> None:
-    # Quem entrou antes desta versão não tem apelido na sessão: nada de "None · Aluno".
+    # Quem entrou antes desta versão não tem apelido na sessão: nada de "None ·
+    # Aluno".
     with cliente_aluno.session_transaction() as sessao:
         sessao.pop("apelido")
 

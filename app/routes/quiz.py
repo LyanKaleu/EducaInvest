@@ -55,7 +55,8 @@ def _render_pergunta(
     conn = obter_conexao()
     repo = QuizRepository(conn)
     resposta = repo.resposta(_aluno_id(), pergunta["codigo"])
-    # Depois de responder, o atalho leva à próxima pergunta ainda não respondida.
+    # Depois de responder, o atalho leva à próxima pergunta ainda não
+    # respondida.
     novas = [
         item
         for item in quiz_service.situacao(
@@ -107,9 +108,11 @@ def responder(codigo: str) -> ResponseReturnValue:
         QuizRepository(obter_conexao()).resposta(_aluno_id(), codigo)
         is not None
     ):
-        # Já respondida (reenvio, clique duplo, nova tentativa): a primeira resposta vale (RN-16).
+        # Já respondida (reenvio, clique duplo, nova tentativa): a primeira
+        # resposta vale (RN-16).
         return redirect(url_for(".ver", codigo=codigo))
-    # A mesma letra que o service valida é a que vai para o banco (" c" vira "c").
+    # A mesma letra que o service valida é a que vai para o banco (" c" vira
+    # "c").
     escolha = (request.form.get("alternativa") or "").strip()
     try:
         acertou = quiz_service.corrigir(pergunta, escolha)
@@ -125,7 +128,8 @@ def responder(codigo: str) -> ResponseReturnValue:
         gravou = QuizRepository(conn).responder(
             _aluno_id(), codigo, escolha, correta=acertou
         )
-        # Só paga quem gravou agora: num envio simultâneo, o segundo não grava nem pontua.
+        # Só paga quem gravou agora: num envio simultâneo, o segundo não grava
+        # nem pontua.
         if gravou and acertou:
             xp_repo = XpRepository(conn)
             xp_ganho = quiz_service.xp_do_acerto(
@@ -138,7 +142,8 @@ def responder(codigo: str) -> ResponseReturnValue:
         flash(f"+{xp_ganho} XP no quiz!", "sucesso")
     elif acertou:
         flash(
-            f"Você já ganhou os {quiz_service.TETO_DIARIO_QUIZ} XP do quiz hoje. "
+            f"Você já ganhou os {quiz_service.TETO_DIARIO_QUIZ} XP do quiz "
+            "hoje. "
             "Este acerto vale como aprendizado.",
             "sucesso",
         )

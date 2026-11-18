@@ -1,9 +1,12 @@
-"""Testes de progresso, conclusão única e desbloqueio de missões (HU3). Só o service."""
+"""Testes de progresso, conclusão única e desbloqueio de missões (HU3). Só o
+service.
+"""
 
 from app.services import missao_service
 
 PRIMEIRA = "REG_3_GASTOS"  # Registre 3 gastos (+30 XP)
-SEGUNDA = "REG_7_LANCAMENTOS"  # Registre 7 lançamentos, entradas ou saídas (+50 XP); exige a primeira
+# Registre 7 lançamentos, entradas ou saídas (+50 XP); exige a primeira.
+SEGUNDA = "REG_7_LANCAMENTOS"
 
 
 def contagens(gastos: int = 0, entradas: int = 0) -> dict[str, int]:
@@ -66,10 +69,9 @@ def test_segunda_missao_conta_entradas_e_saidas_depois_de_desbloqueada() -> (
     )
 
 
-def test_missao_concluida_aparece_como_concluida_mesmo_com_menos_registros() -> (
-    None
-):
-    # O aluno excluiu um gasto depois de concluir: a conquista não some (RN-12).
+def test_missao_concluida_continua_concluida_com_menos_registros() -> None:
+    # O aluno excluiu um gasto depois de concluir: a conquista não some
+    # (RN-12).
     primeira = por_codigo(
         missao_service.situacao(contagens(gastos=1), {PRIMEIRA})
     )[PRIMEIRA]
@@ -106,14 +108,16 @@ def test_missao_ja_concluida_nao_e_concluida_de_novo() -> None:
 
 
 def test_criterio_ja_cumprido_conclui_a_trilha_em_ordem() -> None:
-    # Aluno que já tinha 7 gastos antes das missões existirem: conclui as duas, na ordem.
+    # Aluno que já tinha 7 gastos antes das missões existirem: conclui as duas,
+    # na ordem.
     concluir = missao_service.a_concluir(contagens(gastos=7), set())
 
     assert codigos(concluir) == [PRIMEIRA, SEGUNDA]
 
 
 def test_segunda_missao_nao_conclui_sem_a_primeira() -> None:
-    # 7 lançamentos, mas só 2 gastos: a primeira não fecha, então a segunda segue bloqueada.
+    # 7 lançamentos, mas só 2 gastos: a primeira não fecha, então a segunda
+    # segue bloqueada.
     assert (
         missao_service.a_concluir(contagens(gastos=2, entradas=5), set()) == []
     )

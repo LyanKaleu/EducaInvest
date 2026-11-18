@@ -1,10 +1,13 @@
-"""Testes das regras de cadastro, login e senha (RF01, RN-04, RN-05, RNF04): só o service."""
+"""Testes das regras de cadastro, login e senha (RF01, RN-04, RN-05, RNF04): só
+o service.
+"""
 
 import pytest
 from werkzeug.security import generate_password_hash
 
-# Importa o MÓDULO (que já existe) e não as funções: enquanto elas não existirem,
-# cada teste falha sozinho, em vez de quebrar a coleta do arquivo inteiro.
+# Importa o MÓDULO (que já existe) e não as funções: enquanto elas não
+# existirem, cada teste falha sozinho, em vez de quebrar a coleta do arquivo
+# inteiro.
 from app.services import auth_service
 from app.services.erros import ErroValidacao
 
@@ -331,7 +334,8 @@ def test_senha_certa_com_hash_novo_confere_sem_pedir_rehash() -> None:
 def test_senha_certa_com_hash_scrypt_antigo_confere_e_devolve_argon2id() -> (
     None
 ):
-    # Formato das contas criadas antes do Argon2id (o padrão do Werkzeug no deploy).
+    # Formato das contas criadas antes do Argon2id (o padrão do Werkzeug no
+    # deploy).
     hash_antigo = generate_password_hash("senha-segura-123", method="scrypt")
 
     confere, hash_novo = auth_service.conferir_senha(
