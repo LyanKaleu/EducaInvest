@@ -1,4 +1,0 @@
-# Ferramentas de desenvolvimento usadas pelo gate.sh (não vão para produção).
-ruff==0.17.4
-import-linter==2.16
-pytest==9.2.0

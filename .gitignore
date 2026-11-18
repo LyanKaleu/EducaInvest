@@ -10,6 +10,10 @@ dist/
 venv/
 .env
 
+# Dependências: a fonte é o uv.lock. O deploy gera o requirements.txt com `uv export`,
+# e ele não volta para o repositório.
+requirements*.txt
+
 # Testes e cobertura
 .pytest_cache/
 .coverage
