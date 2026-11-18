@@ -91,7 +91,7 @@ p { margin: 0 0 1rem; }
 }
 .aviso-conquista .trofeu { flex: none; }
 .erro-campo { color: var(--perigo-texto); font-weight: 600; margin: .25rem 0 0; }
-[aria-invalid="true"] { border-color: var(--perigo) !important; border-width: 2px !important; }
+[aria-invalid="true"] { border-color: var(--perigo-texto) !important; border-width: 2px !important; }
 
 /* ---------- Formulários ---------- */
 

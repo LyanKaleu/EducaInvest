@@ -163,8 +163,8 @@ label.alt { cursor: pointer; }
 .alt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .alt:has(input:checked) { border: 2px solid var(--foco); background: var(--foco-fundo); }
 .alt:has(input:focus-visible) { outline: 3px solid var(--foco); outline-offset: 2px; }
-.alt.certa { border: 2px solid var(--primaria); background: var(--sucesso-fundo); }
-.alt.errada { border: 2px solid var(--perigo); background: var(--erro-fundo); }
+.alt.certa { border: 2px solid var(--primaria-texto); background: var(--sucesso-fundo); }
+.alt.errada { border: 2px solid var(--perigo-texto); background: var(--erro-fundo); }
 .letra {
   flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
   border: 1px solid var(--borda); background: var(--fundo); font-weight: 700; font-size: .85rem;
