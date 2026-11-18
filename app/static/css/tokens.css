@@ -35,6 +35,17 @@
   --duracao-cor: 150ms;      /* troca de cor e fundo */
   --duracao-pagina: 240ms;   /* troca de página: abaixo de 300ms, a página fica inerte durante a troca */
   --duracao-aviso: 200ms;    /* o aviso aparece a cada lançamento salvo */
+  /* Escala do transitions.dev (o uso decide o token, não o número mais próximo). */
+  --ease-mola: cubic-bezier(0.34, 1.35, 0.64, 1); /* assentar com uma passada: check, contador */
+  --duracao-escalonar: 40ms; /* atraso entre itens em cascata */
+  --duracao-micro: 80ms;     /* cada segmento da tremida de erro */
+  --duracao-rapida: 150ms;   /* fechar, trocar texto */
+  --duracao-curta: 250ms;    /* abrir, deslizar abas, trocar de página de lado, sair do toast */
+  --duracao-media: 350ms;    /* entrar do toast */
+  --duracao-lenta: 500ms;    /* momentos de ênfase: check, revelar texto, contador */
+  --desfoque-pequeno: 2px;
+  --desfoque-medio: 3px;
+  --tempo-do-toast: 5s;      /* quanto a confirmação fica na tela (pausa com o mouse ou o foco nela) */
   --confete-dourado: #f5c542; /* decorativo, só no confete */
   --confete-claro: #e7f4ea;   /* decorativo, só no confete */
 

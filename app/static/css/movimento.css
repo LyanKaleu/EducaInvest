@@ -27,6 +27,25 @@
   /* O aviso aparece a cada lançamento salvo (dezenas de vezes por dia): entrada curta e sem espera. */
   .aviso { animation: entra-aviso var(--duracao-aviso) var(--ease-out) backwards; }
 
+  /* Toast de sucesso (transitions.dev: toast + success check). Sobe com fade e desfoque, fica
+     --tempo-do-toast e sai mais rápido do que entrou. O mouse ou o foco em cima pausam a saída.
+     O check gira, assenta com uma passada e o traço se desenha. */
+  .aviso-sucesso {
+    animation:
+      entra-toast var(--duracao-media) var(--ease-out) backwards,
+      sai-toast var(--duracao-curta) var(--ease-out) var(--tempo-do-toast) forwards;
+  }
+  .aviso-sucesso .check {
+    animation:
+      aparece-check var(--duracao-lenta) var(--ease-out) 120ms backwards,
+      assenta-check var(--duracao-lenta) var(--ease-mola) 120ms backwards;
+  }
+  /* 21 = comprimento do traço do check (19,8) arredondado para cima. */
+  .aviso-sucesso .check path {
+    stroke-dasharray: 21; stroke-dashoffset: 21;
+    animation: desenha-traco var(--duracao-lenta) var(--ease-out) 200ms forwards;
+  }
+
   /* Comemoração (missão, nível, meta concluída): evento raro, então pode encantar.
      O cartão dá um pequeno salto, o troféu balança e o confete cai uma vez só. */
   .aviso-conquista { animation: salta-conquista 450ms var(--ease-salto) backwards; }
@@ -90,6 +109,8 @@
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 150ms; }
 
   .aviso { animation: aparece 200ms ease backwards; }
+  /* O toast continua saindo sozinho, só com esmaecimento. */
+  .aviso-sucesso { animation: aparece 200ms ease backwards, some 200ms ease var(--tempo-do-toast) forwards; }
 
   button, .botao, .chip, .segmento-opcao, label.alt {
     transition:
@@ -120,3 +141,16 @@
 }
 @keyframes revela-barra { from { clip-path: inset(0 100% 0 0); } }
 @keyframes aparece { from { opacity: 0; } }
+@keyframes some { to { opacity: 0; visibility: hidden; } }
+@keyframes entra-toast {
+  from { opacity: 0; transform: translateY(16px) scale(.97); filter: blur(var(--desfoque-pequeno)); }
+}
+@keyframes sai-toast {
+  to { opacity: 0; transform: translateY(8px) scale(.98); filter: blur(var(--desfoque-pequeno)); visibility: hidden; }
+}
+@keyframes aparece-check { from { opacity: 0; transform: rotate(80deg); filter: blur(4px); } }
+@keyframes assenta-check { from { translate: 0 6px; } }
+@keyframes desenha-traco { to { stroke-dashoffset: 0; } }
+
+/* Pausa a saída do toast enquanto o aluno lê com o mouse em cima ou navega por ele (WCAG 2.2.1). */
+.aviso-sucesso:hover, .aviso-sucesso:focus-within { animation-play-state: paused; }
