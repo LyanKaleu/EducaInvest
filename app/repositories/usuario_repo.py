@@ -43,3 +43,7 @@ class UsuarioRepository:
     def buscar_por_email(self, email) -> dict | None:
         linha = self.conn.execute("SELECT * FROM usuarios WHERE email = ?", (email,)).fetchone()
         return linha_para_dict(linha)
+
+    def atualizar_senha_hash(self, usuario_id, senha_hash) -> None:
+        """Regrava o hash da senha (migração para Argon2id no login)."""
+        self.conn.execute("UPDATE usuarios SET senha_hash = ? WHERE id = ?", (senha_hash, usuario_id))

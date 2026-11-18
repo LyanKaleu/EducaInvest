@@ -4,6 +4,8 @@ import uuid
 from datetime import date
 
 import pytest
+from pwdlib import PasswordHash
+from pwdlib.hashers.argon2 import Argon2Hasher
 
 from app import create_app
 from app.services import auth_service
@@ -14,8 +16,10 @@ HOJE = date(2026, 11, 4)
 
 @pytest.fixture(autouse=True)
 def hash_de_senha_rapido(monkeypatch):
-    """Troca o scrypt (lento de propósito) por PBKDF2 com 1 iteração, só nos testes."""
-    monkeypatch.setattr(auth_service, "METODO_HASH", "pbkdf2:sha256:1")
+    """Troca o Argon2id de produção (64 MiB, lento de propósito) por um barato, só nos testes."""
+    barato = Argon2Hasher(time_cost=1, memory_cost=8, parallelism=1)
+    monkeypatch.setattr(auth_service, "SENHAS",
+                        PasswordHash((barato, auth_service.HasherLegadoWerkzeug())))
 
 
 @pytest.fixture
