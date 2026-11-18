@@ -12,7 +12,7 @@ O EducaInvest é um app web para jovens que estão começando a lidar com dinhei
 | Ação central | Registrar entradas, gastos e metas e cumprir missões baseadas nos próprios registros |
 | Perfis | Aluno e professor. Gestor e secretaria ficam fora do MVP |
 | Dispositivo | Web leve, mobile-first, pensado para conexão instável |
-| Stack | Python 3.14, Flask 3.1, SQLite (`sqlite3` da biblioteca padrão), Jinja no servidor, sem JavaScript, pytest |
+| Stack | Python 3.14, Flask 3.1, SQLite (`sqlite3` da biblioteca padrão), Jinja no servidor, JavaScript puro só como melhoria progressiva, pytest |
 | Assistente de IA | Fora do MVP |
 
 ## 2. Requisitos funcionais
@@ -32,7 +32,7 @@ O EducaInvest é um app web para jovens que estão começando a lidar com dinhei
 
 | ID | Requisito | Como o MVP atende |
 |---|---|---|
-| RNF01 | Leve e tolerante a conexão instável | Páginas renderizadas no servidor, sem JavaScript. Todo formulário de criação leva uma chave de idempotência, então reenviar depois de uma falha de rede não duplica nada. Com erro, o formulário volta preenchido |
+| RNF01 | Leve e tolerante a conexão instável | Páginas renderizadas no servidor, que funcionam sem JavaScript (o JS só acrescenta movimento). Todo formulário de criação leva uma chave de idempotência, então reenviar depois de uma falha de rede não duplica nada. Com erro, o formulário volta preenchido |
 | RNF02 | Privacidade (LGPD) | Coleta mínima (apelido, e-mail, senha, turma), sem CPF nem dados bancários. A autorização do aluno é obrigatória e fica gravada com data e hora. O professor nunca vê valores em reais nem e-mail |
 | RNF03 | Usabilidade | Registrar um gasto: *Início → Registrar gasto* (tipo e data já preenchidos) → valor, categoria e *Salvar*. Áreas de toque de 44px, contraste AA e mensagens junto ao campo |
 | RNF04 | Segurança | Senha com hash Argon2id; a conta antiga, em `scrypt`, passa para Argon2id no primeiro login. Toda rota exige login e um perfil, e um meta-teste acusa rota nova sem proteção. Registro de outro usuário responde 404. Cookie de sessão `SameSite=Lax`. O HTTPS vem da hospedagem |
@@ -131,7 +131,7 @@ Os cenários são cobertos pelos testes de `tests/unit/` e `tests/integration/`.
 | Quem erra o quiz pode tentar de novo? | Não. Vale a primeira resposta |
 | Como funcionam as missões? | Trilha fixa com pré-requisito, contando os lançamentos do aluno |
 | O que é "dia ativo"? | Um dia em que o aluno ganhou XP (a mesma regra da sequência) |
-| Qual stack? | Flask com SQLite e páginas renderizadas no servidor, sem JavaScript |
+| Qual stack? | Flask com SQLite e páginas renderizadas no servidor, com JavaScript só como melhoria progressiva |
 
 Continuam em aberto: os valores de XP, teto e níveis, a lista de categorias, o valor máximo do lançamento e a janela de 7 dias do painel.
 

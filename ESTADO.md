@@ -3,7 +3,7 @@
 Ponto de retomada entre sessões e computadores. Atualize no PR que muda a fase ou o próximo passo.
 Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
 
-**Atualizado em:** 17/11/2026 · **Branch de integração:** `develop` · **Vitrine:** `main`
+**Atualizado em:** 18/11/2026 · **Branch de integração:** `develop` · **Vitrine:** `main`
 
 ## Pronto
 O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACAO.md](docs/ESPECIFICACAO.md).
@@ -33,13 +33,14 @@ O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACA
 | Animações só em CSS (troca de página, avisos, comemoração, toque, barras) e CSS dividido em um arquivo por assunto | #29 |
 | PEP 8 a 79 colunas com `ruff format`, lint amplo, docstrings em `app/` e anotação de tipo em todo o código | #32 |
 | `main` atualizada com os PRs #26 a #32 | #34 e o seguinte |
-| Tema escuro automático pelo tema do sistema (sem botão e sem JavaScript), cores só nos tokens e contraste AA testado nos dois temas | (este PR) |
+| Tema escuro automático pelo tema do sistema (sem botão e sem JavaScript), cores só nos tokens e contraste AA testado nos dois temas | #38 |
+| Movimento do transitions.dev com JS puro como melhoria progressiva: toast de sucesso com check que some sozinho, campo com erro tremendo, pílula no Gasto/Entrada, XP rolando num tambor e barra do nível enchendo, troca de página com direção e quiz em cascata | (este PR) |
 
 ## Próximo passo
 1. Ligar CodeQL e Dependabot security updates (a `main` já recebeu o merge; veja "Setup do GitHub" abaixo).
 2. Release `v1.0.0` na `main`. O deploy é interno: nada sobre ele entra no README nem nas notas da release.
 3. Executor de migrações (scripts SQL numerados com `PRAGMA user_version`), antes da primeira alteração de tabela com dados no deploy.
-4. PWA sobre o visual novo (o redesign já seguiu o protótipo navegável): manifest e service worker, com JavaScript só como melhoria progressiva. O botão de troca de tema entra junto (veja o backlog).
+4. PWA sobre o visual novo (o redesign já seguiu o protótipo navegável): manifest e service worker, sobre o JS de melhoria progressiva que já existe em `app/static/js/`. O botão de troca de tema entra junto (veja o backlog).
 
 Fly e Render foram descartados: a Fly exige cartão e o Render grátis apaga o SQLite quando o app dorme. Container (`gunicorn`, `Dockerfile`) só volta se o banco sair do SQLite local.
 
@@ -63,7 +64,7 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 - **Ensino fundamental:** produto à parte, mais lúdico, com outra linguagem. Abaixo de 12 anos a LGPD (art. 14) exige o consentimento específico de um dos pais ou responsável, que o RN-05 de hoje não cobre.
 - **Mascote** próprio para a marca e a divulgação.
 - **Botão de troca de tema** (claro, escuro ou o do sistema), junto com o PWA. Hoje o tema escuro segue o tema do sistema, sem botão; a escolha manual precisa ser guardada (cookie ou JavaScript), e no celular o tema do sistema já resolve.
-- Do protótipo, o que ficou de fora por precisar de JavaScript: avisos que somem sozinhos, busca ao digitar e sugestões de nome na nova meta. A comemoração de conquista entrou só com CSS.
+- Do protótipo, o que ainda falta e precisa de JavaScript: busca ao digitar e sugestões de nome na nova meta. Os avisos que somem sozinhos entraram (só CSS), e a comemoração de nível ganhou o tambor do XP no painel.
 - **Quiz do dia** com perguntas de cálculo parametrizadas (números novos por aluno e por dia, resposta calculada pelo código, sem IA) e **gerador de perguntas com IA**. O texto das 12 perguntas atuais precisa de revisão.
   - O gerador é um comando Python que chama a API de IA direto, sem n8n nem Zapier (seria mais um serviço e uma credencial fora do gate). Ele pede um lote em JSON com schema e valida com as regras do `quiz_service`.
   - O lote vai para um arquivo no repositório, ao lado do `PERGUNTAS`, e não para o banco: o PR é a revisão humana, e o código da pergunta continua imutável depois de publicado.

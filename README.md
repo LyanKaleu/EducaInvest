@@ -20,7 +20,7 @@ O aluno registra o próprio dinheiro, cumpre missões e ganha XP. O professor ac
 
 - **Aprender fazendo.** O jovem até sabe o que é orçamento, mas não pratica. Aqui cada gasto registrado vira progresso.
 - **O professor acompanha sem invadir.** Ele vê XP, missões e frequência da turma, nunca valores em reais nem e-mail.
-- **Leve e confiável no celular.** Sem JavaScript, e um reenvio depois de a conexão cair não duplica nada.
+- **Leve e confiável no celular.** Funciona sem JavaScript (o JS só deixa o movimento mais vivo), e um reenvio depois de a conexão cair não duplica nada.
 
 ## Funcionalidades
 
