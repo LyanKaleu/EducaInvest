@@ -26,6 +26,7 @@ O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACA
 | MVP completo na `main` | #21 |
 | Deploy interno de teste, só para o grupo (onde está e como atualizar: notas privadas, fora do Git) | #22 |
 | Correções da auditoria de segurança: limite de login por e-mail, CSRF (Flask-WTF), código de turma com 8 caracteres, cookie `Secure`, headers, sessão de 12 h e aporte sem corrida | #23 |
+| Dependências com uv: `uv.lock` fixa a árvore inteira, `.python-version` em 3.14, CI com `uv sync --locked` e Dependabot `uv` | #31 |
 
 ## Próximo passo
 1. Ligar CodeQL e Dependabot security updates (a `main` já recebeu o merge; veja "Setup do GitHub" abaixo).
