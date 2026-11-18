@@ -1,0 +1,30 @@
+/* Tokens do visual: cores, raio e medidas. Todo o resto usa estas variáveis. */
+
+:root {
+  --texto: #1a1a1a;
+  --texto-suave: #555555;    /* rótulos e dicas: 7,0:1 no branco, 6,3:1 no --suave */
+  --texto-descricao: #444444;
+  --fundo: #ffffff;          /* cartões e campos */
+  --suave: #f3f4f2;          /* fundo da página */
+  --divisoria: #d6d6d3;      /* borda dos cartões (decorativa) */
+  --borda: #6b6b6b;          /* borda de campos e barras: contraste 5,3:1 */
+  --primaria: #1b6e3a;       /* verde: marca, entradas, botão principal, XP */
+  --primaria-escura: #14532b;
+  --perigo: #b3261e;         /* vermelho: gastos, erros e excluir */
+  --foco: #1a5fb4;           /* azul: foco do teclado e missão em andamento */
+  --sucesso-fundo: #e7f4ea;
+  --erro-fundo: #fbeaea;
+  --texto-sobre-cor: #ffffff; /* sobre --primaria, --perigo e --foco passa de 6:1 */
+  --raio: 8px;
+  --altura-menu: 4.25rem;    /* barra do rodapé do aluno no celular */
+
+  /* Movimento (usado só em movimento.css). Curvas fortes de ease-out: começam rápido e
+     assentam devagar, então a tela responde na hora. Nada de ease-in em interface. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-salto: cubic-bezier(0.34, 1.4, 0.64, 1);  /* leve passada do ponto, só na comemoração */
+  --duracao-toque: 160ms;    /* botão, chip e cartão afundando ao toque */
+  --duracao-cor: 150ms;      /* troca de cor e fundo */
+  --duracao-pagina: 240ms;   /* troca de página: abaixo de 300ms, a página fica inerte durante a troca */
+  --duracao-aviso: 200ms;    /* o aviso aparece a cada lançamento salvo */
+  --confete-dourado: #f5c542; /* decorativo, só no confete */
+}

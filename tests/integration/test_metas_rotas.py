@@ -324,3 +324,14 @@ def test_dois_atalhos_seguidos_gravam_os_dois_aportes(cliente, meta_fone):
     aportar(cliente, meta_fone, "10,00", chave=formularios["10,00"])
 
     assert "R$ 15,00 de R$ 200,00" in lista(cliente)
+
+
+def test_meta_concluida_aparece_como_comemoracao_e_o_aporte_como_sucesso(cliente, meta_fone):
+    resposta = cliente.post(f"/metas/{meta_fone}/aportes", follow_redirects=True,
+                            data={"valor": "200,00", "chave_idempotencia": str(uuid.uuid4())})
+
+    html = resposta.get_data(as_text=True)
+    avisos = {re.sub(r"<[^>]+>", "", corpo).strip(): categoria
+              for categoria, corpo in re.findall(r'<p class="aviso aviso-(\w+)"[^>]*>(.*?)</p>', html, re.DOTALL)}
+    assert avisos.get("Parabéns, você concluiu a meta Fone!") == "conquista"
+    assert avisos.get("Aporte de R$ 200,00 guardado!") == "sucesso"

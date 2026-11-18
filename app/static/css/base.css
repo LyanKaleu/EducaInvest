@@ -1,0 +1,157 @@
+/* Base: reset, acessibilidade, layout, avisos, formulários, botões e barras de progresso. */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--texto);
+  background: var(--suave);
+}
+
+/* ---------- Acessibilidade ---------- */
+
+/* Foco sempre visível para quem navega pelo teclado. */
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+
+/* Some da tela, mas o leitor de tela continua lendo. */
+.oculto {
+  position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+  /* Zera o que botões e campos somam à caixa, para nada vazar para o lado. */
+  padding: 0 !important; border: 0 !important; margin: -1px !important; min-height: 0 !important; min-width: 0 !important;
+}
+
+/* "Pular para o conteúdo": escondido até receber foco. */
+.pular { position: absolute; left: -999px; }
+.pular:focus { left: 1rem; top: 1rem; z-index: 30; background: var(--fundo); padding: .5rem 1rem; }
+
+main:focus { outline: none; }
+/* Movimento, inclusive a versão suave para quem pede menos movimento: em movimento.css. */
+
+/* ---------- Layout ---------- */
+
+main { max-width: 40rem; margin: 0 auto; padding: 1rem 1rem 2rem; }
+h1 { font-size: 1.5rem; line-height: 1.3; margin: .25rem 0 1rem; }
+h2 { font-size: 1.15rem; line-height: 1.3; }
+a { color: var(--primaria); }
+a:hover { color: var(--primaria-escura); }
+p { margin: 0 0 1rem; }
+
+/* Rótulo de seção: pequeno, em maiúsculas. */
+.rotulo { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--texto-suave); margin: 0; }
+
+/* Cartão base: branco e borda fina. Itens de lista (lançamento, missão, pergunta, turma)
+   ganham a faixa de 6px à esquerda com o tipo ou o status; o status também vai em texto. */
+.cartao, .lancamento, .missao, .meta, .pergunta, .resultado, .indicador {
+  background: var(--fundo); border: 1px solid var(--divisoria); border-radius: var(--raio);
+}
+.cartao {
+  display: flex; flex-direction: column; gap: .5rem;
+  padding: 1rem; margin-bottom: .75rem;
+}
+.cartao > p:last-child { margin-bottom: 0; }
+.cartao-topo { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.cartao-topo.base { align-items: baseline; }
+.cartao-titulo { font-size: 1.1rem; overflow-wrap: anywhere; }
+.cartao-rodape { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.percentual { font-size: 1.1rem; color: var(--primaria); font-variant-numeric: tabular-nums; }
+.numero { font-variant-numeric: tabular-nums; }
+.link-acao { display: inline-flex; align-items: center; min-height: 44px; align-self: flex-start; }
+
+/* Selo de XP: "+20 XP". */
+.selo-xp {
+  padding: .1rem .6rem; border-radius: 999px; white-space: nowrap;
+  background: var(--sucesso-fundo); color: var(--primaria); font-size: .9rem; font-weight: 700;
+}
+
+/* Estado vazio: ícone opcional, frase curta e a ação que resolve. */
+.vazio {
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  padding: 1.5rem 1rem; text-align: center;
+  background: var(--fundo); border: 1px dashed var(--borda); border-radius: var(--raio);
+  margin-bottom: .75rem;
+}
+.cartao .vazio { border: 0; padding: .5rem 0 0; margin: 0; }
+.vazio strong { font-size: 1.1rem; }
+.vazio p { margin: 0; }
+.vazio .botao { margin-top: .25rem; }
+
+/* ---------- Avisos (flash) e erros ---------- */
+
+.aviso { padding: .75rem 1rem; border-radius: var(--raio); border-left: 6px solid; }
+.aviso-sucesso { background: var(--sucesso-fundo); border-color: var(--primaria); }
+.aviso-erro { background: var(--erro-fundo); border-color: var(--perigo); }
+/* Comemoração (missão, nível, meta concluída): cartão verde com troféu. O movimento fica em movimento.css. */
+.aviso-conquista {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: flex; align-items: center; gap: .75rem;
+  background: var(--primaria); border-color: var(--primaria-escura);
+  color: var(--texto-sobre-cor); font-weight: 700;
+}
+.aviso-conquista .trofeu { flex: none; }
+.erro-campo { color: var(--perigo); font-weight: 600; margin: .25rem 0 0; }
+[aria-invalid="true"] { border-color: var(--perigo) !important; border-width: 2px !important; }
+
+/* ---------- Formulários ---------- */
+
+.campo, fieldset { margin: 0 0 1rem; }
+fieldset { border: 1px solid var(--borda); border-radius: var(--raio); padding: .5rem 1rem; background: var(--fundo); }
+legend { font-weight: 600; padding: 0 .25rem; }
+label { display: block; font-weight: 600; margin-bottom: .25rem; }
+.opcao { display: inline-flex; align-items: center; gap: .5rem; font-weight: 400; margin-right: 1.5rem; min-height: 44px; }
+.dica { font-weight: 400; color: var(--texto-suave); }
+
+input[type="text"], input[type="search"], input[type="date"], input[type="email"],
+input[type="password"], select, textarea {
+  width: 100%; min-height: 44px;   /* área de toque confortável no celular */
+  padding: .5rem .75rem; font: inherit; color: var(--texto);
+  border: 1px solid var(--borda); border-radius: var(--raio); background: var(--fundo);
+}
+input[type="radio"], input[type="checkbox"] { width: 1.25rem; height: 1.25rem; accent-color: var(--primaria); flex-shrink: 0; }
+
+button, .botao {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  min-height: 44px; padding: .6rem 1.25rem;
+  font: inherit; font-weight: 600; line-height: 1.2; text-decoration: none; cursor: pointer;
+  color: var(--texto-sobre-cor); background: var(--primaria); border: 0; border-radius: var(--raio);
+}
+button:hover, .botao:hover { background: var(--primaria-escura); color: var(--texto-sobre-cor); }
+button.perigo { background: var(--perigo); }
+button.perigo:hover { background: #8f1e18; }
+/* Secundário: contorno verde. */
+.botao-contorno, .botao-contorno:hover {
+  color: var(--primaria); background: var(--fundo); border: 2px solid var(--primaria);
+}
+.botao-contorno:hover { background: var(--sucesso-fundo); }
+/* Sobre fundo colorido (cartão do saldo): branco com texto verde. */
+.botao-claro, .botao-claro:hover { color: var(--primaria); background: var(--fundo); }
+.botao-claro:hover { background: var(--sucesso-fundo); }
+.botao-largo { display: flex; width: 100%; }
+
+.acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.acoes a:not(.botao) { display: inline-flex; align-items: center; min-height: 44px; }
+.busca { margin-bottom: 1.5rem; }
+.busca .linha { display: flex; gap: .5rem; }
+.busca .linha input { flex: 1; min-width: 0; }
+.busca > a { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* Barras de progresso: trilho claro com borda, preenchimento verde. */
+progress {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: .75rem; border: 1px solid var(--borda); border-radius: 999px;
+  background: var(--suave); overflow: hidden; color: var(--primaria);
+}
+progress::-webkit-progress-bar { background: var(--suave); border-radius: 999px; }
+progress::-webkit-progress-value { background: var(--primaria); border-radius: 999px; }
+progress::-moz-progress-bar { background: var(--primaria); border-radius: 999px; }
+progress.fina { height: .625rem; }
+/* Sobre cartão colorido: trilho com borda branca e preenchimento branco. */
+progress.clara { border-color: var(--texto-sobre-cor); background: transparent; color: var(--texto-sobre-cor); }
+progress.clara::-webkit-progress-bar { background: transparent; }
+progress.clara::-webkit-progress-value { background: var(--texto-sobre-cor); }
+progress.clara::-moz-progress-bar { background: var(--texto-sobre-cor); }
+/* Missão em andamento: azul, para não confundir com dinheiro guardado. */
+progress.azul, .missao[data-status="ATIVA"] progress { color: var(--foco); }
+progress.azul::-webkit-progress-value, .missao[data-status="ATIVA"] progress::-webkit-progress-value { background: var(--foco); }
+progress.azul::-moz-progress-bar, .missao[data-status="ATIVA"] progress::-moz-progress-bar { background: var(--foco); }

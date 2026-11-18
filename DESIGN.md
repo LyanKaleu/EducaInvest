@@ -1,7 +1,7 @@
 # DESIGN.md · EducaInvest
 
 Guia visual do EducaInvest para gerar telas em ferramentas de design (Claude Design, Google Stitch, Gemini).
-Descreve o visual que existe hoje em `app/static/css/app.css` (o do protótipo navegável, aplicado em 16/11/2026) e as restrições do código. A fonte da verdade continua sendo o `app.css`.
+Descreve o visual que existe hoje nos arquivos de `app/static/css/` (o do protótipo navegável, aplicado em 16/11/2026) e as restrições do código. A fonte da verdade continua sendo o CSS.
 Se uma proposta nova for aprovada, atualize este arquivo junto com o CSS.
 
 ## 1. Produto e público
@@ -13,7 +13,7 @@ Se uma proposta nova for aprovada, atualize este arquivo junto com o CSS.
 ## 2. Restrições técnicas (obrigatórias)
 O design precisa caber nestas regras. Proposta que depende de algo fora delas não é implementável.
 - **HTML renderizado no servidor (Jinja), sem JavaScript.** Nada de modal, drawer, carrossel, abas dinâmicas, tooltip, drag and drop, toast que some sozinho ou gráfico interativo. Toda ação é um link ou um formulário que recarrega a página.
-- **CSS puro num arquivo só**, sem framework (sem Tailwind, sem Bootstrap) e sem fonte externa. Animação só em CSS e discreta, respeitando `prefers-reduced-motion`. Sem `style` inline: a política de segurança (CSP) bloqueia.
+- **CSS puro, um arquivo por assunto** em `app/static/css/` (`tokens`, `base`, `navegacao`, `aluno`, `professor`, `entrada`, `movimento`), carregados em ordem pelo `base.html`, sem `@import` e sem etapa de build. Sem framework (sem Tailwind, sem Bootstrap) e sem fonte externa. Animação só em CSS, toda em `movimento.css`, conforme a seção 7a. Sem `style` inline: a política de segurança (CSP) bloqueia.
 - **Gráficos:** só o que dá para fazer com HTML e CSS: `<progress>`, barras com largura em %, números grandes. Sem bibliotecas de gráfico.
 - **Ícones:** SVG inline de traço, sempre acompanhados de texto. Nada de emoji. Nenhuma informação só no ícone.
 - **Mobile-first:** tudo funciona em 375px de largura. O conteúdo fica numa coluna de no máximo 40rem (640px) centralizada, também no desktop.
@@ -84,6 +84,26 @@ Texto branco sobre `--primaria`, `--perigo` e `--foco` passa de 6:1.
 7. **Quiz:** XP do quiz hoje, perguntas por tema com faixa de status e, na pergunta, as alternativas em cartões. Depois de responder, a certa e a escolhida ficam marcadas e o resultado traz a explicação.
 8. **Turmas do professor:** cada turma com o número de alunos e o código, e o cartão "Criar turma".
 9. **Turma:** cartão verde com os ativos nos últimos 7 dias, XP médio e missões; "Precisa de atenção" com quem não ganhou XP nos últimos 7 dias; ranking por XP com barra; turma por nível; convite com o código. **Sem valores em reais e sem e-mail.**
+
+## 7a. Movimento
+Tudo em `app/static/css/movimento.css`. O movimento completo fica dentro de `@media (prefers-reduced-motion: no-preference)`. Quem pede menos movimento recebe a versão suave: o aviso aparecendo, a troca de cor dos botões e um esmaecimento de 150ms entre páginas, sem deslocamento, escala, salto, confete nem barra se desenhando. Menos movimento não é zero.
+- **Por que animar:** retorno ao toque, continuidade entre telas e comemoração de conquista. Nada anima "porque fica bonito". Ação repetida muitas vezes por dia anima pouco ou nada.
+- **Curva e tempo** (tokens em `tokens.css`):
+  - `--ease-out` é `cubic-bezier(0.23, 1, 0.32, 1)`: começa rápido e assenta devagar. Nunca `ease-in` em interface.
+  - Toque: 160ms. Troca de cor: 150ms. Troca de página: 240ms (abaixo de 300ms, porque a página fica inerte durante a troca). Aviso: 200ms. Barra: 280ms.
+  - A comemoração é a exceção: até ~1,4s, uma vez só.
+- **O que anima:**
+  - **Troca de página:** `@view-transition { navigation: auto; }`. O topo e o menu ficam parados; o conteúdo sai num fade e entra subindo 8px. Onde o navegador não suporta, a página só carrega normal.
+  - **Avisos:** entram descendo 6px.
+  - **Conquista** (missão, nível, meta concluída): o cartão verde dá um pequeno salto, o troféu balança e um confete de CSS cai uma vez.
+  - **Toque:** botões, chips e alternativas afundam (`scale(.97)`); cartões-link e ícones do menu afundam menos (`scale(.985)` e `scale(.95)`).
+  - **Barras:** se desenham da esquerda com `clip-path`. O navegador não anima o preenchimento do `<progress>`.
+- **O que não anima:**
+  - layout (`width`, `height`, `margin`, `top`);
+  - nada parte de `scale(0)` e nada fica em loop;
+  - nenhuma informação vem só do movimento;
+  - nada só para chamar atenção em tela frequente: a marca de hoje na sequência não pulsa;
+  - hover de cartão só com mouse (`@media (hover: hover) and (pointer: fine)`), porque no celular o toque deixa o hover preso.
 
 ## 8. Faça e não faça
 **Faça**

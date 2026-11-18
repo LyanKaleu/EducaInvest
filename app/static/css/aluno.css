@@ -1,0 +1,205 @@
+/* Telas do aluno: lançamentos, missões, metas, quiz e tela inicial. */
+
+/* ---------- Lista de lançamentos ---------- */
+
+.lancamentos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .625rem; }
+/* O cartão inteiro é o link para editar. Faixa verde (entrada) ou vermelha (gasto). */
+.lancamento {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem;
+  padding: .75rem .875rem; color: var(--texto); text-decoration: none; border-left: 6px solid var(--borda);
+}
+/* Hover só com mouse: no celular o toque dispara um falso hover que fica preso no cartão. */
+@media (hover: hover) and (pointer: fine) {
+  a.lancamento:hover { color: var(--texto); background: #fafbfa; }
+}
+.lancamento.entrada { border-left-color: var(--primaria); }
+.lancamento.saida { border-left-color: var(--perigo); }
+.lancamento-info { display: flex; flex-direction: column; min-width: 0; }
+.lancamento-info .dica { font-size: .9rem; }
+.lancamento .valor { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lancamento.entrada .valor { color: var(--primaria); }
+.lancamento.saida .valor { color: var(--perigo); }
+.descricao { overflow-wrap: anywhere; }
+.negativo { color: var(--perigo); }
+
+/* Busca com lupa dentro do campo. */
+.campo-busca { position: relative; }
+.campo-busca svg { position: absolute; left: .75rem; top: 50%; translate: 0 -50%; color: var(--texto-suave); pointer-events: none; }
+.campo-busca input { padding-left: 2.5rem; }
+
+/* Voltar + título, como no protótipo. */
+.cabecalho-voltar { display: flex; align-items: center; gap: .25rem; margin: .25rem 0 1rem; }
+.cabecalho-voltar h1 { margin: 0; }
+.voltar { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-left: -.625rem; color: var(--primaria); }
+
+/* ---------- Formulário de lançamento ---------- */
+
+.form-lancamento .cartao { gap: 1rem; }
+.form-lancamento .campo { margin: 0; }
+.valor-grande { font-size: 1.6rem !important; font-weight: 700; min-height: 56px !important; font-variant-numeric: tabular-nums; }
+/* Rádios com cara de botão: o input fica invisível por cima do rótulo, ainda clicável e focável. */
+.segmento, .chips-categoria { border: 0; padding: 0; margin: 0; background: none; min-width: 0; }
+.segmento { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.segmento .erro-campo { grid-column: 1 / -1; }
+.segmento-opcao, .chip { position: relative; display: inline-flex; align-items: center; justify-content: center; margin: 0; cursor: pointer; }
+.segmento-opcao input, .chip input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.segmento-opcao:has(input:focus-visible), .chip:has(input:focus-visible) { outline: 3px solid var(--foco); outline-offset: 2px; }
+.segmento-opcao {
+  min-height: 44px; border: 2px solid var(--primaria); border-radius: var(--raio);
+  background: var(--fundo); color: var(--primaria); font-weight: 600;
+}
+.segmento-opcao:has(input:checked) { background: var(--primaria); color: var(--texto-sobre-cor); }
+.segmento-opcao.gasto { border-color: var(--perigo); color: var(--perigo); }
+.segmento-opcao.gasto:has(input:checked) { background: var(--perigo); color: var(--texto-sobre-cor); }
+.chips-categoria legend { font-weight: 600; padding: 0; margin-bottom: .375rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.chip {
+  min-height: 44px; padding: 0 .875rem; border: 1px solid var(--borda); border-radius: var(--raio);
+  background: var(--fundo); color: var(--texto); font-weight: 500;
+}
+.chip:has(input:checked) { background: var(--texto); border-color: var(--texto); color: var(--texto-sobre-cor); }
+/* Só as categorias do tipo marcado (sem JavaScript). Sem tipo marcado, mostra as duas listas. */
+.form-lancamento:has(input[name="tipo"][value="saida"]:checked) .categorias-entrada,
+.form-lancamento:has(input[name="tipo"][value="entrada"]:checked) .categorias-saida { display: none; }
+.form-lancamento > .botao-largo { margin-top: .75rem; }
+.botao-registrar .se-entrada { display: none; }
+.form-lancamento:has(input[name="tipo"][value="entrada"]:checked) .se-entrada { display: inline; }
+.form-lancamento:has(input[name="tipo"][value="entrada"]:checked) .se-gasto { display: none; }
+.botao-contorno-perigo, .botao-contorno-perigo:hover {
+  margin-top: .75rem; color: var(--perigo); background: var(--fundo); border: 2px solid var(--perigo);
+}
+.botao-contorno-perigo:hover { background: var(--erro-fundo); }
+.centro { text-align: center; margin-top: .75rem; }
+
+/* Confirmação de exclusão: fundo de erro com a faixa vermelha. */
+.confirma {
+  display: flex; flex-direction: column; gap: .5rem; margin-top: 1rem; padding: 1rem;
+  border-radius: var(--raio); background: var(--erro-fundo); border-left: 6px solid var(--perigo);
+}
+.confirma h2 { margin: 0; font-size: 1.1rem; }
+.confirma p { margin: 0; }
+.confirma form { margin: .25rem 0 0; }
+.grade-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+
+/* ---------- Confirmação de exclusão ---------- */
+
+.resumo {
+  display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem;
+  padding: 1rem; background: var(--fundo); border: 1px solid var(--divisoria); border-radius: var(--raio);
+}
+.resumo dt { font-weight: 600; }
+.resumo dd { margin: 0; overflow-wrap: anywhere; }
+
+/* ---------- Missões e XP ---------- */
+
+.xp-total { font-size: 2.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.missoes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .625rem; }
+/* Faixa azul (em andamento), verde (concluída) ou cinza (bloqueada); o status também vai em texto. */
+.missao { display: flex; flex-direction: column; gap: .375rem; padding: .875rem 1rem; border-left: 6px solid var(--foco); }
+.missao.concluida { border-left-color: var(--primaria); }
+.missao[data-status="BLOQUEADA"] { border-left-color: var(--borda); background: var(--suave); }
+.conquistas { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* ---------- Metas e aportes ---------- */
+
+.metas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .75rem; }
+.meta { display: flex; flex-direction: column; gap: .5rem; padding: 1rem; }
+.metas .meta h2 { font-size: 1.1rem; margin: 0; overflow-wrap: anywhere; }
+.meta.concluida { background: var(--sucesso-fundo); border-color: #b9dcc3; }
+.meta-progresso { font-variant-numeric: tabular-nums; }
+.selo {
+  display: inline-flex; align-items: center; gap: .25rem; align-self: flex-start; white-space: nowrap;
+  padding: .1rem .6rem; border-radius: 999px;
+  background: var(--primaria); color: var(--texto-sobre-cor); font-size: .9rem; font-weight: 700;
+}
+.meta label { font-weight: 400; margin: .25rem 0 0; }
+.aporte { padding-top: .75rem; border-top: 1px solid var(--divisoria); }
+/* Atalhos de aporte: até três botões de contorno lado a lado. */
+.atalhos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; padding-top: .75rem; border-top: 1px solid var(--divisoria); }
+.atalhos-rotulo { grid-column: 1 / -1; font-weight: 600; }
+.atalho { margin: 0; }
+.atalho button { width: 100%; }
+.atalhos + .aporte { border-top: 0; padding-top: 0; }
+.aporte label { font-weight: 600; }
+.aporte .linha { display: flex; gap: .5rem; }
+.aporte .linha input { flex: 1; min-width: 0; }
+.meta .cartao-topo { align-items: baseline; }
+.meta-percentual { font-size: 1.4rem; color: var(--primaria); font-variant-numeric: tabular-nums; }
+.positivo { color: var(--primaria); }
+.titulo-secao { margin: 1.25rem 0 .5rem; }
+.cabecalho-pagina { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; margin-bottom: 1rem; }
+.cabecalho-pagina h1 { margin: 0; }
+
+/* ---------- Quiz ---------- */
+
+.cartao-quiz { flex-direction: row; align-items: center; gap: .75rem; padding: .875rem 1rem; }
+.cartao-quiz > div { display: flex; flex-direction: column; }
+.icone-quiz { flex: none; color: var(--primaria); }
+.xp-quiz { font-variant-numeric: tabular-nums; }
+.perguntas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+/* Faixa azul (nova), verde (acertou) ou vermelha (errou). O link cobre o cartão inteiro. */
+.pergunta { position: relative; display: flex; flex-direction: column; gap: .125rem; padding: .75rem .875rem; border-left: 6px solid var(--foco); }
+.pergunta[data-status="ACERTOU"] { border-left-color: var(--primaria); }
+.pergunta[data-status="ERROU"] { border-left-color: var(--perigo); }
+.pergunta a { font-weight: 700; color: var(--texto); text-decoration: none; }
+.pergunta a::after { content: ""; position: absolute; inset: 0; border-radius: var(--raio); }
+.pergunta a:focus-visible { outline: none; }
+.pergunta a:focus-visible::after { outline: 3px solid var(--foco); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .pergunta:hover { background: #fafbfa; }
+}
+.pergunta .dica { font-size: .9rem; }
+.cabecalho-voltar .rotulo { margin: 0; }
+h1.enunciado { font-size: 1.25rem; }
+/* Alternativas em cartões com a letra num círculo. O rádio fica invisível por cima, ainda clicável e focável. */
+.alternativas { display: flex; flex-direction: column; gap: .5rem; border: 0; padding: 0; margin: 0 0 1rem; background: none; }
+.alternativas-respondidas { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.alt {
+  position: relative; display: flex; align-items: flex-start; gap: .625rem; margin: 0;
+  min-height: 48px; padding: .75rem .875rem; font-weight: 400;
+  border: 1px solid var(--borda); border-radius: var(--raio); background: var(--fundo);
+}
+label.alt { cursor: pointer; }
+.alt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.alt:has(input:checked) { border: 2px solid var(--foco); background: #eef3fb; }
+.alt:has(input:focus-visible) { outline: 3px solid var(--foco); outline-offset: 2px; }
+.alt.certa { border: 2px solid var(--primaria); background: var(--sucesso-fundo); }
+.alt.errada { border: 2px solid var(--perigo); background: var(--erro-fundo); }
+.letra {
+  flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--borda); background: var(--fundo); font-weight: 700; font-size: .85rem;
+}
+.resultado { padding: 1rem; margin-bottom: 1rem; background: var(--erro-fundo); border: 0; }
+.resultado[data-acertou="sim"] { background: var(--sucesso-fundo); }
+.resultado h2 { font-size: 1.15rem; margin: 0 0 .5rem; color: var(--perigo); }
+.resultado[data-acertou="sim"] h2 { color: var(--primaria); }
+.resultado p { margin: 0 0 .5rem; }
+.resultado p:last-child { margin-bottom: 0; }
+
+/* ---------- Painel do aluno ---------- */
+
+/* Saldo: cartão verde com o número grande e o atalho de registrar. Negativo vira vermelho. */
+.cartao-saldo {
+  display: flex; flex-direction: column; gap: .75rem;
+  padding: 1.25rem; margin-bottom: .75rem; border-radius: var(--raio);
+  background: var(--primaria); color: var(--texto-sobre-cor);
+}
+.cartao-saldo.negativo { background: var(--perigo); }
+.cartao-saldo .rotulo { color: var(--texto-sobre-cor); }
+.cartao-saldo .xp-total { color: var(--texto-sobre-cor); }
+.saldo { font-size: 2.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.saldo-detalhe { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: 0; font-variant-numeric: tabular-nums; }
+.saldo-detalhe dt { font-size: .9rem; }
+.saldo-detalhe dd { margin: 0; font-weight: 700; }
+.saldo-aviso { margin: 0; font-weight: 600; }
+.cartao-saldo.negativo .botao-claro { color: var(--perigo); }
+.cartao-saldo.negativo .botao-claro:hover { background: var(--erro-fundo); }
+
+.painel-indicadores { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin: 0 0 .75rem; }
+.indicador { display: flex; flex-direction: column; gap: .25rem; padding: .75rem 1rem; }
+.indicador strong { font-size: 1.4rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.indicador .dica { font-size: .9rem; }
+/* Sequência: 7 marcas, do mais antigo até hoje. Cheia = ganhou XP no dia. */
+.dias { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: .25rem 0; }
+.dia { height: .625rem; border-radius: 3px; border: 1px solid var(--borda); }
+.dia.ativo { background: var(--primaria); border-color: var(--primaria); }

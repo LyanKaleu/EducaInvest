@@ -1,0 +1,72 @@
+/* Navegação: o topo e o menu do aluno (rodapé no celular, linha no desktop). */
+
+/* ---------- Topo ---------- */
+
+.topo {
+  display: flex; flex-wrap: nowrap; align-items: center;
+  gap: .25rem 1rem; padding: .5rem 1rem; min-height: 3.5rem;
+  background: var(--fundo); border-bottom: 1px solid var(--divisoria);
+}
+.marca {
+  font-weight: 700; font-size: 1.15rem; text-decoration: none; color: var(--primaria);
+  display: inline-flex; align-items: center; min-height: 44px;
+}
+/* Quem está logado: apelido e perfil, ao lado da marca. Encolhe com reticências para o topo
+   caber numa linha só no celular. */
+.identificacao {
+  flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--texto-suave); font-size: .9rem;
+}
+.marca + .menu-topo { margin-left: auto; }  /* visitante: sem identificação, menu à direita */
+.menu-topo ul { display: flex; flex-wrap: wrap; gap: 0 1rem; margin: 0; padding: 0; list-style: none; }
+.menu-topo a { display: inline-flex; align-items: center; min-height: 44px; }
+.menu-topo [aria-current="page"] { font-weight: 700; text-decoration-thickness: 3px; }
+/* Atalho com ícone (Quiz do aluno): sem sublinhado, o ícone ajuda a achar. */
+.menu-topo .com-icone { gap: .375rem; text-decoration: none; font-weight: 600; }
+/* Botão "Sair" com cara de link (é um formulário POST). */
+.sair { margin: 0; }
+button.link {
+  min-height: 44px; padding: 0; background: none; border: 0;
+  color: var(--texto-suave); font-weight: 400; text-decoration: underline; cursor: pointer;
+}
+/* Sem fundo também no hover: o button:hover da base não pode pintar o "Sair" de verde
+   (antes da divisão do CSS ele pintava, com texto escuro sobre verde escuro). */
+button.link:hover { color: var(--texto); background: none; }
+
+/* ---------- Menu do aluno: rodapé no celular, linha no desktop ---------- */
+
+.menu-aluno {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  background: var(--fundo); border-top: 1px solid var(--divisoria);
+  padding: .25rem max(.25rem, env(safe-area-inset-right, 0px)) calc(.25rem + env(safe-area-inset-bottom, 0px)) max(.25rem, env(safe-area-inset-left, 0px));
+}
+.menu-aluno ul {
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+  max-width: 40rem; margin: 0 auto; padding: 0; list-style: none;
+}
+.menu-aluno a {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 3.5rem; padding: .25rem 0;
+  font-size: .75rem; line-height: 1.2; text-align: center; text-decoration: none;
+  color: var(--texto-suave); border-radius: var(--raio);
+}
+.menu-aluno .icone { display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 1rem; }
+.menu-aluno a:hover { color: var(--texto); }
+/* Página atual: verde, em negrito e com um traço embaixo do ícone (não só a cor). */
+.menu-aluno [aria-current="page"] { color: var(--primaria); font-weight: 700; }
+.menu-aluno [aria-current="page"] .icone { background: var(--sucesso-fundo); }
+/* "Novo" é a ação principal: círculo verde cheio. */
+.menu-aluno .item-novo { color: var(--primaria); font-weight: 700; }
+.menu-aluno .item-novo .icone { background: var(--primaria); color: var(--texto-sobre-cor); }
+.menu-aluno .item-novo[aria-current="page"] .icone { background: var(--primaria-escura); }
+
+/* O conteúdo não fica escondido atrás da barra fixa. */
+.com-menu-aluno main { padding-bottom: calc(var(--altura-menu) + 1.5rem + env(safe-area-inset-bottom, 0px)); }
+
+@media (min-width: 48rem) {
+  .menu-aluno { position: static; border-top: 0; border-bottom: 1px solid var(--divisoria); padding: 0 1rem; }
+  .menu-aluno a { flex-direction: row; gap: .4rem; min-height: 3rem; font-size: .9rem; }
+  .menu-aluno .icone { width: 1.75rem; height: 1.75rem; }
+  .menu-aluno .icone svg { width: 18px; height: 18px; }
+  .com-menu-aluno main { padding-bottom: 2rem; }
+}

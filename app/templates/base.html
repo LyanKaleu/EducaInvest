@@ -5,7 +5,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}EducaInvest{% endblock %} · EducaInvest</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  {# Um arquivo por assunto, nesta ordem (a ordem importa na cascata). Sem @import nem build:
+     os <link> baixam em paralelo e ficam no cache. #}
+  {% for folha in ('tokens', 'base', 'navegacao', 'aluno', 'professor', 'entrada', 'movimento') %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/' ~ folha ~ '.css') }}">
+  {% endfor %}
 </head>
 {% set e_aluno = session.get('perfil') == 'ALUNO' %}
 <body{% if e_aluno %} class="com-menu-aluno"{% endif %}>
@@ -90,8 +94,11 @@
   <main id="conteudo" tabindex="-1">
     {% with mensagens = get_flashed_messages(with_categories=true) %}
       {% for categoria, mensagem in mensagens %}
-        {# "erro" interrompe o leitor de tela (alert); "sucesso" é anunciado sem interromper (status). #}
+        {# "erro" interrompe o leitor de tela (alert); "sucesso" e "conquista" são anunciados sem
+           interromper (status). "conquista" (missão, nível, meta concluída) ganha troféu e comemoração no CSS. #}
         <p class="aviso aviso-{{ categoria }}" role="{{ 'alert' if categoria == 'erro' else 'status' }}">
+          {% if categoria == 'conquista' %}<svg class="trofeu" aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/></svg>{% endif %}
           {{ mensagem }}
         </p>
       {% endfor %}

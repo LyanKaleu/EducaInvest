@@ -86,7 +86,7 @@ Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. Se 
 - `dev-dirigido-por-ia`: o método deste projeto (tarefa em 4 campos, ciclo de 8 passos, revisão em contexto novo, PR com evidência, uma tarefa por sessão). Exceção: a skill diz para pular o plano quando o diff cabe numa frase; aqui o plan mode é sempre obrigatório.
 - `engenheiro-software-ia`: postura em toda tarefa (recomende um caminho e justifique, questione pedido ambíguo, prefira o simples, diga o que foi verificado e o que não foi).
 - `tdd`: todo código novo ou correção (seams, fatias verticais, anti-padrões de teste).
-- `ui-taste`: toda tela nova ou alterada. Mantenha o visual atual (app.css, sem framework, sem JavaScript) e, antes de dar como pronta, abra a tela no celular (375px) e no desktop e confira os estados (vazio, erro, sucesso).
+- `ui-taste`: toda tela nova ou alterada. Mantenha o visual atual (CSS em `app/static/css/`, um arquivo por assunto, sem framework, sem JavaScript) e, antes de dar como pronta, abra a tela no celular (375px) e no desktop e confira os estados (vazio, erro, sucesso).
 - `seo-audit`: não se aplica ao MVP (o app fica atrás de login). Não adicione nada de SEO.
 
 ## Git (regras do grupo)
