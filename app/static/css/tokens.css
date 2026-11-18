@@ -23,7 +23,7 @@
   --sucesso-fundo: #e7f4ea;
   --sucesso-borda: #b9dcc3;
   --erro-fundo: #fbeaea;
-  --texto-sobre-cor: #ffffff; /* sobre --primaria, --perigo e --foco passa de 6:1 */
+  --texto-sobre-cor: #ffffff; /* sobre --primaria e --perigo passa de 5:1 nos dois temas (nunca sobre --foco) */
   --raio: 8px;
   --altura-menu: 4.25rem;    /* barra do rodapé do aluno no celular */
 

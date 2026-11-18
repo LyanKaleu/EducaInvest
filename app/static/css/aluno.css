@@ -194,6 +194,8 @@ label.alt { cursor: pointer; }
 .saldo-aviso { margin: 0; font-weight: 600; }
 .cartao-saldo.negativo .botao-claro { color: var(--perigo-texto); }
 .cartao-saldo.negativo .botao-claro:hover { background: var(--erro-fundo); }
+/* O anel azul some sobre o verde e o vermelho do cartão: aqui o foco é branco (5:1 ou mais nos dois temas). */
+.cartao-saldo :focus-visible { outline-color: var(--texto-sobre-cor); }
 
 .painel-indicadores { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin: 0 0 .75rem; }
 .indicador { display: flex; flex-direction: column; gap: .25rem; padding: .75rem 1rem; }
@@ -202,4 +204,4 @@ label.alt { cursor: pointer; }
 /* Sequência: 7 marcas, do mais antigo até hoje. Cheia = ganhou XP no dia. */
 .dias { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: .25rem 0; }
 .dia { height: .625rem; border-radius: 3px; border: 1px solid var(--borda); }
-.dia.ativo { background: var(--primaria); border-color: var(--primaria); }
+.dia.ativo { background: var(--primaria-texto); border-color: var(--primaria-texto); }
