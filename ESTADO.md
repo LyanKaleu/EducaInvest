@@ -39,7 +39,7 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 
 ## Setup do GitHub (depois do merge na `main`)
 - **CodeQL** e **Dependabot security updates:** ligar depois do merge na `main`, porque os dois olham a branch padrão.
-- **Dependabot de versões:** `.github/dependabot.yml` (pip e github-actions), com `target-branch: develop` e atualizações agrupadas. É zona O3.
+- **Dependabot de versões:** `.github/dependabot.yml` criado (pip e github-actions, toda segunda, PR para a `develop`, minor e patch agrupados, major em PR separado). Só passa a valer depois do merge na `main`. É zona O3.
 - **Discussions e Projects:** só se a equipe for usar de verdade. Wiki e Packages ficam desligados.
 - Já ligados em 11/11: varredura de segredos, push protection, alertas do Dependabot e o ruleset `protege-main-develop` (`main` e `develop` só recebem mudança por PR com o check `gate` verde, sem force push e sem apagar a branch).
 
