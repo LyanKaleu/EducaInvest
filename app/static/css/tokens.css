@@ -6,7 +6,6 @@
 :root {
   --texto: #1a1a1a;
   --texto-suave: #555555;    /* rótulos e dicas: 7,0:1 no branco, 6,3:1 no --suave */
-  --texto-descricao: #444444;
   --fundo: #ffffff;          /* cartões e campos */
   --suave: #f3f4f2;          /* fundo da página */
   --divisoria: #d6d6d3;      /* borda dos cartões (decorativa) */
@@ -51,7 +50,6 @@
   :root {
     --texto: #e6ece8;
     --texto-suave: #a9b4ae;
-    --texto-descricao: #c3ccc7;
     --fundo: #1b2320;
     --suave: #111715;
     --divisoria: #2e3a35;

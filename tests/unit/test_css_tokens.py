@@ -30,7 +30,6 @@ PARES = [
     ("texto", "suave", TEXTO_NORMAL),
     ("texto-suave", "fundo", TEXTO_NORMAL),
     ("texto-suave", "suave", TEXTO_NORMAL),
-    ("texto-descricao", "fundo", TEXTO_NORMAL),
     ("texto", "cartao-hover", TEXTO_NORMAL),
     ("texto", "sucesso-fundo", TEXTO_NORMAL),
     ("texto", "erro-fundo", TEXTO_NORMAL),
