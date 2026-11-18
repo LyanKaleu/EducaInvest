@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{# Turmas do professor, seus códigos de acesso e o formulário de nova turma. #}
+{# Turmas do professor (protótipo navegável): cada turma com o número de alunos e o código, e o formulário de nova turma. #}
 
 {% from "_formulario.html" import erro, invalido with context %}
 
@@ -9,31 +9,36 @@
 <h1>Minhas turmas</h1>
 
 {% if turmas %}
-  <ul class="lancamentos">
+  <ul class="turmas">
     {% for turma in turmas %}
-      <li class="lancamento">
-        <div class="lancamento-info">
-          <a href="{{ url_for('professor.turma', turma_id=turma.id) }}"><strong>{{ turma.nome }}</strong></a>
-          <span>Código de acesso: <code class="codigo-turma">{{ turma.codigo_acesso }}</code></span>
-        </div>
+      <li>
+        <a class="turma-item" href="{{ url_for('professor.turma', turma_id=turma.id) }}">
+          <span class="lancamento-info">
+            <strong class="cartao-titulo">{{ turma.nome }}</strong>
+            <span class="dica">{{ turma.total_alunos }} {{ 'aluno' if turma.total_alunos == 1 else 'alunos' }}</span>
+          </span>
+          <span><span class="oculto">Código de acesso: </span><code class="codigo-turma">{{ turma.codigo_acesso }}</code></span>
+        </a>
       </li>
     {% endfor %}
   </ul>
 {% else %}
-  <p>Você ainda não criou nenhuma turma.</p>
+  <div class="vazio">
+    <strong>Você ainda não criou nenhuma turma.</strong>
+    <p class="dica">Crie a primeira abaixo e passe o código para os alunos.</p>
+  </div>
 {% endif %}
 
-<h2>Nova turma</h2>
-<form method="post" novalidate action="{{ url_for('professor.criar_turma') }}">
+<form class="cartao form-turma" method="post" novalidate action="{{ url_for('professor.criar_turma') }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <h2 class="rotulo">Criar turma</h2>
   <div class="campo">
-    <label for="nome">Nome da turma <span class="dica">(ex.: 2º A)</span></label>
-    <input type="text" id="nome" name="nome" maxlength="60" value="{{ form.get('nome', '') }}"
+    <label for="nome">Nome da turma</label>
+    <input type="text" id="nome" name="nome" maxlength="60" placeholder="Ex.: 2º Ano B" value="{{ form.get('nome', '') }}"
            {{ invalido('nome') }}>
     {{ erro('nome') }}
   </div>
-  <div class="acoes">
-    <button type="submit">Criar turma</button>
-  </div>
+  <button type="submit" class="botao-largo">Criar turma e gerar código</button>
+  <p class="dica">O código tem 8 caracteres e evita os que se confundem (0 e O, 1 e I).</p>
 </form>
 {% endblock %}

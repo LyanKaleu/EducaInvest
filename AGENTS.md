@@ -7,16 +7,21 @@ Priorize o núcleo demonstrável. Nada de abstração "para o futuro".
 Python 3.14 · Flask 3.1 · SQLite via `sqlite3` da stdlib (sem ORM) · Jinja renderizado no servidor, sem JavaScript · pytest
 
 ## Comandos
-No Git Bash. No PowerShell, troque `python` por `.venv\Scripts\python`.
+Dependências com [uv](https://docs.astral.sh/uv/): o `uv.lock` fixa a árvore inteira e o `.python-version` fixa o Python (3.14). Os mesmos comandos valem no Git Bash e no PowerShell.
 
 ```
-bash gate.sh                          portão: lint → arquitetura → testes (o mesmo do CI)
-bash gate.sh --sem-testes             só lint + arquitetura (passo 1 do TDD)
-python -m pytest -q tests/x.py::nome  teste único (PREFIRA durante a implementação)
-python -m pytest -q                   suíte inteira
-python run.py                         servidor de desenvolvimento (debug)
-python -m pip install -r requirements.txt -r requirements-dev.txt
+uv sync                               instala o Python e a árvore do uv.lock em .venv/ (com as ferramentas do gate)
+bash gate.sh                          portão: formato → lint → arquitetura → testes (o mesmo do CI)
+bash gate.sh --sem-testes             só formato + lint + arquitetura (passo 1 do TDD)
+uv run ruff format .                  formata (79 colunas, aspas duplas); o gate só confere
+uv run ruff check --fix .             lint com as correções automáticas seguras
+uv run pytest -q tests/x.py::nome     teste único (PREFIRA durante a implementação)
+uv run pytest -q                      suíte inteira
+uv run run.py                         servidor de desenvolvimento (debug)
+uv add pacote==x.y / uv add --dev     dependência nova (pergunte antes): grava no pyproject.toml e no uv.lock
+uv lock --upgrade-package pacote      sobe só esse pacote
 ```
+Nunca edite o `uv.lock` à mão nem volte com `requirements*.txt`. O CI roda `uv sync --locked`, que falha se o lock estiver atrasado em relação ao `pyproject.toml`.
 
 O Stop hook roda o gate quando há arquivo alterado. Mudança só em `tests/` roda sem a suíte, porque o teste novo ainda está vermelho.
 
@@ -31,9 +36,9 @@ tests/integration/ rotas via test_client com banco temporário (fixtures em test
 docs/              especificação do MVP (ESPECIFICACAO.md), prints do README (img/) e schema de referência em PostgreSQL
 ```
 - Missões e XP (HU3) estão implementados: `missao_service`/`xp_service`, `missao_repo`/`xp_repo` e `routes/missoes.py`. O crédito de XP roda dentro da transação do lançamento (`registrar_progresso`).
-- A tela inicial do aluno (`routes/painel.py`) mostra saldo, XP, nível, sequência de dias (`xp_service.sequencia`, com os dias que têm XP em `xp_eventos`), a missão e a meta em andamento.
-- Metas e aportes (HU2) estão implementados: `meta_service`, `meta_repo` e `routes/metas.py`. O aporte não entra no saldo nem rende XP, não passa do que falta (`conferir_limite_do_aporte`, checado depois do reenvio), e "concluída" é calculada (guardado ≥ alvo).
-- O painel da turma (HU5) fica na rota `professor.turma`: `turma_service.painel_da_turma` calcula os agregados e a linha por aluno a partir de `XpRepository.resumo_por_aluno` e `MissaoRepository.contar_por_aluno`. "Ativo" = ganhou XP nos últimos `JANELA_FREQUENCIA_DIAS` (7, a confirmar). Nunca mostra reais nem e-mail.
+- A tela inicial do aluno (`routes/painel.py`) mostra saldo, XP, nível (com `percentual` do nível), sequência de dias (`xp_service.sequencia` e as 7 marcas de `xp_service.ultimos_dias`, com os dias que têm XP em `xp_eventos`), a missão e a meta em andamento.
+- Metas e aportes (HU2) estão implementados: `meta_service`, `meta_repo` e `routes/metas.py`. O aporte não entra no saldo nem rende XP, não passa do que falta (`conferir_limite_do_aporte`, checado depois do reenvio), e "concluída" é calculada (guardado ≥ alvo). A lista tem resumo no topo (`meta_service.resumo`) e atalhos de R$ 5/10/20, um formulário por atalho, cada um com a sua chave (N2).
+- O painel da turma (HU5) fica na rota `professor.turma`: `turma_service.painel_da_turma` calcula os agregados, a linha por aluno, o `ranking` por XP, os `inativos` e a turma `por_nivel` a partir de `XpRepository.resumo_por_aluno` e `MissaoRepository.contar_por_aluno`. "Ativo" = ganhou XP nos últimos `JANELA_FREQUENCIA_DIAS` (7, a confirmar). Nunca mostra reais nem e-mail.
 - O quiz (HU4) usa um banco local `PERGUNTAS` em `quiz_service`, no padrão do `MISSOES`, e só grava as respostas em `quiz_repo`, uma por pergunta. O código da pergunta não muda depois de publicado. O XP do acerto (teto diário de 40) entra no mesmo `with conn:` da resposta, em `routes/quiz.py`.
 
 ## Arquitetura (decidida em 16/11/2026)
@@ -51,17 +56,20 @@ Monólito Flask em camadas, com HTML renderizado no servidor. Não troque framew
   - mais de um processo ou servidor escrevendo: PostgreSQL;
   - várias escolas ou backup automático obrigatório: PostgreSQL e modelo de escola;
   - app na App Store, câmera, biometria ou widget: API e cliente nativo;
+  - entrada em JSON vinda de fora (o lote do gerador de perguntas com IA ou o corpo da `app/api/`): Pydantic só nessa fronteira. Os formulários continuam com `ErroValidacao` nos services, porque a regra de negócio depende do banco e do relógio e a mensagem é em português, por campo;
   - um domínio com mais de uns 5 arquivos por camada, ou duas pessoas se atrapalhando no mesmo diretório: fatias por domínio;
   - gargalo medido, não suposto: cache ou fila.
 
 ## Convenções que divergem do padrão
 - Nomes, docstrings, testes e mensagens ao usuário em português.
+- Estilo: PEP 8 a 79 colunas, aplicado pelo `ruff format` e pelas regras do `[tool.ruff.lint]` no pyproject (lá está o porquê de cada família que entra e que fica de fora). Função e método públicos de `app/` têm docstring no estilo Google, e todo código, inclusive os testes, tem anotação de tipo.
 - Erro de validação: `ErroValidacao({campo: mensagem})` (app/services/erros.py). A rota renderiza o formulário de novo com status 400 e preserva o que foi digitado.
 - Dinheiro em centavos (`int`), nunca `float`. O "hoje" vem de `hoje_no_piaui()` (UTC−3).
 - Registro de outro usuário responde 404, não 403: não revela que o id existe.
 - Rota nova: Blueprint com `before_request(exigir_perfil(...))`. Rota pública só entra pela lista `ROTAS_PUBLICAS` em tests/integration/test_rotas_protegidas.py.
 - Tabela nova: `criar_tabela()` no repositório e chamada em app/db.py.
 - Formulário POST novo leva `<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">` (Flask-WTF). O meta-teste em tests/integration/test_seguranca.py acusa o que faltar. Nos testes o CSRF fica desligado (`WTF_CSRF_ENABLED=False` em tests/conftest.py).
+- Tela nova ou alterada segue o DESIGN.md. Sem `style` inline (a CSP bloqueia), e a tela funciona sem JavaScript: escolhas são rádios estilizados com `:has`.
 - Antes de criar um arquivo, abra o irmão equivalente (ex.: os `lancamento_*`) e siga o padrão dele.
 
 ## Fluxo de trabalho
@@ -82,7 +90,7 @@ Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. Se 
 - `dev-dirigido-por-ia`: o método deste projeto (tarefa em 4 campos, ciclo de 8 passos, revisão em contexto novo, PR com evidência, uma tarefa por sessão). Exceção: a skill diz para pular o plano quando o diff cabe numa frase; aqui o plan mode é sempre obrigatório.
 - `engenheiro-software-ia`: postura em toda tarefa (recomende um caminho e justifique, questione pedido ambíguo, prefira o simples, diga o que foi verificado e o que não foi).
 - `tdd`: todo código novo ou correção (seams, fatias verticais, anti-padrões de teste).
-- `ui-taste`: toda tela nova ou alterada. Mantenha o visual atual (app.css, sem framework, sem JavaScript) e, antes de dar como pronta, abra a tela no celular (375px) e no desktop e confira os estados (vazio, erro, sucesso).
+- `ui-taste`: toda tela nova ou alterada. Mantenha o visual atual (CSS em `app/static/css/`, um arquivo por assunto, sem framework, sem JavaScript) e, antes de dar como pronta, abra a tela no celular (375px) e no desktop e confira os estados (vazio, erro, sucesso).
 - `seo-audit`: não se aplica ao MVP (o app fica atrás de login). Não adicione nada de SEO.
 
 ## Git (regras do grupo)
@@ -96,9 +104,9 @@ Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. Se 
 - Um commit é uma mudança lógica. Nunca commite `.env`.
 
 ## Proibido
-- Instalar dependência sem perguntar (`requirements*.txt`).
+- Instalar dependência sem perguntar (`pyproject.toml`, `uv.lock`).
 - Alterar CREATE TABLE existente, autenticação/sessão ou `SECRET_KEY` sem aprovação (INVARIANTES, seção operacional).
-- "Consertar" o gate relaxando regra: `noqa`, `ignore` no pyproject, contrato removido, teste ajustado para passar. Corrija a causa.
+- "Consertar" o gate relaxando regra: `noqa`, `ignore` no pyproject, contrato removido, teste ajustado para passar. Corrija a causa. A única exceção é o falso positivo provado: `# noqa: REGRA` com o motivo num comentário junto (na linha ou logo acima), revisado no PR (ex.: o S608 nos `IN (?, ?)` dos repositórios).
 - Publicar arquivo de `docs/` além dos liberados no `.gitignore`. Os outros documentos são privados.
 
 ## Decisões pendentes do grupo

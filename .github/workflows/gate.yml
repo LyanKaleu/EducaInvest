@@ -13,10 +13,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      # A versão do uv vem do required-version no pyproject.toml.
+      # setup-uv não tem tag móvel "v10": o Dependabot (github-actions) atualiza a versão.
+      - uses: astral-sh/setup-uv@v10.3.3
         with:
-          python-version: "3.14"
-          cache: pip
-          cache-dependency-path: requirements*.txt
-      - run: python -m pip install -r requirements.txt -r requirements-dev.txt
+          enable-cache: true
+      # --locked falha se o uv.lock estiver atrasado em relação ao pyproject.toml.
+      # O Python vem do .python-version e o ambiente fica em .venv/, onde o gate.sh procura.
+      - run: uv sync --locked
       - run: bash gate.sh

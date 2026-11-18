@@ -1,11 +1,21 @@
-"""SQL de lançamentos (entradas e gastos): único lugar com SQL desta entidade."""
+"""SQL de lançamentos (entradas e gastos).
+
+Único lugar com SQL desta entidade.
+"""
+
 import sqlite3
 
 from app.repositories.conversao import linha_para_dict
 
 # Colunas que podem ser alteradas em atualizar(). Nomes de coluna não podem ir
 # como parâmetro "?", então só aceitamos nomes desta lista fixa.
-CAMPOS_EDITAVEIS = ("tipo", "categoria", "valor_centavos", "data_lancamento", "descricao")
+CAMPOS_EDITAVEIS = (
+    "tipo",
+    "categoria",
+    "valor_centavos",
+    "data_lancamento",
+    "descricao",
+)
 
 SQL_CRIAR_TABELA = """
 CREATE TABLE IF NOT EXISTS lancamentos (
@@ -14,11 +24,15 @@ CREATE TABLE IF NOT EXISTS lancamentos (
     tipo               TEXT    NOT NULL CHECK (tipo IN ('ENTRADA', 'SAIDA')),
     categoria          TEXT    NOT NULL CHECK (length(trim(categoria)) > 0),
     valor_centavos     INTEGER NOT NULL
-                       CHECK (typeof(valor_centavos) = 'integer' AND valor_centavos > 0),
+                       CHECK (typeof(valor_centavos) = 'integer'
+                              AND valor_centavos > 0),
+    -- 'AAAA-MM-DD' válida
     data_lancamento    TEXT    NOT NULL
-                       CHECK (date(data_lancamento) IS data_lancamento),  -- 'AAAA-MM-DD' válida
-    descricao          TEXT    CHECK (descricao IS NULL OR length(descricao) <= 140),
-    chave_idempotencia TEXT    NOT NULL,  -- gerada no formulário; evita duplicar no reenvio
+                       CHECK (date(data_lancamento) IS data_lancamento),
+    descricao          TEXT
+                       CHECK (descricao IS NULL OR length(descricao) <= 140),
+    -- gerada no formulário; evita duplicar no reenvio
+    chave_idempotencia TEXT    NOT NULL,
     criado_em          TEXT    NOT NULL DEFAULT (datetime('now')),
     UNIQUE (aluno_id, chave_idempotencia)
 );
@@ -27,19 +41,20 @@ CREATE INDEX IF NOT EXISTS ix_lancamentos_aluno_data
 """
 
 
-def _escapar_like(texto):
-    """Faz '%' e '_' digitados pelo usuário serem procurados literalmente no LIKE."""
+def _escapar_like(texto: str) -> str:
+    """Faz '%' e '_' digitados serem procurados literalmente no LIKE."""
     return texto.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 
 class LancamentoRepository:
     """CRUD de lançamentos. Toda operação é restrita ao aluno dono do registro.
 
-    O repositório NÃO faz commit: quem chama decide a transação com `with conn:`.
-    Assim, no futuro, o lançamento e o XP podem ser gravados juntos (spec, HU3).
+    O repositório NÃO faz commit: quem chama decide a transação com `with
+    conn:`. Assim, no futuro, o lançamento e o XP podem ser gravados juntos
+    (spec, HU3).
     """
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection) -> None:
         """Cria o repositório sobre uma conexão já aberta.
 
         Args:
@@ -60,9 +75,18 @@ class LancamentoRepository:
         """
         conn.executescript(SQL_CRIAR_TABELA)
 
-    def criar(self, aluno_id, tipo, categoria, valor_centavos, data_lancamento,
-              chave_idempotencia, descricao=None) -> dict:
-        """Insere um lançamento, ou devolve o já existente se a chave se repetir.
+    def criar(
+        self,
+        aluno_id: int,
+        *,
+        tipo: str,
+        categoria: str,
+        valor_centavos: int,
+        data_lancamento: str,
+        chave_idempotencia: str,
+        descricao: str | None = None,
+    ) -> dict:
+        """Insere um lançamento ou devolve o existente se a chave se repetir.
 
         Se o mesmo aluno enviar de novo a mesma `chave_idempotencia` (por
         exemplo, num reenvio depois de uma falha de rede), nada é inserido e
@@ -93,17 +117,25 @@ class LancamentoRepository:
             VALUES (?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (aluno_id, chave_idempotencia) DO NOTHING
             """,
-            (aluno_id, tipo, categoria, valor_centavos, data_lancamento,
-             descricao, chave_idempotencia),
+            (
+                aluno_id,
+                tipo,
+                categoria,
+                valor_centavos,
+                data_lancamento,
+                descricao,
+                chave_idempotencia,
+            ),
         )
         linha = self.conn.execute(
-            "SELECT * FROM lancamentos WHERE aluno_id = ? AND chave_idempotencia = ?",
+            "SELECT * FROM lancamentos WHERE aluno_id = ? AND "
+            "chave_idempotencia = ?",
             (aluno_id, chave_idempotencia),
         ).fetchone()
         return linha_para_dict(linha)
 
-    def listar(self, aluno_id, busca=None) -> list[dict]:
-        """Lista os lançamentos de um aluno, do mais recente para o mais antigo.
+    def listar(self, aluno_id: int, busca: str | None = None) -> list[dict]:
+        """Lista os lançamentos do aluno, do mais recente ao mais antigo.
 
         Args:
             aluno_id: id do aluno.
@@ -114,7 +146,8 @@ class LancamentoRepository:
             list[dict]: os lançamentos encontrados (lista vazia se não houver
             nenhum), ordenados por data e depois por id, ambos decrescentes.
         """
-        # Sem busca, o padrão vira '%%', que casa com qualquer categoria (sempre preenchida).
+        # Sem busca, o padrão vira '%%', que casa com qualquer categoria
+        # (sempre preenchida).
         padrao = "%" + _escapar_like((busca or "").strip()) + "%"
         linhas = self.conn.execute(
             r"""
@@ -127,7 +160,7 @@ class LancamentoRepository:
         ).fetchall()
         return [dict(linha) for linha in linhas]
 
-    def buscar(self, aluno_id, lancamento_id) -> dict | None:
+    def buscar(self, aluno_id: int, lancamento_id: int) -> dict | None:
         """Busca um lançamento pelo id, só entre os do aluno informado.
 
         Args:
@@ -144,37 +177,53 @@ class LancamentoRepository:
         ).fetchone()
         return linha_para_dict(linha)
 
-    def contar_por_tipo(self, aluno_id) -> dict:
+    def contar_por_tipo(self, aluno_id: int) -> dict:
         """Quantos lançamentos o aluno tem de cada tipo (critério das missões).
 
         Args:
             aluno_id: id do aluno.
 
         Returns:
-            dict: {"ENTRADA": n, "SAIDA": m}, com zero para o tipo sem lançamentos.
+            dict: {"ENTRADA": n, "SAIDA": m}, com zero para o tipo sem
+                lançamentos.
         """
         linhas = self.conn.execute(
-            "SELECT tipo, COUNT(*) AS qtd FROM lancamentos WHERE aluno_id = ? GROUP BY tipo",
+            "SELECT tipo, COUNT(*) AS qtd FROM lancamentos WHERE aluno_id = "
+            "? GROUP BY tipo",
             (aluno_id,),
         ).fetchall()
-        return {"ENTRADA": 0, "SAIDA": 0, **{linha["tipo"]: linha["qtd"] for linha in linhas}}
+        return {
+            "ENTRADA": 0,
+            "SAIDA": 0,
+            **{linha["tipo"]: linha["qtd"] for linha in linhas},
+        }
 
-    def somar_por_tipo(self, aluno_id) -> dict:
-        """Total em centavos dos lançamentos do aluno, por tipo (base do saldo).
+    def somar_por_tipo(self, aluno_id: int) -> dict:
+        """Total em centavos dos lançamentos do aluno, por tipo.
+
+        Base do saldo.
 
         Args:
             aluno_id: id do aluno.
 
         Returns:
-            dict: {"ENTRADA": centavos, "SAIDA": centavos}, com zero para o tipo sem lançamentos.
+            dict: {"ENTRADA": centavos, "SAIDA": centavos}, com zero para o
+                tipo sem lançamentos.
         """
         linhas = self.conn.execute(
-            "SELECT tipo, SUM(valor_centavos) AS total FROM lancamentos WHERE aluno_id = ? GROUP BY tipo",
+            "SELECT tipo, SUM(valor_centavos) AS total FROM lancamentos "
+            "WHERE aluno_id = ? GROUP BY tipo",
             (aluno_id,),
         ).fetchall()
-        return {"ENTRADA": 0, "SAIDA": 0, **{linha["tipo"]: linha["total"] for linha in linhas}}
+        return {
+            "ENTRADA": 0,
+            "SAIDA": 0,
+            **{linha["tipo"]: linha["total"] for linha in linhas},
+        }
 
-    def atualizar(self, aluno_id, lancamento_id, campos: dict) -> bool:
+    def atualizar(
+        self, aluno_id: int, lancamento_id: int, campos: dict
+    ) -> bool:
         """Altera colunas de um lançamento do aluno. Não faz commit.
 
         Args:
@@ -190,7 +239,8 @@ class LancamentoRepository:
         Raises:
             ValueError: se `campos` estiver vazio ou tiver uma coluna fora de
                 `CAMPOS_EDITAVEIS`.
-            sqlite3.IntegrityError: se um novo valor violar as regras da tabela.
+            sqlite3.IntegrityError: se um novo valor violar as regras da
+                tabela.
         """
         desconhecidos = set(campos) - set(CAMPOS_EDITAVEIS)
         if desconhecidos:
@@ -198,14 +248,16 @@ class LancamentoRepository:
         if not campos:
             raise ValueError("Informe ao menos um campo para atualizar.")
         # Os nomes vêm da lista fixa acima; os valores vão sempre por "?".
+        # Por isso o S608 (SQL montado com f-string) é falso positivo aqui.
         atribuicoes = ", ".join(f"{nome} = ?" for nome in campos)
         cursor = self.conn.execute(
-            f"UPDATE lancamentos SET {atribuicoes} WHERE aluno_id = ? AND id = ?",
+            f"UPDATE lancamentos SET {atribuicoes} "  # noqa: S608
+            "WHERE aluno_id = ? AND id = ?",
             (*campos.values(), aluno_id, lancamento_id),
         )
         return cursor.rowcount == 1
 
-    def excluir(self, aluno_id, lancamento_id) -> bool:
+    def excluir(self, aluno_id: int, lancamento_id: int) -> bool:
         """Apaga um lançamento do aluno. Não faz commit.
 
         Args:

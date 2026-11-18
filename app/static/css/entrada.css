@@ -1,0 +1,23 @@
+/* Telas de entrada: login e cadastro. */
+
+/* ---------- Login e cadastro ---------- */
+
+/* Marca grande no lugar do topo, como no protótipo. */
+.marca-entrada { display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 1.75rem 0 1rem; text-align: center; }
+.marca-entrada h1 { margin: .25rem 0 0; }
+.marca-entrada p { margin: 0; }
+.logo { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 18px; background: var(--primaria); color: var(--texto-sobre-cor); }
+form.cartao .campo, .cartao > .campo { margin: 0; }
+form.cartao, .cartao:has(> .campo) { gap: .875rem; }
+form > .cartao + .botao-largo, form.cartao .botao-largo { margin-top: .25rem; }
+form > .cartao + .botao-largo { margin-top: .75rem; }
+.campo-codigo { font-family: ui-monospace, Consolas, monospace; letter-spacing: .12em; text-transform: uppercase; }
+.consentimento { display: flex; align-items: flex-start; margin: 0; }
+.consentimento input { margin-top: .15rem; }
+
+/* Escolha do tipo de conta no cadastro: a opção atual fica cheia, a outra só com contorno. */
+.escolha-perfil { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+.escolha-perfil .botao { flex: 1; text-align: center; }
+.escolha-perfil .botao[aria-current="false"] {
+  color: var(--primaria); background: var(--fundo); border: 2px solid var(--primaria);
+}

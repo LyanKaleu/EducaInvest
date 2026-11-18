@@ -1,6 +1,11 @@
-"""Limite de tentativas: bloqueia uma chave (o e-mail do login) depois de muitas tentativas seguidas."""
+"""Limite de tentativas de login.
+
+Bloqueia uma chave (o e-mail do login) depois de muitas tentativas seguidas.
+"""
+
 import threading
 import time
+from collections.abc import Callable
 
 
 class LimiteDeTentativas:
@@ -14,13 +19,21 @@ class LimiteDeTentativas:
     para o MVP (um processo), mas não para vários workers.
     """
 
-    def __init__(self, maximo: int, janela_segundos: int, relogio=time.monotonic,
-                 max_chaves: int = 10_000):
+    def __init__(
+        self,
+        maximo: int,
+        janela_segundos: int,
+        relogio: Callable[[], float] = time.monotonic,
+        max_chaves: int = 10_000,
+    ) -> None:
+        """Configura o limite: `maximo` tentativas a cada `janela_segundos`."""
         self.maximo = maximo
         self.janela_segundos = janela_segundos
         self.relogio = relogio
         self.max_chaves = max_chaves
-        self._tentativas: dict[str, tuple[float, int]] = {}  # chave -> (início da janela, tentativas)
+        self._tentativas: dict[
+            str, tuple[float, int]
+        ] = {}  # chave -> (início da janela, tentativas)
         self._trava = threading.Lock()
 
     def __len__(self) -> int:
@@ -30,22 +43,33 @@ class LimiteDeTentativas:
     def _vencida(self, janela: tuple[float, int], agora: float) -> bool:
         return agora - janela[0] >= self.janela_segundos
 
-    def tentar(self, chave) -> bool:
-        """Conta uma tentativa. False se a chave já esgotou as tentativas da janela."""
+    def tentar(self, chave: str) -> bool:
+        """Conta uma tentativa.
+
+        False se a chave já esgotou as tentativas da janela.
+        """
         with self._trava:
             agora = self.relogio()
             if len(self._tentativas) >= self.max_chaves:
-                # Muitas chaves (ex.: script com e-mails aleatórios): descarta as vencidas.
-                self._tentativas = {c: j for c, j in self._tentativas.items()
-                                    if not self._vencida(j, agora)}
+                # Muitas chaves (ex.: script com e-mails aleatórios): descarta
+                # as vencidas.
+                self._tentativas = {
+                    c: j
+                    for c, j in self._tentativas.items()
+                    if not self._vencida(j, agora)
+                }
             janela = self._tentativas.get(chave)
             if janela is None or self._vencida(janela, agora):
-                janela = (agora, 0)  # janela nova: as tentativas antigas não contam mais
+                janela = (
+                    agora,
+                    0,
+                )  # janela nova: as tentativas antigas não contam mais
             if janela[1] >= self.maximo:
                 return False
             self._tentativas[chave] = (janela[0], janela[1] + 1)
             return True
 
-    def limpar(self, chave) -> None:
+    def limpar(self, chave: str) -> None:
+        """Zera a contagem da chave (depois de um login certo)."""
         with self._trava:
             self._tentativas.pop(chave, None)

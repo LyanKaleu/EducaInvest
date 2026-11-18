@@ -1,60 +1,96 @@
 {% extends "base.html" %}
-{# Uma turma: código de acesso e painel do progresso (HU5). Só apelido, XP, nível e
-   missões: nunca e-mail nem valores em reais (RN-18, INVARIANTES N5). #}
+{# Uma turma (protótipo navegável): frequência, alerta de inativos, ranking por XP, turma por nível e convite (HU5).
+   Só apelido, XP, nível e missões: nunca e-mail nem valores em reais (RN-18, INVARIANTES N5). #}
 
 {% block titulo %}{{ turma.nome }}{% endblock %}
 
 {% block conteudo %}
-<h1>{{ turma.nome }}</h1>
+<div class="cabecalho-voltar">
+  <a class="voltar" href="{{ url_for('professor.turmas') }}">
+    <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    <span class="oculto">Voltar para as turmas</span>
+  </a>
+  <div class="titulo-turma">
+    <h1>{{ turma.nome }}</h1>
+    <span class="dica"><span id="total-alunos">{{ painel.total_alunos }}</span> {{ 'aluno' if painel.total_alunos == 1 else 'alunos' }}{% if session.get('apelido') %} · {{ session.get('apelido') }}{% endif %}</span>
+  </div>
+</div>
 
-<p>Código de acesso: <code class="codigo-turma">{{ turma.codigo_acesso }}</code></p>
-<p class="dica">Passe este código aos alunos para eles se cadastrarem na turma.</p>
+{% set convite %}
+  <section class="convite" aria-labelledby="titulo-convite">
+    <div>
+      <h2 id="titulo-convite">Convidar alunos</h2>
+      <p class="dica">Passe este código para a turma.</p>
+    </div>
+    <code class="codigo-turma">{{ turma.codigo_acesso }}</code>
+  </section>
+{% endset %}
 
-<h2>Progresso da turma</h2>
 {% if painel.total_alunos %}
-  <div class="painel-indicadores indicadores-turma">
-    <section class="indicador" aria-labelledby="titulo-total-alunos">
-      <h3 id="titulo-total-alunos" class="rotulo">Alunos</h3>
-      <strong id="total-alunos">{{ painel.total_alunos }}</strong>
-    </section>
-    <section class="indicador" aria-labelledby="titulo-xp-medio">
-      <h3 id="titulo-xp-medio" class="rotulo">XP médio</h3>
-      <strong id="xp-medio">{{ painel.xp_medio }} XP</strong>
-    </section>
-    <section class="indicador" aria-labelledby="titulo-missoes">
-      <h3 id="titulo-missoes" class="rotulo">Missões concluídas</h3>
-      <strong id="missoes-concluidas">{{ painel.missoes_concluidas }}</strong>
-    </section>
-    <section class="indicador" aria-labelledby="titulo-ativos">
-      <h3 id="titulo-ativos" class="rotulo">Ativos em 7 dias</h3>
-      <strong id="ativos-semana">{{ painel.ativos }} de {{ painel.total_alunos }}</strong>
-    </section>
-  </div>
-  <p class="dica">Ativo é quem ganhou XP nos últimos 7 dias, contando hoje.</p>
+  {# Destaque: quantos estão ativos, com a barra da proporção. Os números seguem em texto. #}
+  <section class="cartao-turma" aria-labelledby="titulo-semana">
+    <h2 id="titulo-semana" class="rotulo">Nos últimos 7 dias</h2>
+    <p class="ativos-turma"><strong id="ativos-semana">{{ painel.ativos }} de {{ painel.total_alunos }}</strong> alunos ativos</p>
+    <progress class="fina clara" max="{{ painel.total_alunos }}" value="{{ painel.ativos }}" aria-labelledby="titulo-semana">
+      {{ painel.ativos }} de {{ painel.total_alunos }}
+    </progress>
+    <dl class="numeros-turma">
+      <div><dt>XP médio</dt><dd id="xp-medio">{{ painel.xp_medio }} XP</dd></div>
+      <div><dt>Missões concluídas</dt><dd id="missoes-concluidas">{{ painel.missoes_concluidas }}</dd></div>
+    </dl>
+  </section>
 
-  <h2>Alunos</h2>
-  <div class="tabela-rolavel">
-    <table class="tabela-turma">
-      <thead>
-        <tr><th scope="col">Aluno</th><th scope="col">Nível</th><th scope="col" class="numero">XP</th>
-            <th scope="col" class="numero">Missões</th><th scope="col">Ativo</th></tr>
-      </thead>
-      <tbody>
-        {% for aluno in painel.alunos %}
-          <tr>
-            <th scope="row">{{ aluno.apelido }}</th>
-            <td class="sem-quebra">{{ aluno.nivel.nome }}</td>
-            <td class="numero">{{ aluno.xp }}</td>
-            <td class="numero">{{ aluno.missoes }}</td>
-            <td>{{ 'Sim' if aluno.ativo else 'Não' }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  {% if painel.inativos %}
+    {% set varios = painel.inativos | length > 1 %}
+    <section id="atencao" class="atencao" aria-labelledby="titulo-atencao">
+      <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg>
+      <div>
+        <h2 id="titulo-atencao">Precisa de atenção</h2>
+        <p><strong>{{ painel.inativos | join(', ') }}</strong> {{ 'não ganharam' if varios else 'não ganhou' }} XP nos últimos 7 dias.</p>
+      </div>
+    </section>
+  {% endif %}
+
+  {# Barras relativas ao maior XP da turma. Sem style inline (a CSP bloqueia): <progress> com max. #}
+  {% set maior_xp = (painel.ranking | map(attribute='xp') | max) or 1 %}
+  <section class="cartao ranking-cartao" aria-labelledby="titulo-ranking">
+    <h2 id="titulo-ranking" class="rotulo">Alunos por XP</h2>
+    <ol class="ranking">
+      {% for aluno in painel.ranking %}
+        <li class="aluno-ranking{% if not aluno.ativo %} inativo{% endif %}">
+          <div class="cartao-topo base">
+            <span><strong class="apelido">{{ aluno.apelido }}</strong> <span class="dica">· {{ aluno.nivel.nome }}</span></span>
+            <strong class="numero">{{ aluno.xp }} XP</strong>
+          </div>
+          <progress class="fina" max="{{ maior_xp }}" value="{{ aluno.xp }}" aria-hidden="true"></progress>
+          <span class="situacao">{{ aluno.missoes }} {{ 'missão' if aluno.missoes == 1 else 'missões' }} · {{ 'ativo' if aluno.ativo else 'inativo' }}</span>
+        </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="cartao" aria-labelledby="titulo-niveis">
+    <h2 id="titulo-niveis" class="rotulo">Turma por nível</h2>
+    <dl class="niveis">
+      {% for faixa in painel.por_nivel %}
+        <div{% if faixa.quantidade and not loop.first %} class="com-alunos"{% endif %}>
+          {# <dt> antes do <dd> (HTML válido); o CSS põe o número em cima. #}
+          <dt>{{ faixa.nome }}</dt>
+          <dd id="nivel-{{ loop.index }}">{{ faixa.quantidade }}</dd>
+        </div>
+      {% endfor %}
+    </dl>
+  </section>
+
+  {{ convite }}
+  <p class="dica centro">Você vê XP, missões e frequência. Nunca valores em reais nem e-mail. Ativo é quem ganhou XP nos últimos 7 dias, contando hoje.</p>
 {% else %}
-  <p>Nenhum aluno ainda.</p>
+  {{ convite }}
+  <div class="vazio">
+    <strong>Nenhum aluno ainda.</strong>
+    <p class="dica">Quando os alunos se cadastrarem com o código, o progresso da turma aparece aqui.</p>
+  </div>
 {% endif %}
-
-<p><a href="{{ url_for('professor.turmas') }}">Voltar para as turmas</a></p>
 {% endblock %}

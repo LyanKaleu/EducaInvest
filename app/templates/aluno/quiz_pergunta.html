@@ -1,14 +1,34 @@
 {% extends "base.html" %}
-{# Uma pergunta do quiz por tela; depois de responder, o resultado e a explicação (HU4). #}
+{# Uma pergunta do quiz por tela (protótipo navegável). Depois de responder, as alternativas mostram a
+   certa e a escolhida, e o resultado traz a explicação (HU4). #}
 {% from "_formulario.html" import erro, invalido with context %}
 
 {% block titulo %}Quiz · {{ tema_nome }}{% endblock %}
 
 {% block conteudo %}
-<p class="rotulo">Quiz · {{ tema_nome }}</p>
-<h1>{{ pergunta.enunciado }}</h1>
+<div class="cabecalho-voltar">
+  <a class="voltar" href="{{ url_for('quiz.listar') }}">
+    <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    <span class="oculto">Voltar ao quiz</span>
+  </a>
+  <p class="rotulo">Quiz · {{ tema_nome }}</p>
+</div>
+<h1 class="enunciado">{{ pergunta.enunciado }}</h1>
 
 {% if resposta %}
+  {# Respondida: as alternativas viram uma lista só de leitura, com a certa e a escolhida marcadas em texto. #}
+  <ul class="alternativas-respondidas">
+    {% for letra, texto in pergunta.alternativas.items() %}
+      {% set certa = letra == pergunta.correta %}
+      {% set escolhida = letra == resposta.alternativa %}
+      <li class="alt{% if certa %} certa{% elif escolhida %} errada{% endif %}">
+        <span class="letra" aria-hidden="true">{{ letra | upper }}</span>
+        <span>{{ texto }}{% if certa %}<span class="oculto"> (resposta certa)</span>{% elif escolhida %}<span class="oculto"> (sua resposta)</span>{% endif %}</span>
+      </li>
+    {% endfor %}
+  </ul>
+
   {# O resultado vai em texto, não só na cor, para quem não distingue cores. #}
   <section class="resultado" data-acertou="{{ 'sim' if resposta.correta else 'nao' }}" aria-labelledby="titulo-resultado">
     <h2 id="titulo-resultado">{{ 'Você acertou!' if resposta.correta else 'Você errou.' }}</h2>
@@ -21,14 +41,12 @@
     <p>{{ pergunta.explicacao }}</p>
   </section>
 
-  <div class="acoes">
-    {% if proxima %}
-      <a class="botao" href="{{ url_for('quiz.ver', codigo=proxima.codigo) }}">Próxima pergunta</a>
-    {% else %}
-      <p>Você respondeu todas as perguntas. Parabéns!</p>
-    {% endif %}
-    <a href="{{ url_for('quiz.listar') }}">Voltar ao quiz</a>
-  </div>
+  {% if proxima %}
+    <a class="botao botao-largo" href="{{ url_for('quiz.ver', codigo=proxima.codigo) }}">Próxima pergunta</a>
+  {% else %}
+    <p class="dica centro">Você respondeu todas as perguntas. Parabéns!</p>
+  {% endif %}
+  <p class="centro"><a class="link-acao" href="{{ url_for('quiz.listar') }}">Voltar ao quiz</a></p>
 {% else %}
   {% if xp_hoje >= teto %}
     <p class="dica">Você já ganhou os {{ teto }} XP do quiz hoje. Pode responder para aprender, mas esta pergunta não vai render XP. Amanhã o XP volta.</p>
@@ -36,18 +54,18 @@
   <form method="post" action="{{ url_for('quiz.responder', codigo=pergunta.codigo) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <fieldset class="alternativas" {{ invalido('alternativa', grupo=true) }}>
-      <legend>Escolha uma alternativa</legend>
+      <legend class="oculto">Escolha uma alternativa</legend>
       {% for letra, texto in pergunta.alternativas.items() %}
-        <label class="opcao">
-          <input type="radio" name="alternativa" value="{{ letra }}"> {{ texto }}
+        <label class="alt">
+          <input type="radio" name="alternativa" value="{{ letra }}">
+          <span class="letra" aria-hidden="true">{{ letra | upper }}</span>
+          <span>{{ texto }}</span>
         </label>
       {% endfor %}
       {{ erro('alternativa') }}
     </fieldset>
-    <div class="acoes">
-      <button type="submit">Responder</button>
-      <a href="{{ url_for('quiz.listar') }}">Voltar ao quiz</a>
-    </div>
+    <button type="submit" class="botao-largo">Responder</button>
   </form>
+  <p class="centro"><a class="link-acao" href="{{ url_for('quiz.listar') }}">Voltar ao quiz</a></p>
 {% endif %}
 {% endblock %}

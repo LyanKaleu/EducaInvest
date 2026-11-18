@@ -54,5 +54,5 @@ Valem independentemente de o CI estar verde.
 
 - **O1 · Schema:** alterar um CREATE TABLE existente ou apagar uma tabela. Tabela nova é permitida, seguindo o padrão `criar_tabela()`.
 - **O2 · Acesso e sessão:** `app/routes/acesso.py`, `app/routes/auth.py`, `app/services/auth_service.py`, `app/__init__.py` (`SECRET_KEY`, cookie).
-- **O3 · Dependências e portão:** `requirements*.txt`, `pyproject.toml`, `gate.sh`, `.github/workflows/`, `.claude/`.
+- **O3 · Dependências e portão:** `pyproject.toml`, `uv.lock`, `.python-version`, `gate.sh`, `.github/workflows/`, `.claude/`.
 - **Enforcement:** o hook PreToolUse (`.claude/hooks/protege.py`) pede confirmação antes de editar os arquivos de O2 e O3, e bloqueia `.env*`, `instance/` e `*.db`. O1 é checado pelo subagente `revisor` e na revisão do PR.

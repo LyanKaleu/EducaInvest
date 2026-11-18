@@ -1,12 +1,13 @@
-"""Avalia o critério de cada missão, conclui uma única vez e desbloqueia a próxima (RN-09, RN-10).
+"""Missões: critério, conclusão única e desbloqueio da próxima (RN-09, RN-10).
 
-O progresso é calculado a partir da contagem atual de lançamentos; só a conclusão
-é gravada (pela rota, no repositório). Assim "2 de 3" nunca fica dessincronizado.
+O progresso é calculado a partir da contagem atual de lançamentos; só a
+conclusão é gravada (pela rota, no repositório). Assim "2 de 3" nunca fica
+dessincronizado.
 """
 
 # Trilha fixa, na ordem em que as missões são liberadas. Mesmo seed de
-# docs/educainvest_schema.sql. Títulos e XP a confirmar pelo grupo.
-# `tipo`: tipo de lançamento contado ("SAIDA"/"ENTRADA"), ou None para contar todos.
+# docs/educainvest_schema.sql. Títulos e XP a confirmar pelo grupo. `tipo`:
+# tipo de lançamento contado ("SAIDA"/"ENTRADA"), ou None para contar todos.
 MISSOES = (
     {
         "codigo": "REG_3_GASTOS",
@@ -52,7 +53,9 @@ def situacao(contagens: dict, concluidas: set) -> list[dict]:
         if missao["codigo"] in concluidas:
             status, atual = "CONCLUIDA", missao["alvo"]
         else:
-            requisito_pendente = missao["requisito"] and missao["requisito"] not in concluidas
+            requisito_pendente = (
+                missao["requisito"] and missao["requisito"] not in concluidas
+            )
             status = "BLOQUEADA" if requisito_pendente else "ATIVA"
             atual = min(_contagem(missao, contagens), missao["alvo"])
         resultado.append({**missao, "atual": atual, "status": status})
@@ -63,14 +66,16 @@ def a_concluir(contagens: dict, concluidas: set) -> list[dict]:
     """Missões que o aluno acabou de cumprir e ainda não foram concluídas.
 
     Percorre a trilha em ordem: concluir uma libera a seguinte no mesmo passo,
-    então quem já tinha registros suficientes conclui a trilha inteira de uma vez.
+    então quem já tinha registros suficientes conclui a trilha inteira de uma
+    vez.
 
     Args:
         contagens: {"ENTRADA": n, "SAIDA": m}, lançamentos atuais do aluno.
         concluidas: códigos das missões que o aluno já concluiu.
 
     Returns:
-        list[dict]: as missões a concluir agora, na ordem da trilha (vazia se nenhuma).
+        list[dict]: as missões a concluir agora, na ordem da trilha (vazia se
+            nenhuma).
     """
     feitas = set(concluidas)
     novas = []
