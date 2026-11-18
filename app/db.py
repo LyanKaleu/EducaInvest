@@ -19,6 +19,9 @@ def conectar(caminho: str) -> sqlite3.Connection:
     """
     conn = sqlite3.connect(caminho)
     conn.row_factory = sqlite3.Row  # linhas acessíveis por nome: linha["valor_centavos"]
+    # O SQLite deixa as FKs desligadas por conexão: sem isto, todo REFERENCES e o
+    # ON DELETE CASCADE de matriculas viram decoração. Tem de vir antes de abrir transação.
+    conn.execute("PRAGMA foreign_keys = ON")
     UsuarioRepository.criar_tabela(conn)
     TurmaRepository.criar_tabela(conn)
     LancamentoRepository.criar_tabela(conn)
