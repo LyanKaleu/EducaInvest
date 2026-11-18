@@ -97,6 +97,12 @@
       color var(--duracao-cor) ease;
   }
   @media (hover: hover) and (pointer: fine) {
+    /* Uma faixa invisível estende a área do hover 3px para baixo: sem ela, o cursor parado na borda
+       de baixo perde o elemento quando ele sobe, e ele fica tremendo. */
+    button, .botao, a.lancamento, a.turma-item { position: relative; }
+    button::before, .botao::before, a.lancamento::before, a.turma-item::before, .pergunta::before {
+      content: ""; position: absolute; inset: 0 0 -3px;
+    }
     /* O botão sobe 1px; o cartão-link sobe 2px e a borda escurece um passo. */
     button:hover, .botao:hover { transform: translateY(-1px); transition-duration: var(--duracao-hover-entra); }
     a.lancamento:hover, a.turma-item:hover, .pergunta:hover {
