@@ -1,4 +1,30 @@
-# Configuração das ferramentas do gate (gate.sh). Não é empacotamento: o app roda com run.py.
+# Dependências (gerenciadas pelo uv, árvore inteira fixada no uv.lock) e configuração das
+# ferramentas do gate (gate.sh). O app não é pacote: roda com run.py, por isso não há build-system.
+
+[project]
+name = "educainvest"
+version = "1.0.0"
+# O grupo e o CI usam 3.14 (.python-version). O 3.13 fica na faixa para o lock valer também
+# no virtualenv do deploy.
+requires-python = ">=3.13,<3.15"
+dependencies = [
+    "flask==3.1.3",
+    "flask-wtf==1.3.0",
+    "pwdlib[argon2]==0.4.2",
+]
+
+[dependency-groups]
+# Ferramentas do gate.sh: entram no `uv sync`, não vão para produção (`--no-dev`).
+dev = [
+    "ruff==0.17.4",
+    "import-linter==2.16",
+    "pytest==9.2.0",
+]
+
+[tool.uv]
+package = false
+# Mesmo formato de lock para o grupo, o CI e o Dependabot (que usa o uv 0.13).
+required-version = ">=0.13"
 
 [tool.ruff]
 target-version = "py310"

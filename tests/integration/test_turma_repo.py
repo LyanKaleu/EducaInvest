@@ -5,11 +5,17 @@ import pytest
 
 from app.db import conectar
 from app.repositories.turma_repo import TurmaRepository
+from app.repositories.usuario_repo import UsuarioRepository
 
 
 @pytest.fixture
 def repo():
     conn = conectar(":memory:")
+    # Com as FKs ligadas (app.db), turmas.professor_id precisa de um usuário real.
+    # Dois professores pelo AUTOINCREMENT viram os ids 1 e 2 usados abaixo.
+    usuarios = UsuarioRepository(conn)
+    usuarios.criar("PROFESSOR", "Prof 1", "prof1@escola.br", "x")
+    usuarios.criar("PROFESSOR", "Prof 2", "prof2@escola.br", "x")
     yield TurmaRepository(conn)
     conn.close()
 

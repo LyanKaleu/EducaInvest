@@ -7,16 +7,19 @@ Priorize o núcleo demonstrável. Nada de abstração "para o futuro".
 Python 3.14 · Flask 3.1 · SQLite via `sqlite3` da stdlib (sem ORM) · Jinja renderizado no servidor, sem JavaScript · pytest
 
 ## Comandos
-No Git Bash. No PowerShell, troque `python` por `.venv\Scripts\python`.
+Dependências com [uv](https://docs.astral.sh/uv/): o `uv.lock` fixa a árvore inteira e o `.python-version` fixa o Python (3.14). Os mesmos comandos valem no Git Bash e no PowerShell.
 
 ```
+uv sync                               instala o Python e a árvore do uv.lock em .venv/ (com as ferramentas do gate)
 bash gate.sh                          portão: lint → arquitetura → testes (o mesmo do CI)
 bash gate.sh --sem-testes             só lint + arquitetura (passo 1 do TDD)
-python -m pytest -q tests/x.py::nome  teste único (PREFIRA durante a implementação)
-python -m pytest -q                   suíte inteira
-python run.py                         servidor de desenvolvimento (debug)
-python -m pip install -r requirements.txt -r requirements-dev.txt
+uv run pytest -q tests/x.py::nome     teste único (PREFIRA durante a implementação)
+uv run pytest -q                      suíte inteira
+uv run run.py                         servidor de desenvolvimento (debug)
+uv add pacote==x.y / uv add --dev     dependência nova (pergunte antes): grava no pyproject.toml e no uv.lock
+uv lock --upgrade-package pacote      sobe só esse pacote
 ```
+Nunca edite o `uv.lock` à mão nem volte com `requirements*.txt`. O CI roda `uv sync --locked`, que falha se o lock estiver atrasado em relação ao `pyproject.toml`.
 
 O Stop hook roda o gate quando há arquivo alterado. Mudança só em `tests/` roda sem a suíte, porque o teste novo ainda está vermelho.
 
@@ -97,7 +100,7 @@ Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. Se 
 - Um commit é uma mudança lógica. Nunca commite `.env`.
 
 ## Proibido
-- Instalar dependência sem perguntar (`requirements*.txt`).
+- Instalar dependência sem perguntar (`pyproject.toml`, `uv.lock`).
 - Alterar CREATE TABLE existente, autenticação/sessão ou `SECRET_KEY` sem aprovação (INVARIANTES, seção operacional).
 - "Consertar" o gate relaxando regra: `noqa`, `ignore` no pyproject, contrato removido, teste ajustado para passar. Corrija a causa.
 - Publicar arquivo de `docs/` além dos liberados no `.gitignore`. Os outros documentos são privados.
