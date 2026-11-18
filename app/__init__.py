@@ -1,13 +1,19 @@
-"""Fábrica da aplicação: cria o app Flask, configura, liga o banco e registra as rotas."""
+"""Fábrica da aplicação Flask.
+
+Cria o app, configura, liga o banco e registra as rotas.
+"""
+
 import os
 import secrets
 from datetime import timedelta
+from pathlib import Path
 
-from flask import Flask, flash, redirect, session, url_for
+from flask import Flask, Response, flash, redirect, session, url_for
+from flask.typing import ResponseReturnValue
 from flask_wtf.csrf import CSRFError, CSRFProtect
 
 from app import db
-from app.filtros import registrar_filtros
+from app.filtros import data_br, reais
 from app.routes.auth import bp as auth_bp
 from app.routes.auth import destino_do_perfil
 from app.routes.lancamentos import bp as lancamentos_bp
@@ -19,43 +25,54 @@ from app.routes.quiz import bp as quiz_bp
 
 
 def create_app(config: dict | None = None) -> Flask:
-    """Cria o app. `config` sobrescreve os valores padrão (usado em testes e no run.py).
+    """Cria o app.
+
+    `config` sobrescreve os valores padrão (usado em testes e no run.py).
 
     Raises:
-        RuntimeError: se não houver SECRET_KEY e o app não estiver em teste nem em debug.
+        RuntimeError: se não houver SECRET_KEY e o app não estiver em teste nem
+            em debug.
     """
     app = Flask(__name__)
     app.config.from_mapping(
         SECRET_KEY=os.environ.get("SECRET_KEY"),
         # instance/ fica fora do Git (.gitignore) e guarda o arquivo do banco.
-        DATABASE=os.path.join(app.instance_path, "educainvest.db"),
-        # Cookie de sessão não é enviado em POST vindo de outro site (reduz CSRF).
+        DATABASE=str(Path(app.instance_path) / "educainvest.db"),
+        # Cookie de sessão não é enviado em POST vindo de outro site (reduz
+        # CSRF).
         SESSION_COOKIE_SAMESITE="Lax",
-        # O Flask recusa cookie de sessão gravado há mais de 12 h (o padrão era 31 dias):
-        # um cookie roubado perde a validade sozinho.
+        # O Flask recusa cookie de sessão gravado há mais de 12 h (o padrão era
+        # 31 dias): um cookie roubado perde a validade sozinho.
         PERMANENT_SESSION_LIFETIME=timedelta(hours=12),
-        # O token CSRF vive o mesmo tempo da sessão: formulário aberto há horas não quebra.
+        # O token CSRF vive o mesmo tempo da sessão: formulário aberto há horas
+        # não quebra.
         WTF_CSRF_TIME_LIMIT=None,
     )
     if config:
         app.config.update(config)
-    # Fora do servidor de desenvolvimento (http://127.0.0.1), o cookie só viaja por HTTPS.
+    # Fora do servidor de desenvolvimento (http://127.0.0.1), o cookie só viaja
+    # por HTTPS.
     app.config["SESSION_COOKIE_SECURE"] = not app.config["DEBUG"]
 
     if not app.config["SECRET_KEY"]:
         if not (app.config.get("TESTING") or app.config.get("DEBUG")):
             raise RuntimeError(
-                "Defina a variável de ambiente SECRET_KEY antes de iniciar o app. "
-                'Gere uma com: python -c "import secrets; print(secrets.token_hex(32))"'
+                "Defina a variável de ambiente SECRET_KEY antes de iniciar o "
+                'app. Gere uma com: python -c "import secrets; '
+                'print(secrets.token_hex(32))"'
             )
-        # Só em teste/desenvolvimento: chave aleatória (sessões caem ao reiniciar).
+        # Só em teste/desenvolvimento: chave aleatória (sessões caem ao
+        # reiniciar).
         app.config["SECRET_KEY"] = secrets.token_hex(32)
 
-    os.makedirs(app.instance_path, exist_ok=True)
-    # Todo POST exige o csrf_token do formulário (o SameSite=Lax não barra o CSRF de login).
+    Path(app.instance_path).mkdir(parents=True, exist_ok=True)
+    # Todo POST exige o csrf_token do formulário (o SameSite=Lax não barra o
+    # CSRF de login).
     CSRFProtect(app)
     db.init_app(app)
-    registrar_filtros(app)
+    # Filtros de dinheiro e data disponíveis em todos os templates.
+    app.add_template_filter(reais, "reais")
+    app.add_template_filter(data_br, "data_br")
     app.register_blueprint(auth_bp)
     app.register_blueprint(lancamentos_bp)
     app.register_blueprint(metas_bp)
@@ -65,23 +82,27 @@ def create_app(config: dict | None = None) -> Flask:
     app.register_blueprint(quiz_bp)
 
     @app.get("/")
-    def inicio():
+    def inicio() -> ResponseReturnValue:
         if "usuario_id" not in session:
             return redirect(url_for("auth.login"))
         return redirect(destino_do_perfil(session["perfil"]))
 
     @app.after_request
-    def headers_de_seguranca(resposta):
-        # Ninguém carrega o app dentro de outro site (clickjacking), o navegador não
-        # adivinha o tipo do arquivo e só roda o que vem do próprio app (não há script inline).
+    def headers_de_seguranca(resposta: Response) -> Response:
+        # Ninguém carrega o app dentro de outro site (clickjacking), o
+        # navegador não adivinha o tipo do arquivo e só roda o que vem do
+        # próprio app (não há script inline).
         resposta.headers["X-Frame-Options"] = "DENY"
         resposta.headers["X-Content-Type-Options"] = "nosniff"
-        resposta.headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none'"
+        resposta.headers["Content-Security-Policy"] = (
+            "default-src 'self'; frame-ancestors 'none'"
+        )
         return resposta
 
     @app.errorhandler(CSRFError)
-    def token_invalido(_erro):
-        # Token ausente ou de outra sessão (ex.: a sessão expirou com a página aberta).
+    def token_invalido(_erro: CSRFError) -> ResponseReturnValue:
+        # Token ausente ou de outra sessão (ex.: a sessão expirou com a página
+        # aberta).
         flash("A página expirou. Envie o formulário de novo.", "erro")
         return redirect(url_for("inicio"))
 

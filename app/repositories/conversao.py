@@ -1,4 +1,8 @@
-"""Conversão das linhas do SQLite para tipos simples, compartilhada pelos repositórios."""
+"""Conversão das linhas do SQLite para tipos simples.
+
+Compartilhada pelos repositórios.
+"""
+
 import sqlite3
 
 

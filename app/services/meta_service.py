@@ -1,15 +1,22 @@
 """Valida metas e aportes e calcula o progresso percentual (RN-08)."""
+
+from collections.abc import Callable, Mapping
 from datetime import date
 
 from app.filtros import reais
 from app.services.erros import ErroValidacao
-from app.services.formulario import converter_chave, converter_valor, ler_data, texto_do_campo
+from app.services.formulario import (
+    converter_chave,
+    converter_valor,
+    ler_data,
+    texto_do_campo,
+)
 from app.services.lancamento_service import hoje_no_piaui
 
 NOME_MAX = 60  # o mesmo CHECK da tabela metas
 
 
-def validar_meta(dados, hoje: date | None = None) -> dict:
+def validar_meta(dados: Mapping[str, str], hoje: date | None = None) -> dict:
     """Valida o formulário de nova meta e devolve os dados normalizados.
 
     Confere todos os campos antes de responder, para a tela mostrar todos os
@@ -17,7 +24,8 @@ def validar_meta(dados, hoje: date | None = None) -> dict:
 
     Args:
         dados: objeto com `.get(nome)` (`request.form` ou dict), com os campos
-            `nome`, `alvo`, `prazo` (opcional) e `chave_idempotencia`, como texto.
+            `nome`, `alvo`, `prazo` (opcional) e `chave_idempotencia`, como
+            texto.
         hoje: data considerada "hoje" para recusar prazo no passado. Se for
             None, usa `hoje_no_piaui()`. Os testes passam uma data fixa.
 
@@ -32,7 +40,9 @@ def validar_meta(dados, hoje: date | None = None) -> dict:
     hoje = hoje or hoje_no_piaui()
     erros: dict[str, str] = {}
 
-    def campo(nome, conversor, *args):
+    def campo[T](
+        nome: str, conversor: Callable[..., T], *args: object
+    ) -> T | None:
         try:
             return conversor(texto_do_campo(dados, nome), *args)
         except ValueError as erro:
@@ -55,7 +65,7 @@ def validar_meta(dados, hoje: date | None = None) -> dict:
     }
 
 
-def validar_aporte(dados) -> dict:
+def validar_aporte(dados: Mapping[str, str]) -> dict:
     """Valida o formulário de aporte (campos `valor` e `chave_idempotencia`).
 
     Returns:
@@ -66,8 +76,10 @@ def validar_aporte(dados) -> dict:
     """
     erros: dict[str, str] = {}
     resultado = {}
-    for campo, chave, conversor in (("valor", "valor_centavos", converter_valor),
-                                    ("chave_idempotencia", "chave_idempotencia", converter_chave)):
+    for campo, chave, conversor in (
+        ("valor", "valor_centavos", converter_valor),
+        ("chave_idempotencia", "chave_idempotencia", converter_chave),
+    ):
         try:
             resultado[chave] = conversor(texto_do_campo(dados, campo))
         except ValueError as erro:
@@ -77,7 +89,9 @@ def validar_aporte(dados) -> dict:
     return resultado
 
 
-def conferir_limite_do_aporte(valor_centavos: int, alvo_centavos: int, guardado_centavos: int) -> None:
+def conferir_limite_do_aporte(
+    valor_centavos: int, alvo_centavos: int, guardado_centavos: int
+) -> None:
     """Recusa o aporte maior do que falta para concluir a meta.
 
     Sem resgate nem exclusão de aporte, um dígito a mais fecharia a meta para
@@ -90,7 +104,12 @@ def conferir_limite_do_aporte(valor_centavos: int, alvo_centavos: int, guardado_
     falta = alvo_centavos - guardado_centavos
     if valor_centavos > falta:
         raise ErroValidacao(
-            {"valor": f"Faltam só {reais(falta)} para concluir esta meta. Guarde até esse valor."}
+            {
+                "valor": (
+                    f"Faltam só {reais(falta)} para concluir esta meta. "
+                    "Guarde até esse valor."
+                )
+            }
         )
 
 
@@ -120,27 +139,38 @@ def mais_perto_de_concluir(metas: list[dict]) -> dict | None:
         None se não houver meta em andamento.
     """
     em_andamento = [
-        {**meta, **progresso(meta["valor_alvo_centavos"], meta["guardado_centavos"])}
+        {
+            **meta,
+            **progresso(
+                meta["valor_alvo_centavos"], meta["guardado_centavos"]
+            ),
+        }
         for meta in metas
     ]
     em_andamento = [meta for meta in em_andamento if not meta["concluida"]]
     if not em_andamento:
         return None
-    return min(em_andamento, key=lambda meta: (-meta["percentual"], meta["id"]))
+    return min(
+        em_andamento, key=lambda meta: (-meta["percentual"], meta["id"])
+    )
 
 
 def resumo(metas: list[dict]) -> dict:
     """Números do topo da tela de metas.
 
     Args:
-        metas: metas do aluno, cada uma com `valor_alvo_centavos` e `guardado_centavos`.
+        metas: metas do aluno, cada uma com `valor_alvo_centavos` e
+            `guardado_centavos`.
 
     Returns:
         dict: `guardado` (soma em centavos do que está em todas as metas),
         `em_andamento` e `concluidas` (quantas metas de cada tipo).
     """
     concluidas = sum(
-        progresso(meta["valor_alvo_centavos"], meta["guardado_centavos"])["concluida"] for meta in metas
+        progresso(meta["valor_alvo_centavos"], meta["guardado_centavos"])[
+            "concluida"
+        ]
+        for meta in metas
     )
     return {
         "guardado": sum(meta["guardado_centavos"] for meta in metas),
@@ -149,7 +179,7 @@ def resumo(metas: list[dict]) -> dict:
     }
 
 
-def _converter_nome(texto):
+def _converter_nome(texto: str) -> str:
     if not texto:
         raise ValueError("Dê um nome para a meta.")
     if len(texto) > NOME_MAX:
@@ -157,7 +187,7 @@ def _converter_nome(texto):
     return texto
 
 
-def _converter_prazo(texto, hoje):
+def _converter_prazo(texto: str, hoje: date) -> date | None:
     if not texto:
         return None
     prazo = ler_data(texto)
