@@ -11,8 +11,10 @@ Dependências com [uv](https://docs.astral.sh/uv/): o `uv.lock` fixa a árvore i
 
 ```
 uv sync                               instala o Python e a árvore do uv.lock em .venv/ (com as ferramentas do gate)
-bash gate.sh                          portão: lint → arquitetura → testes (o mesmo do CI)
-bash gate.sh --sem-testes             só lint + arquitetura (passo 1 do TDD)
+bash gate.sh                          portão: formato → lint → arquitetura → testes (o mesmo do CI)
+bash gate.sh --sem-testes             só formato + lint + arquitetura (passo 1 do TDD)
+uv run ruff format .                  formata (79 colunas, aspas duplas); o gate só confere
+uv run ruff check --fix .             lint com as correções automáticas seguras
 uv run pytest -q tests/x.py::nome     teste único (PREFIRA durante a implementação)
 uv run pytest -q                      suíte inteira
 uv run run.py                         servidor de desenvolvimento (debug)
@@ -54,11 +56,13 @@ Monólito Flask em camadas, com HTML renderizado no servidor. Não troque framew
   - mais de um processo ou servidor escrevendo: PostgreSQL;
   - várias escolas ou backup automático obrigatório: PostgreSQL e modelo de escola;
   - app na App Store, câmera, biometria ou widget: API e cliente nativo;
+  - entrada em JSON vinda de fora (o lote do gerador de perguntas com IA ou o corpo da `app/api/`): Pydantic só nessa fronteira. Os formulários continuam com `ErroValidacao` nos services, porque a regra de negócio depende do banco e do relógio e a mensagem é em português, por campo;
   - um domínio com mais de uns 5 arquivos por camada, ou duas pessoas se atrapalhando no mesmo diretório: fatias por domínio;
   - gargalo medido, não suposto: cache ou fila.
 
 ## Convenções que divergem do padrão
 - Nomes, docstrings, testes e mensagens ao usuário em português.
+- Estilo: PEP 8 a 79 colunas, aplicado pelo `ruff format` e pelas regras do `[tool.ruff.lint]` no pyproject (lá está o porquê de cada família que entra e que fica de fora). Função e método públicos de `app/` têm docstring no estilo Google, e todo código, inclusive os testes, tem anotação de tipo.
 - Erro de validação: `ErroValidacao({campo: mensagem})` (app/services/erros.py). A rota renderiza o formulário de novo com status 400 e preserva o que foi digitado.
 - Dinheiro em centavos (`int`), nunca `float`. O "hoje" vem de `hoje_no_piaui()` (UTC−3).
 - Registro de outro usuário responde 404, não 403: não revela que o id existe.
@@ -102,7 +106,7 @@ Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. Se 
 ## Proibido
 - Instalar dependência sem perguntar (`pyproject.toml`, `uv.lock`).
 - Alterar CREATE TABLE existente, autenticação/sessão ou `SECRET_KEY` sem aprovação (INVARIANTES, seção operacional).
-- "Consertar" o gate relaxando regra: `noqa`, `ignore` no pyproject, contrato removido, teste ajustado para passar. Corrija a causa.
+- "Consertar" o gate relaxando regra: `noqa`, `ignore` no pyproject, contrato removido, teste ajustado para passar. Corrija a causa. A única exceção é o falso positivo provado: `# noqa: REGRA` com o motivo num comentário junto (na linha ou logo acima), revisado no PR (ex.: o S608 nos `IN (?, ?)` dos repositórios).
 - Publicar arquivo de `docs/` além dos liberados no `.gitignore`. Os outros documentos são privados.
 
 ## Decisões pendentes do grupo

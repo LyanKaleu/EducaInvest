@@ -1,5 +1,10 @@
-"""Rota da tela inicial do aluno: saldo, XP, nível, sequência de dias, missão e meta em andamento."""
+"""Rota da tela inicial do aluno.
+
+Mostra saldo, XP, nível, sequência de dias, missão e meta em andamento.
+"""
+
 from flask import Blueprint, render_template, session
+from flask.typing import ResponseReturnValue
 
 from app.db import obter_conexao
 from app.repositories.lancamento_repo import LancamentoRepository
@@ -7,7 +12,12 @@ from app.repositories.meta_repo import MetaRepository
 from app.repositories.missao_repo import MissaoRepository
 from app.repositories.xp_repo import XpRepository
 from app.routes.acesso import exigir_perfil
-from app.services import lancamento_service, meta_service, missao_service, xp_service
+from app.services import (
+    lancamento_service,
+    meta_service,
+    missao_service,
+    xp_service,
+)
 from app.services.auth_service import PERFIL_ALUNO
 from app.services.lancamento_service import hoje_no_piaui
 
@@ -18,7 +28,8 @@ exigir_aluno = bp.before_request(exigir_perfil(PERFIL_ALUNO))
 
 
 @bp.get("/")
-def ver():
+def ver() -> ResponseReturnValue:
+    """Tela inicial do aluno: saldo, XP, nível, sequência, missão e meta."""
     conn = obter_conexao()
     aluno_id = session["usuario_id"]
     lancamentos = LancamentoRepository(conn)
@@ -30,7 +41,8 @@ def ver():
     hoje = hoje_no_piaui()
     metas = MetaRepository(conn).listar(aluno_id)
     missoes = missao_service.situacao(
-        lancamentos.contar_por_tipo(aluno_id), MissaoRepository(conn).concluidas(aluno_id)
+        lancamentos.contar_por_tipo(aluno_id),
+        MissaoRepository(conn).concluidas(aluno_id),
     )
     return render_template(
         "aluno/painel.html",
@@ -44,7 +56,8 @@ def ver():
         ultimos_dias=xp_service.ultimos_dias(dias_ativos, hoje),
         # A próxima missão a cumprir; None quando a trilha foi concluída.
         missao=next((m for m in missoes if m["status"] == "ATIVA"), None),
-        # A meta em andamento mais perto de concluir; o aporte não entra no saldo.
+        # A meta em andamento mais perto de concluir; o aporte não entra no
+        # saldo.
         meta=meta_service.mais_perto_de_concluir(metas),
         tem_metas=bool(metas),
     )

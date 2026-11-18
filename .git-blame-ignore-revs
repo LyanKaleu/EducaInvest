@@ -1,0 +1,6 @@
+# Commits só de formatação automática, ignorados pelo git blame.
+# O GitHub lê este arquivo sozinho. Localmente:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# chore(config): formata o código com o ruff format
+74c6eb22aa048a9eebad5751e0676fa6b778e99c

@@ -1,19 +1,35 @@
-"""Valida lançamentos (RN-07), calcula saldo e dispara a verificação de missões."""
+"""Valida lançamentos (RN-07), calcula o saldo e confere as missões."""
+
+from collections.abc import Callable, Mapping
 from datetime import date, datetime, timedelta, timezone
 
 from app.services.erros import ErroValidacao
-from app.services.formulario import converter_chave, converter_valor, ler_data, texto_do_campo
+from app.services.formulario import (
+    converter_chave,
+    converter_valor,
+    ler_data,
+    texto_do_campo,
+)
 
-# O Piauí fica em UTC-3 o ano todo (sem horário de verão). Usamos o deslocamento
-# fixo porque, no Windows, zoneinfo("America/Fortaleza") exige instalar o pacote tzdata.
+# O Piauí fica em UTC-3 o ano todo (sem horário de verão). Usamos o
+# deslocamento fixo porque, no Windows, zoneinfo("America/Fortaleza") exige
+# instalar o pacote tzdata.
 FUSO_PIAUI = timezone(timedelta(hours=-3), "America/Fortaleza")
 
 TIPOS = {"entrada": "ENTRADA", "saida": "SAIDA", "saída": "SAIDA"}
 
-# Lista fixa (mesma do seed em docs/educainvest_schema.sql). A confirmar pelo grupo.
+# Lista fixa (mesma do seed em docs/educainvest_schema.sql). A confirmar pelo
+# grupo.
 CATEGORIAS = {
     "ENTRADA": ("Mesada", "Trabalho/bico", "Benefício", "Outras entradas"),
-    "SAIDA": ("Alimentação", "Transporte", "Lazer", "Compras", "Estudos", "Outras saídas"),
+    "SAIDA": (
+        "Alimentação",
+        "Transporte",
+        "Lazer",
+        "Compras",
+        "Estudos",
+        "Outras saídas",
+    ),
 }
 
 DESCRICAO_MAX = 140
@@ -29,7 +45,9 @@ def hoje_no_piaui() -> date:
     return datetime.now(FUSO_PIAUI).date()
 
 
-def validar_lancamento(dados, hoje: date | None = None) -> dict:
+def validar_lancamento(
+    dados: Mapping[str, str], hoje: date | None = None
+) -> dict:
     """Valida o formulário de lançamento e devolve os dados normalizados.
 
     Confere todos os campos antes de responder, para a tela mostrar todos os
@@ -57,7 +75,9 @@ def validar_lancamento(dados, hoje: date | None = None) -> dict:
     hoje = hoje or hoje_no_piaui()
     erros: dict[str, str] = {}
 
-    def campo(nome, conversor, *args):
+    def campo[T](
+        nome: str, conversor: Callable[..., T], *args: object
+    ) -> T | None:
         try:
             return conversor(texto_do_campo(dados, nome), *args)
         except ValueError as erro:
@@ -91,36 +111,43 @@ def validar_lancamento(dados, hoje: date | None = None) -> dict:
 
 
 def saldo(somas: dict) -> int:
-    """Saldo do aluno em centavos: entradas menos gastos (RN-08). Pode ser negativo.
+    """Saldo do aluno em centavos: entradas menos gastos (RN-08).
+
+    Pode ser negativo.
 
     Args:
-        somas: {"ENTRADA": centavos, "SAIDA": centavos}, como em `somar_por_tipo`.
+        somas: {"ENTRADA": centavos, "SAIDA": centavos}, como em
+            `somar_por_tipo`.
     """
     return somas["ENTRADA"] - somas["SAIDA"]
 
 
-def _converter_tipo(texto):
+def _converter_tipo(texto: str) -> str:
     tipo = TIPOS.get(texto.casefold())
     if tipo is None:
         raise ValueError("Escolha se é uma entrada ou um gasto.")
     return tipo
 
 
-def _converter_categoria(texto, tipo):
+def _converter_categoria(texto: str, tipo: str | None) -> str | None:
     if not texto:
         raise ValueError("Escolha uma categoria.")
-    if tipo is None:  # o erro do tipo já foi informado; não dá para checar a categoria
+    if (
+        tipo is None
+    ):  # o erro do tipo já foi informado; não dá para checar a categoria
         return None
     for nome in CATEGORIAS[tipo]:
         if nome.casefold() == texto.casefold():
             return nome
     outro_tipo = "SAIDA" if tipo == "ENTRADA" else "ENTRADA"
-    if any(nome.casefold() == texto.casefold() for nome in CATEGORIAS[outro_tipo]):
+    if any(
+        nome.casefold() == texto.casefold() for nome in CATEGORIAS[outro_tipo]
+    ):
         raise ValueError("Essa categoria não combina com o tipo escolhido.")
     raise ValueError("Escolha uma categoria da lista.")
 
 
-def _converter_data(texto, hoje):
+def _converter_data(texto: str, hoje: date) -> date:
     if not texto:
         return hoje  # RNF03: menos toques; sem data, vale o dia de hoje
     data = ler_data(texto)
@@ -129,8 +156,9 @@ def _converter_data(texto, hoje):
     return data
 
 
-def _converter_descricao(texto):
+def _converter_descricao(texto: str) -> str | None:
     if len(texto) > DESCRICAO_MAX:
-        raise ValueError(f"A descrição pode ter no máximo {DESCRICAO_MAX} caracteres.")
+        raise ValueError(
+            f"A descrição pode ter no máximo {DESCRICAO_MAX} caracteres."
+        )
     return texto or None
-

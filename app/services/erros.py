@@ -8,7 +8,7 @@ class ErroValidacao(Exception):
     para a tela mostrar cada mensagem junto ao seu campo (HU1).
     """
 
-    def __init__(self, erros: dict[str, str]):
+    def __init__(self, erros: dict[str, str]) -> None:
         """Guarda os erros por campo e monta a mensagem geral da exceção.
 
         Args:

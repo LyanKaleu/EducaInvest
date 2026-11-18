@@ -3,7 +3,7 @@
 Ponto de retomada entre sessões e computadores. Atualize no PR que muda a fase ou o próximo passo.
 Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
 
-**Atualizado em:** 16/11/2026 · **Branch de integração:** `develop` · **Vitrine:** `main`
+**Atualizado em:** 17/11/2026 · **Branch de integração:** `develop` · **Vitrine:** `main`
 
 ## Pronto
 O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACAO.md](docs/ESPECIFICACAO.md).
@@ -26,9 +26,14 @@ O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACA
 | MVP completo na `main` | #21 |
 | Deploy interno de teste, só para o grupo (onde está e como atualizar: notas privadas, fora do Git) | #22 |
 | Correções da auditoria de segurança: limite de login por e-mail, CSRF (Flask-WTF), código de turma com 8 caracteres, cookie `Secure`, headers, sessão de 12 h e aporte sem corrida | #23 |
+| `PRAGMA foreign_keys` ligado na conexão e enumeração de e-mail no cadastro registrada como risco aceito | #28 |
+| Senha em argon2id (pwdlib), com migração do hash antigo no login | #30 |
 | Dependências com uv: `uv.lock` fixa a árvore inteira, `.python-version` em 3.14, CI com `uv sync --locked` e Dependabot `uv` | #31 |
 | Redesign igual ao protótipo navegável: menu no rodapé, cartões, chips sem JavaScript, sequência de 7 dias, resumo e atalhos nas metas, ranking e inativos no painel da turma | #26 |
-| Animações só em CSS (troca de página, comemoração de conquista, toque e barras, com versão suave para quem pede menos movimento), CSS dividido por assunto e tema escuro automático pelo tema do sistema | (este PR) |
+| Animações só em CSS (troca de página, avisos, comemoração, toque, barras) e CSS dividido em um arquivo por assunto | #29 |
+| PEP 8 a 79 colunas com `ruff format`, lint amplo, docstrings em `app/` e anotação de tipo em todo o código | #32 |
+| `main` atualizada com os PRs #26 a #32 | #34 e o seguinte |
+| Tema escuro automático pelo tema do sistema (sem botão e sem JavaScript), cores só nos tokens e contraste AA testado nos dois temas | (este PR) |
 
 ## Próximo passo
 1. Ligar CodeQL e Dependabot security updates (a `main` já recebeu o merge; veja "Setup do GitHub" abaixo).
@@ -42,7 +47,7 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 
 ## Setup do GitHub (depois do merge na `main`)
 - **CodeQL** e **Dependabot security updates:** ligar depois do merge na `main`, porque os dois olham a branch padrão.
-- **Dependabot de versões:** `.github/dependabot.yml` criado (pip e github-actions, toda segunda, PR para a `develop`, minor e patch agrupados, major em PR separado). Só passa a valer depois do merge na `main`. É zona O3.
+- **Dependabot de versões:** `.github/dependabot.yml` criado (uv e github-actions, toda segunda, PR para a `develop`, minor e patch agrupados, major em PR separado). Só passa a valer depois do merge na `main`. É zona O3.
 - **Discussions e Projects:** só se a equipe for usar de verdade. Wiki e Packages ficam desligados.
 - Já ligados em 11/11: varredura de segredos, push protection, alertas do Dependabot e o ruleset `protege-main-develop` (`main` e `develop` só recebem mudança por PR com o check `gate` verde, sem force push e sem apagar a branch).
 
@@ -50,6 +55,7 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 - #5 professor renomeia turma
 - #6 professor exclui turma vazia (bloqueada com alunos). `PRAGMA foreign_keys` já fica ligado na conexão (`app/db.py`), então o `ON DELETE CASCADE` de `matriculas` já funciona: falta só a rota de exclusão.
 - #7 busca/filtro na lista de turmas
+- #33 verificador de tipos (mypy ou pyright) no gate: dependência nova, zona O3, precisa de aprovação
 - #14 id gigante na URL responde 500 em vez de 404 (metas e lançamentos)
 - Limite de login vale por processo e zera ao reiniciar (`limite_service.py`). Se o deploy passar a ter vários workers, mover a contagem para o banco.
 - Aceitar aporte acima da meta junto com "desfazer aporte" (hoje o aporte para no que falta, porque não há como desfazer)
@@ -80,4 +86,4 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 - **Enumeração de e-mail no cadastro:** `/cadastro` responde "e-mail já cadastrado" para e-mail existente, então dá para descobrir quais e-mails têm conta. Aceito: o dado é de baixo valor (apelido, contexto escolar), sem envio de e-mail não dá para o "cadastro silencioso", e limitar por IP brigaria com a turma saindo pelo mesmo Wi-Fi (por isso o login limita por e-mail). Revisitar só se entrar verificação por e-mail. Achado da auditoria de 17/11 (BugHunter); o resto veio limpo.
 
 ## Em andamento
-Redesign (`feature/redesign-v2`, #26) e, empilhado nele, animações e tema escuro (`feature/animacoes`, #29) em revisão. Depois, a release.
+Tema escuro (`feature/tema-escuro`) em revisão. A `main` recebe a `develop` (PRs #26 a #32); a release `v1.0.0` fica para depois.

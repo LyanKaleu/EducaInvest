@@ -27,14 +27,86 @@ package = false
 required-version = ">=0.13"
 
 [tool.ruff]
-target-version = "py310"
+# Sem target-version: o ruff lê o requires-python acima (3.13) e o UP moderniza até ele.
+# 79 colunas: o limite do PEP 8, decidido pelo grupo em 17/11/2026.
+line-length = 79
 extend-exclude = [".claude"]
 
+[tool.ruff.format]
+# O padrão do ruff, explícito: aspas duplas, como o código já usava.
+quote-style = "double"
+
 [tool.ruff.lint]
-# Lista explícita: erros reais (E4/E7/E9: sintaxe e imports; F: nomes indefinidos, imports
-# sem uso) + bugbear (B: armadilhas comuns). Ordenação de imports (I) fica de fora até o
-# grupo decidir, porque reformataria arquivos existentes.
-select = ["E4", "E7", "E9", "F", "B"]
+# Sem preview: as regras em preview mudam a cada versão do ruff, e cada PR do Dependabot
+# poderia quebrar o gate. Cada família abaixo tem um porquê; as de fora estão no fim.
+select = [
+    "E", "W",  # pycodestyle: o PEP 8
+    "F",       # pyflakes: nome indefinido, import sem uso
+    "I",       # isort: ordem dos imports
+    "N",       # pep8-naming
+    "UP",      # pyupgrade: sintaxe do Python do requires-python
+    "B",       # bugbear: armadilhas comuns
+    "A",       # nome que esconde um builtin
+    "ANN",     # anotações de tipo
+    "ARG",     # argumento sem uso
+    "BLE",     # except Exception genérico
+    "C4",      # comprehensions
+    "C90",     # complexidade ciclomática (mccabe, limite 10)
+    "D",       # docstrings (convenção Google; tests/ fica de fora abaixo)
+    "DTZ",     # datetime sem fuso: o "hoje" vem de hoje_no_piaui()
+    "ERA",     # código comentado esquecido
+    "EXE",     # shebang e permissão de execução
+    "FBT",     # booleano posicional: o chamador passa o nome
+    "FLY",     # join que vira f-string
+    "FURB",    # refurb: idiomas mais diretos
+    "G", "LOG", # logging
+    "ICN",     # apelidos de import convencionais
+    "PERF",    # perflint
+    "PGH",     # noqa e type: ignore sempre com o código da regra
+    "PIE",
+    "PL",      # pylint
+    "PT",      # pytest
+    "PTH",     # pathlib no lugar de os.path
+    "RET",     # returns
+    "RSE",     # raise
+    "RUF",     # regras do ruff (inclui RUF100: noqa que sobrou)
+    "S",       # bandit: segurança
+    "SIM",     # simplificações
+    "SLF",     # acesso a membro privado de outro objeto
+    "T20",     # print esquecido
+    "TID",     # imports relativos e banidos
+    "TRY",     # tratamento de exceção
+]
+ignore = [
+    # Brigam com o ruff format (o próprio ruff recomenda desligar). COM, Q e ISC nem entram.
+    "W191", "D206", "D300",
+    # Mensagens curtas em português no ValueError; uma classe ou variável por mensagem
+    # seria cerimônia sem ganho. (EM, a família irmã, também fica de fora.)
+    "TRY003",
+    # Pede o sufixo "Error" em inglês; o projeto nomeia em português (ErroValidacao).
+    "N818",
+]
+# Ficam de fora de propósito: FAST (só FastAPI), INP (tests/ não é pacote: pytest com
+# pythonpath = .), TC, FIX/TD, CPY e as de frameworks que não usamos (DJ, NPY, PD, AIR, ASYNC).
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101",     # o pytest usa assert
+    "PLR2004",  # status_code == 400/404 é mais claro que uma constante
+    "D",        # o nome do teste já é a frase do que ele verifica
+    "S105", "S106",  # senhas de teste
+    "S311",     # random.Random(42) fixo de propósito, para reproduzir o código da turma
+    "FBT001",   # argumento do parametrize: o pytest passa pelo nome, nunca por posição
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pylint]
+# O criar() do lançamento espelha as colunas da tabela. O PLR0917 (posicionais) segue em 5:
+# acima disso, os argumentos são só nomeados.
+max-args = 7
+max-positional-args = 5
 
 [tool.importlinter]
 root_package = "app"
