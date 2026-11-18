@@ -1,20 +1,29 @@
-/* Tokens do visual: cores, raio e medidas. Todo o resto usa estas variáveis. */
+/* Tokens do visual: cores, raio e medidas. Todo o resto usa estas variáveis; nenhum outro arquivo
+   tem cor fixa (o teste tests/unit/test_css_tokens.py confere).
+   Verde e vermelho têm dois papéis: o token base (--primaria, --perigo) é FUNDO com texto branco,
+   faixa e borda decorativa; o "-texto" é a cor de TEXTO e de contorno sobre fundo neutro. */
 
 :root {
   --texto: #1a1a1a;
   --texto-suave: #555555;    /* rótulos e dicas: 7,0:1 no branco, 6,3:1 no --suave */
-  --texto-descricao: #444444;
   --fundo: #ffffff;          /* cartões e campos */
   --suave: #f3f4f2;          /* fundo da página */
   --divisoria: #d6d6d3;      /* borda dos cartões (decorativa) */
   --borda: #6b6b6b;          /* borda de campos e barras: contraste 5,3:1 */
-  --primaria: #1b6e3a;       /* verde: marca, entradas, botão principal, XP */
-  --primaria-escura: #14532b;
-  --perigo: #b3261e;         /* vermelho: gastos, erros e excluir */
+  --cartao-hover: #fafbfa;   /* fundo do cartão-link com o mouse em cima */
+  --primaria: #1b6e3a;       /* verde de fundo: botão principal, cartão do saldo, selo */
+  --primaria-escura: #14532b; /* fundo do botão principal no hover */
+  --primaria-texto: #1b6e3a; /* verde de texto: links, marca, entradas, XP */
+  --primaria-texto-hover: #14532b;
+  --perigo: #b3261e;         /* vermelho de fundo: botão de excluir, saldo negativo */
+  --perigo-escura: #8f1e18;  /* fundo do botão de excluir no hover */
+  --perigo-texto: #b3261e;   /* vermelho de texto: gastos e erros */
   --foco: #1a5fb4;           /* azul: foco do teclado e missão em andamento */
+  --foco-fundo: #eef3fb;     /* alternativa do quiz marcada */
   --sucesso-fundo: #e7f4ea;
+  --sucesso-borda: #b9dcc3;
   --erro-fundo: #fbeaea;
-  --texto-sobre-cor: #ffffff; /* sobre --primaria, --perigo e --foco passa de 6:1 */
+  --texto-sobre-cor: #ffffff; /* sobre --primaria e --perigo passa de 5:1 nos dois temas (nunca sobre --foco) */
   --raio: 8px;
   --altura-menu: 4.25rem;    /* barra do rodapé do aluno no celular */
 
@@ -27,4 +36,37 @@
   --duracao-pagina: 240ms;   /* troca de página: abaixo de 300ms, a página fica inerte durante a troca */
   --duracao-aviso: 200ms;    /* o aviso aparece a cada lançamento salvo */
   --confete-dourado: #f5c542; /* decorativo, só no confete */
+  --confete-claro: #e7f4ea;   /* decorativo, só no confete */
+
+  /* Campos de data, rádios, caixas de seleção e barra de rolagem acompanham o tema. */
+  color-scheme: light dark;
+}
+
+/* Tema escuro: segue a preferência do sistema (celular ou computador), sem botão e sem JavaScript.
+   Só as cores mudam. Os pares de texto e fundo passam no AA (o teste tests/unit/test_css_tokens.py
+   calcula o contraste de cada um). O verde e o vermelho de fundo continuam escuros, com texto branco;
+   os de texto clareiam para aparecer sobre o fundo escuro. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --texto: #e6ece8;
+    --texto-suave: #a9b4ae;
+    --fundo: #1b2320;
+    --suave: #111715;
+    --divisoria: #2e3a35;
+    --borda: #7d8a84;
+    --cartao-hover: #222c28;
+    --primaria: #1d7340;
+    --primaria-escura: #165c33;
+    --primaria-texto: #6fd09a;
+    --primaria-texto-hover: #9be3b9;
+    --perigo: #c2362c;
+    --perigo-escura: #a12a21;
+    --perigo-texto: #ff8f85;
+    --foco: #7ab3f5;
+    --foco-fundo: #1c2a3b;
+    --sucesso-fundo: #173323;
+    --sucesso-borda: #2c5a3e;
+    --erro-fundo: #3a1d1b;
+    --confete-claro: #9be3b9;
+  }
 }

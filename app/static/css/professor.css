@@ -2,7 +2,7 @@
 
 /* ---------- Turmas e painel da turma (professor) ---------- */
 
-code.codigo-turma { font-family: ui-monospace, Consolas, monospace; font-size: 1.1rem; font-weight: 700; letter-spacing: .1em; color: var(--primaria); }
+code.codigo-turma { font-family: ui-monospace, Consolas, monospace; font-size: 1.1rem; font-weight: 700; letter-spacing: .1em; color: var(--primaria-texto); }
 /* Lista de turmas: o cartão inteiro abre a turma; faixa verde como no protótipo. */
 .turmas { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: .625rem; }
 .turma-item {
@@ -12,7 +12,7 @@ code.codigo-turma { font-family: ui-monospace, Consolas, monospace; font-size: 1
 }
 /* Hover só com mouse: no celular o toque dispara um falso hover que fica preso no cartão. */
 @media (hover: hover) and (pointer: fine) {
-  a.turma-item:hover { color: var(--texto); background: #fafbfa; }
+  a.turma-item:hover { color: var(--texto); background: var(--cartao-hover); }
 }
 .turma-item code.codigo-turma { font-size: 1rem; }
 .form-turma { gap: .75rem; }
@@ -35,8 +35,8 @@ code.codigo-turma { font-family: ui-monospace, Consolas, monospace; font-size: 1
 .numeros-turma dd { margin: 0; font-size: 1.3rem; font-weight: 700; }
 /* Alerta de inativos: fundo de erro, ícone e título em vermelho, nomes em texto. */
 .atencao { display: flex; gap: .75rem; align-items: flex-start; padding: .875rem 1rem; margin-bottom: .75rem; border-radius: var(--raio); background: var(--erro-fundo); }
-.atencao svg { flex: none; margin-top: 2px; color: var(--perigo); }
-.atencao h2 { margin: 0 0 .125rem; font-size: 1rem; color: var(--perigo); }
+.atencao svg { flex: none; margin-top: 2px; color: var(--perigo-texto); }
+.atencao h2 { margin: 0 0 .125rem; font-size: 1rem; color: var(--perigo-texto); }
 .atencao p { margin: 0; overflow-wrap: anywhere; }
 /* Ranking: lista com barra relativa ao maior XP; inativo em cinza e vermelho, escrito. */
 .ranking-cartao { padding: 0; gap: 0; overflow: hidden; }
@@ -49,7 +49,7 @@ code.codigo-turma { font-family: ui-monospace, Consolas, monospace; font-size: 1
 .aluno-ranking.inativo progress::-webkit-progress-value { background: var(--borda); }
 .aluno-ranking.inativo progress::-moz-progress-bar { background: var(--borda); }
 .situacao { font-size: .9rem; color: var(--texto-suave); }
-.aluno-ranking.inativo .situacao { color: var(--perigo); font-weight: 600; }
+.aluno-ranking.inativo .situacao { color: var(--perigo-texto); font-weight: 600; }
 /* Turma por nível: um quadro por nível, o número em cima. */
 .niveis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin: 0; text-align: center; }
 .niveis > div { display: flex; flex-direction: column-reverse; padding: .6rem .25rem; border-radius: var(--raio); background: var(--suave); }

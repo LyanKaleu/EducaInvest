@@ -34,8 +34,8 @@ main:focus { outline: none; }
 main { max-width: 40rem; margin: 0 auto; padding: 1rem 1rem 2rem; }
 h1 { font-size: 1.5rem; line-height: 1.3; margin: .25rem 0 1rem; }
 h2 { font-size: 1.15rem; line-height: 1.3; }
-a { color: var(--primaria); }
-a:hover { color: var(--primaria-escura); }
+a { color: var(--primaria-texto); }
+a:hover { color: var(--primaria-texto-hover); }
 p { margin: 0 0 1rem; }
 
 /* Rótulo de seção: pequeno, em maiúsculas. */
@@ -55,14 +55,14 @@ p { margin: 0 0 1rem; }
 .cartao-topo.base { align-items: baseline; }
 .cartao-titulo { font-size: 1.1rem; overflow-wrap: anywhere; }
 .cartao-rodape { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-.percentual { font-size: 1.1rem; color: var(--primaria); font-variant-numeric: tabular-nums; }
+.percentual { font-size: 1.1rem; color: var(--primaria-texto); font-variant-numeric: tabular-nums; }
 .numero { font-variant-numeric: tabular-nums; }
 .link-acao { display: inline-flex; align-items: center; min-height: 44px; align-self: flex-start; }
 
 /* Selo de XP: "+20 XP". */
 .selo-xp {
   padding: .1rem .6rem; border-radius: 999px; white-space: nowrap;
-  background: var(--sucesso-fundo); color: var(--primaria); font-size: .9rem; font-weight: 700;
+  background: var(--sucesso-fundo); color: var(--primaria-texto); font-size: .9rem; font-weight: 700;
 }
 
 /* Estado vazio: ícone opcional, frase curta e a ação que resolve. */
@@ -90,8 +90,8 @@ p { margin: 0 0 1rem; }
   color: var(--texto-sobre-cor); font-weight: 700;
 }
 .aviso-conquista .trofeu { flex: none; }
-.erro-campo { color: var(--perigo); font-weight: 600; margin: .25rem 0 0; }
-[aria-invalid="true"] { border-color: var(--perigo) !important; border-width: 2px !important; }
+.erro-campo { color: var(--perigo-texto); font-weight: 600; margin: .25rem 0 0; }
+[aria-invalid="true"] { border-color: var(--perigo-texto) !important; border-width: 2px !important; }
 
 /* ---------- Formulários ---------- */
 
@@ -118,14 +118,14 @@ button, .botao {
 }
 button:hover, .botao:hover { background: var(--primaria-escura); color: var(--texto-sobre-cor); }
 button.perigo { background: var(--perigo); }
-button.perigo:hover { background: #8f1e18; }
+button.perigo:hover { background: var(--perigo-escura); }
 /* Secundário: contorno verde. */
 .botao-contorno, .botao-contorno:hover {
-  color: var(--primaria); background: var(--fundo); border: 2px solid var(--primaria);
+  color: var(--primaria-texto); background: var(--fundo); border: 2px solid var(--primaria-texto);
 }
 .botao-contorno:hover { background: var(--sucesso-fundo); }
 /* Sobre fundo colorido (cartão do saldo): branco com texto verde. */
-.botao-claro, .botao-claro:hover { color: var(--primaria); background: var(--fundo); }
+.botao-claro, .botao-claro:hover { color: var(--primaria-texto); background: var(--fundo); }
 .botao-claro:hover { background: var(--sucesso-fundo); }
 .botao-largo { display: flex; width: 100%; }
 

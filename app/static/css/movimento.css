@@ -40,11 +40,11 @@
     background:
       radial-gradient(circle at 8% 20%, var(--texto-sobre-cor) 0 3px, transparent 3.5px),
       radial-gradient(circle at 21% 72%, var(--confete-dourado) 0 3px, transparent 3.5px),
-      radial-gradient(circle at 35% 28%, var(--sucesso-fundo) 0 2.5px, transparent 3px),
+      radial-gradient(circle at 35% 28%, var(--confete-claro) 0 2.5px, transparent 3px),
       radial-gradient(circle at 49% 78%, var(--texto-sobre-cor) 0 2.5px, transparent 3px),
       radial-gradient(circle at 63% 22%, var(--confete-dourado) 0 3px, transparent 3.5px),
       radial-gradient(circle at 78% 66%, var(--texto-sobre-cor) 0 3px, transparent 3.5px),
-      radial-gradient(circle at 92% 34%, var(--sucesso-fundo) 0 2.5px, transparent 3px);
+      radial-gradient(circle at 92% 34%, var(--confete-claro) 0 2.5px, transparent 3px);
   }
   .aviso-conquista::after {
     animation-delay: 280ms;
@@ -52,7 +52,7 @@
       radial-gradient(circle at 14% 50%, var(--confete-dourado) 0 2.5px, transparent 3px),
       radial-gradient(circle at 28% 12%, var(--texto-sobre-cor) 0 2px, transparent 2.5px),
       radial-gradient(circle at 43% 58%, var(--confete-dourado) 0 2px, transparent 2.5px),
-      radial-gradient(circle at 57% 40%, var(--sucesso-fundo) 0 3px, transparent 3.5px),
+      radial-gradient(circle at 57% 40%, var(--confete-claro) 0 3px, transparent 3.5px),
       radial-gradient(circle at 71% 10%, var(--texto-sobre-cor) 0 2.5px, transparent 3px),
       radial-gradient(circle at 86% 52%, var(--confete-dourado) 0 3px, transparent 3.5px);
   }
