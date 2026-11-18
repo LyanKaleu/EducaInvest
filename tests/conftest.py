@@ -59,8 +59,10 @@ def cliente(cliente_aluno):
 
 
 @pytest.fixture
-def cliente_outro_aluno(app, turma, cliente_aluno):
+def cliente_outro_aluno(app, turma, cliente_aluno):  # noqa: ARG001
     """Segundo aluno, na mesma turma e no MESMO banco do primeiro."""
+    # `cliente_aluno` só garante que o primeiro aluno se cadastra antes. Fixture não
+    # aceita @pytest.mark.usefixtures, por isso o noqa do ARG001 acima.
     outro = app.test_client()
     cadastrar_aluno(outro, turma["codigo"], email="beatriz@escola.br", apelido="Beatriz")
     return outro
@@ -116,7 +118,8 @@ def turma(cliente_professor):
     html = cliente_professor.get("/professor/turmas").get_data(as_text=True)
     codigo = re.search(r'<code class="codigo-turma">([A-Z0-9]{6,8})</code>', html)
     turma_id = re.search(r'href="/professor/turmas/(\d+)"', html)
-    assert codigo and turma_id, "a página de turmas deve mostrar o código e o link da turma"
+    assert codigo, "a página de turmas deve mostrar o código da turma"
+    assert turma_id, "a página de turmas deve mostrar o link da turma"
     return {"id": int(turma_id.group(1)), "codigo": codigo.group(1)}
 
 

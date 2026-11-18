@@ -1,7 +1,16 @@
 """Rotas para criar metas e registrar aportes (HU2, RF04)."""
 import uuid
 
-from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
+from flask import (
+    Blueprint,
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
 from app.db import obter_conexao
 from app.filtros import reais

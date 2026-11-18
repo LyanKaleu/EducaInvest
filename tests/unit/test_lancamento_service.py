@@ -43,7 +43,7 @@ def test_entrada_valida_devolve_tipo_entrada(form_valido):
 # Entradas válidas em formatos diferentes
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("valor, centavos", [
+@pytest.mark.parametrize(("valor", "centavos"), [
     ("25", 2500),
     ("25,5", 2550),
     ("25,50", 2550),

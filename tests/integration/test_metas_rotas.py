@@ -152,7 +152,8 @@ def test_aporte_em_meta_de_outro_aluno_retorna_404_e_nao_muda_nada(cliente, meta
     assert "R$ 0,00 de R$ 200,00 · 0%" in lista(cliente)
 
 
-def test_lista_nao_mostra_metas_de_outro_aluno(meta_fone, cliente_outro_aluno):
+@pytest.mark.usefixtures("meta_fone")
+def test_lista_nao_mostra_metas_de_outro_aluno(cliente_outro_aluno):
     assert "Você ainda não tem metas" in lista(cliente_outro_aluno)
 
 

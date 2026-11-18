@@ -1,8 +1,16 @@
 """Rotas de cadastro (aluno com código de turma, professor), login e logout (RF01)."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from flask import (Blueprint, current_app, flash, redirect, render_template, request, session,
-                   url_for)
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
 from app.db import obter_conexao
 from app.repositories.turma_repo import TurmaRepository
@@ -47,17 +55,17 @@ def _iniciar_sessao(usuario: dict):
     return redirect(destino_do_perfil(usuario["perfil"]))
 
 
-def _render_cadastro(professor: bool, erros=None, status=200):
+def _render_cadastro(*, professor: bool, erros=None, status=200):
     # Nunca devolve a senha para a página: o template não preenche esse campo.
     html = render_template("auth/cadastro.html", professor=professor,
                            form=request.form, erros=erros or {})
     return html, status
 
 
-def _cadastro_invalido(professor: bool, erros: dict):
+def _cadastro_invalido(erros: dict, *, professor: bool):
     """Avisa o erro (flash) e devolve o formulário de cadastro preenchido, com 400."""
     flash(MSG_ERRO_FORM, "erro")
-    return _render_cadastro(professor, erros, 400)
+    return _render_cadastro(professor=professor, erros=erros, status=400)
 
 
 # ---------------------------------------------------------------------------
@@ -76,7 +84,7 @@ def cadastrar_aluno():
     try:
         dados = auth_service.validar_cadastro_aluno(request.form)
     except ErroValidacao as erro:
-        return _cadastro_invalido(False, erro.erros)
+        return _cadastro_invalido(erro.erros, professor=False)
 
     erros = {}
     turma = turmas.buscar_por_codigo(dados["codigo_turma"])
@@ -85,13 +93,13 @@ def cadastrar_aluno():
     if usuarios.buscar_por_email(dados["email"]):
         erros["email"] = MSG_EMAIL_EM_USO
     if erros:
-        return _cadastro_invalido(False, erros)
+        return _cadastro_invalido(erros, professor=False)
 
     with obter_conexao():
         usuario = usuarios.criar(
             auth_service.PERFIL_ALUNO, dados["apelido"], dados["email"],
             auth_service.gerar_hash_senha(dados["senha"]),
-            consentimento_em=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            consentimento_em=datetime.now(UTC).isoformat(timespec="seconds"),
         )
         turmas.matricular(usuario["id"], turma["id"])
     return _iniciar_sessao(usuario)
@@ -108,10 +116,12 @@ def cadastrar_professor():
     try:
         dados = auth_service.validar_cadastro_professor(request.form)
     except ErroValidacao as erro:
-        return _cadastro_invalido(True, erro.erros)
+        return _cadastro_invalido(erro.erros, professor=True)
 
     if usuarios.buscar_por_email(dados["email"]):
-        return _cadastro_invalido(True, {"email": MSG_EMAIL_EM_USO})
+        return _cadastro_invalido(
+            {"email": MSG_EMAIL_EM_USO}, professor=True
+        )
 
     with obter_conexao():
         usuario = usuarios.criar(auth_service.PERFIL_PROFESSOR, dados["apelido"], dados["email"],

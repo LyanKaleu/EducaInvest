@@ -63,12 +63,13 @@ def test_cada_pergunta_tem_4_alternativas_e_a_correta_entre_elas(pergunta):
     assert len(set(pergunta["alternativas"].values())) == 4, "alternativas repetidas"
     assert pergunta["correta"] in pergunta["alternativas"]
     assert pergunta["tema"] in quiz_service.TEMAS
-    assert pergunta["enunciado"].strip() and pergunta["explicacao"].strip()
+    assert pergunta["enunciado"].strip()
+    assert pergunta["explicacao"].strip()
 
 
 def test_banco_tem_3_perguntas_por_tema_e_codigos_unicos():
     codigos = [pergunta["codigo"] for pergunta in quiz_service.PERGUNTAS]
-    por_tema = {tema: 0 for tema in quiz_service.TEMAS}
+    por_tema = dict.fromkeys(quiz_service.TEMAS, 0)
     for pergunta in quiz_service.PERGUNTAS:
         por_tema[pergunta["tema"]] += 1
 

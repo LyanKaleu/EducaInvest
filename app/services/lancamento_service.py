@@ -2,7 +2,12 @@
 from datetime import date, datetime, timedelta, timezone
 
 from app.services.erros import ErroValidacao
-from app.services.formulario import converter_chave, converter_valor, ler_data, texto_do_campo
+from app.services.formulario import (
+    converter_chave,
+    converter_valor,
+    ler_data,
+    texto_do_campo,
+)
 
 # O Piauí fica em UTC-3 o ano todo (sem horário de verão). Usamos o deslocamento
 # fixo porque, no Windows, zoneinfo("America/Fortaleza") exige instalar o pacote tzdata.

@@ -73,7 +73,7 @@ def painel(turma, resumo_xp=None, missoes=None):
     return turma_service.painel_da_turma(turma, resumo_xp or {}, missoes or {}, HOJE_PAINEL)
 
 
-@pytest.mark.parametrize("turma, resumo_xp, esperado", [
+@pytest.mark.parametrize(("turma", "resumo_xp", "esperado"), [
     (alunos("Ana", "Beatriz", "Caio"), {1: xp(10), 2: xp(25)}, 12),  # 35 / 3 = 11,67
     (alunos("Ana", "Beatriz"), {1: xp(5)}, 3),                       # 5 / 2 = 2,5 sobe
 ])

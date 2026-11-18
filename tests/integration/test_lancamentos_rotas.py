@@ -2,6 +2,8 @@
 import re
 from datetime import timedelta
 
+import pytest
+
 from app.services.lancamento_service import hoje_no_piaui
 
 
@@ -38,7 +40,8 @@ def test_lista_vazia_convida_a_registrar(cliente):
     assert "Você ainda não registrou nada" in resposta.get_data(as_text=True)
 
 
-def test_lista_mostra_valor_e_data_formatados(cliente, lancamento_existente):
+@pytest.mark.usefixtures("lancamento_existente")
+def test_lista_mostra_valor_e_data_formatados(cliente):
     html = cliente.get("/lancamentos/").get_data(as_text=True)
 
     assert "R$ 25,00" in html
@@ -56,19 +59,22 @@ def test_lista_mostra_o_total_de_entradas_e_de_gastos(cliente, form_valido):
     assert re.search(r'id="total-gastos"[^>]*>R\$ 25,00<', html)
 
 
-def test_lista_nao_mostra_lancamentos_de_outro_aluno(cliente_outro_aluno, lancamento_existente):
+@pytest.mark.usefixtures("lancamento_existente")
+def test_lista_nao_mostra_lancamentos_de_outro_aluno(cliente_outro_aluno):
     html = cliente_outro_aluno.get("/lancamentos/").get_data(as_text=True)
 
     assert "Você ainda não registrou nada" in html
 
 
-def test_busca_encontra_pela_categoria(cliente, lancamento_existente):
+@pytest.mark.usefixtures("lancamento_existente")
+def test_busca_encontra_pela_categoria(cliente):
     html = cliente.get("/lancamentos/?busca=aliment").get_data(as_text=True)
 
     assert "R$ 25,00" in html
 
 
-def test_busca_sem_resultado_avisa_que_nada_foi_encontrado(cliente, lancamento_existente):
+@pytest.mark.usefixtures("lancamento_existente")
+def test_busca_sem_resultado_avisa_que_nada_foi_encontrado(cliente):
     html = cliente.get("/lancamentos/?busca=viagem").get_data(as_text=True)
 
     assert "Nada encontrado para “viagem”" in html

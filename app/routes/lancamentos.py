@@ -2,7 +2,14 @@
 import uuid
 
 from flask import (
-    Blueprint, abort, flash, redirect, render_template, request, session, url_for,
+    Blueprint,
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
 )
 
 from app.db import obter_conexao
@@ -12,7 +19,11 @@ from app.routes.acesso import exigir_perfil
 from app.routes.missoes import avisar_conquistas, registrar_progresso
 from app.services.auth_service import PERFIL_ALUNO
 from app.services.erros import ErroValidacao
-from app.services.lancamento_service import CATEGORIAS, hoje_no_piaui, validar_lancamento
+from app.services.lancamento_service import (
+    CATEGORIAS,
+    hoje_no_piaui,
+    validar_lancamento,
+)
 from app.services.xp_service import TETO_DIARIO_LANCAMENTOS
 
 bp = Blueprint("lancamentos", __name__, url_prefix="/lancamentos")

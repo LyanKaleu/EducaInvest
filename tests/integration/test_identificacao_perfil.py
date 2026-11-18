@@ -5,6 +5,8 @@ escolhido no cadastro, o login é um só, e depois de entrar a tela mostra o per
 """
 import re
 
+import pytest
+
 from tests.conftest import cadastrar_aluno, entrar
 
 
@@ -22,8 +24,11 @@ def test_cadastro_de_aluno_oferece_as_duas_opcoes_com_aluno_marcado(cliente_anon
     html = cliente_anonimo.get("/cadastro").get_data(as_text=True)
 
     aluno, professor = opcao(html, "Sou aluno"), opcao(html, "Sou professor")
-    assert aluno and 'href="/cadastro"' in aluno and 'aria-current="page"' in aluno
-    assert professor and 'href="/cadastro/professor"' in professor
+    assert aluno
+    assert 'href="/cadastro"' in aluno
+    assert 'aria-current="page"' in aluno
+    assert professor
+    assert 'href="/cadastro/professor"' in professor
     assert 'aria-current="page"' not in professor
 
 
@@ -60,7 +65,8 @@ def test_topo_mostra_apelido_e_perfil_do_professor(cliente_professor):
     assert '<span class="identificacao">Prof. Ana · Professor</span>' in html
 
 
-def test_topo_identifica_quem_entrou_pelo_login(app, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_topo_identifica_quem_entrou_pelo_login(app):
     cliente = app.test_client()
     entrar(cliente, "gabriel@escola.br")
 

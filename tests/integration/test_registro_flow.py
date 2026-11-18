@@ -145,7 +145,7 @@ def test_editar_entrada_para_gasto_conclui_a_missao(cliente):
 
 
 # ---------------------------------------------------------------------------
-# Nível (RN-12)
+# Nível do aluno, pela regra RN-12
 # ---------------------------------------------------------------------------
 
 def test_aluno_sobe_para_o_nivel_2_ao_passar_de_100_xp(cliente):

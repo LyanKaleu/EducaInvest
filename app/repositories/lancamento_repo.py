@@ -60,7 +60,7 @@ class LancamentoRepository:
         """
         conn.executescript(SQL_CRIAR_TABELA)
 
-    def criar(self, aluno_id, tipo, categoria, valor_centavos, data_lancamento,
+    def criar(self, aluno_id, *, tipo, categoria, valor_centavos, data_lancamento,
               chave_idempotencia, descricao=None) -> dict:
         """Insere um lançamento, ou devolve o já existente se a chave se repetir.
 
@@ -198,9 +198,11 @@ class LancamentoRepository:
         if not campos:
             raise ValueError("Informe ao menos um campo para atualizar.")
         # Os nomes vêm da lista fixa acima; os valores vão sempre por "?".
+        # Por isso o S608 (SQL montado com f-string) é falso positivo aqui.
         atribuicoes = ", ".join(f"{nome} = ?" for nome in campos)
         cursor = self.conn.execute(
-            f"UPDATE lancamentos SET {atribuicoes} WHERE aluno_id = ? AND id = ?",
+            f"UPDATE lancamentos SET {atribuicoes} "  # noqa: S608
+            "WHERE aluno_id = ? AND id = ?",
             (*campos.values(), aluno_id, lancamento_id),
         )
         return cursor.rowcount == 1

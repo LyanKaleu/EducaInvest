@@ -1,8 +1,10 @@
 """Valida cadastro e login, faz hash de senha e controla o acesso por perfil (RNF04)."""
 import re
+from typing import override
 
 from pwdlib import PasswordHash
 from pwdlib.hashers.argon2 import Argon2Hasher
+from pwdlib.hashers.base import HasherProtocol
 from werkzeug.security import check_password_hash
 
 from app.services.erros import ErroValidacao
@@ -18,24 +20,31 @@ CODIGO_RE = re.compile(r"[A-Z0-9]{6,8}")
 
 
 
-class HasherLegadoWerkzeug:
+class HasherLegadoWerkzeug(HasherProtocol):
     """Confere os hashes antigos do Werkzeug (scrypt), de antes do Argon2id. Nunca gera hash.
 
     Pega tudo o que não é Argon2: formato desconhecido cai no check_password_hash, que
     responde False em vez de derrubar o login.
     """
 
+    # Os nomes dos parâmetros (inclusive `hash`) vêm do HasherProtocol do pwdlib.
     @classmethod
+    @override
     def identify(cls, hash: str | bytes) -> bool:
         return not Argon2Hasher.identify(hash)
 
-    def hash(self, password, *, salt=None) -> str:
+    @override
+    def hash(
+        self, password: str | bytes, *, salt: bytes | None = None
+    ) -> str:
         raise NotImplementedError("hash novo é sempre Argon2id")
 
-    def verify(self, password, hash) -> bool:
+    @override
+    def verify(self, password: str | bytes, hash: str | bytes) -> bool:
         return check_password_hash(hash, password)
 
-    def check_needs_rehash(self, hash) -> bool:
+    @override
+    def check_needs_rehash(self, hash: str | bytes) -> bool:
         return True
 
 

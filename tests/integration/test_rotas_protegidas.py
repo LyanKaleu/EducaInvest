@@ -28,9 +28,11 @@ def _requisicoes(app, ignorar):
         for regra in app.url_map.iter_rules():
             if regra.endpoint in ignorar:
                 continue
-            url = url_for(regra.endpoint, **{parametro: 1 for parametro in regra.arguments})
-            for metodo in sorted(regra.methods - {"HEAD", "OPTIONS"}):
-                requisicoes.append((metodo, url))
+            url = url_for(regra.endpoint, **dict.fromkeys(regra.arguments, 1))
+            requisicoes.extend(
+                (metodo, url)
+                for metodo in sorted(regra.methods - {"HEAD", "OPTIONS"})
+            )
     return requisicoes
 
 

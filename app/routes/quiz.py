@@ -1,5 +1,14 @@
 """Rotas para abrir um quiz, responder e ver a explicação (HU4, RF06)."""
-from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
+from flask import (
+    Blueprint,
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
 from app.db import obter_conexao
 from app.repositories.quiz_repo import QuizRepository
@@ -82,7 +91,9 @@ def responder(codigo):
     xp_ganho = 0
     # Resposta e XP gravados juntos ou nenhum dos dois (INVARIANTES N6).
     with conn:
-        gravou = QuizRepository(conn).responder(_aluno_id(), codigo, escolha, acertou)
+        gravou = QuizRepository(conn).responder(
+            _aluno_id(), codigo, escolha, correta=acertou
+        )
         # Só paga quem gravou agora: num envio simultâneo, o segundo não grava nem pontua.
         if gravou and acertou:
             xp_repo = XpRepository(conn)

@@ -3,7 +3,12 @@ from datetime import date
 
 from app.filtros import reais
 from app.services.erros import ErroValidacao
-from app.services.formulario import converter_chave, converter_valor, ler_data, texto_do_campo
+from app.services.formulario import (
+    converter_chave,
+    converter_valor,
+    ler_data,
+    texto_do_campo,
+)
 from app.services.lancamento_service import hoje_no_piaui
 
 NOME_MAX = 60  # o mesmo CHECK da tabela metas

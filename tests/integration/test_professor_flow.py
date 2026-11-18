@@ -1,6 +1,8 @@
 """Fluxo HTTP do professor: criar turma, ver o código e a lista de alunos (RF02, HU5)."""
 import re
 
+import pytest
+
 from tests.conftest import cadastrar_aluno, cadastrar_professor, criar_turma
 
 
@@ -23,21 +25,24 @@ def test_turma_sem_nome_retorna_400(cliente_professor):
     assert "Dê um nome à turma." in resposta.get_data(as_text=True)
 
 
-def test_turma_com_nome_repetido_do_mesmo_professor_retorna_400(cliente_professor, turma):
+@pytest.mark.usefixtures("turma")
+def test_turma_com_nome_repetido_do_mesmo_professor_retorna_400(cliente_professor):
     resposta = criar_turma(cliente_professor, nome="2º A")
 
     assert resposta.status_code == 400
     assert "Você já tem uma turma com esse nome." in resposta.get_data(as_text=True)
 
 
-def test_turma_com_mesmo_nome_em_outra_caixa_retorna_400(cliente_professor, turma):
+@pytest.mark.usefixtures("turma")
+def test_turma_com_mesmo_nome_em_outra_caixa_retorna_400(cliente_professor):
     resposta = criar_turma(cliente_professor, nome="2º a")
 
     assert resposta.status_code == 400
     assert "Você já tem uma turma com esse nome." in resposta.get_data(as_text=True)
 
 
-def test_professores_diferentes_podem_usar_o_mesmo_nome_de_turma(app, turma):
+@pytest.mark.usefixtures("turma")
+def test_professores_diferentes_podem_usar_o_mesmo_nome_de_turma(app):
     outro = app.test_client()
     cadastrar_professor(outro, email="prof.bia@escola.br", apelido="Prof. Bia")
 
@@ -58,13 +63,15 @@ def test_turma_vazia_avisa_que_nao_ha_alunos(cliente_professor, turma):
     assert "Nenhum aluno ainda." in html
 
 
-def test_aluno_cadastrado_com_o_codigo_aparece_na_turma(cliente_professor, turma, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_aluno_cadastrado_com_o_codigo_aparece_na_turma(cliente_professor, turma):
     html = cliente_professor.get(f"/professor/turmas/{turma['id']}").get_data(as_text=True)
 
     assert "Gabriel" in html
 
 
-def test_lista_da_turma_nao_mostra_email_do_aluno(cliente_professor, turma, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_lista_da_turma_nao_mostra_email_do_aluno(cliente_professor, turma):
     html = cliente_professor.get(f"/professor/turmas/{turma['id']}").get_data(as_text=True)
 
     assert "gabriel@escola.br" not in html
@@ -92,7 +99,8 @@ def test_aluno_de_outra_turma_nao_aparece(app, cliente_professor, turma):
     assert "Beatriz" not in html_turma
 
 
-def test_lista_de_turmas_mostra_quantos_alunos_cada_uma_tem(app, cliente_professor, turma, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_lista_de_turmas_mostra_quantos_alunos_cada_uma_tem(app, cliente_professor, turma):
     criar_turma(cliente_professor, "3º B")  # sem alunos
     cadastrar_aluno(app.test_client(), turma["codigo"], email="bruno@escola.br", apelido="Bruno")
 

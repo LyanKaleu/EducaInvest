@@ -27,7 +27,9 @@ class QuizRepository:
         """Cria a tabela `quiz_respostas`, se ainda não existir."""
         conn.executescript(SQL_CRIAR_TABELA)
 
-    def responder(self, aluno_id, pergunta_codigo, alternativa, correta: bool) -> bool:
+    def responder(
+        self, aluno_id, pergunta_codigo, alternativa, *, correta: bool
+    ) -> bool:
         """Grava a resposta do aluno, se ele ainda não respondeu essa pergunta. Não faz commit.
 
         Returns:

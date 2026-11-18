@@ -7,7 +7,12 @@ from app.repositories.meta_repo import MetaRepository
 from app.repositories.missao_repo import MissaoRepository
 from app.repositories.xp_repo import XpRepository
 from app.routes.acesso import exigir_perfil
-from app.services import lancamento_service, meta_service, missao_service, xp_service
+from app.services import (
+    lancamento_service,
+    meta_service,
+    missao_service,
+    xp_service,
+)
 from app.services.auth_service import PERFIL_ALUNO
 from app.services.lancamento_service import hoje_no_piaui
 

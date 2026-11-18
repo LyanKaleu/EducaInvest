@@ -2,6 +2,7 @@
 import os
 import secrets
 from datetime import timedelta
+from pathlib import Path
 
 from flask import Flask, flash, redirect, session, url_for
 from flask_wtf.csrf import CSRFError, CSRFProtect
@@ -28,7 +29,7 @@ def create_app(config: dict | None = None) -> Flask:
     app.config.from_mapping(
         SECRET_KEY=os.environ.get("SECRET_KEY"),
         # instance/ fica fora do Git (.gitignore) e guarda o arquivo do banco.
-        DATABASE=os.path.join(app.instance_path, "educainvest.db"),
+        DATABASE=str(Path(app.instance_path) / "educainvest.db"),
         # Cookie de sessão não é enviado em POST vindo de outro site (reduz CSRF).
         SESSION_COOKIE_SAMESITE="Lax",
         # O Flask recusa cookie de sessão gravado há mais de 12 h (o padrão era 31 dias):
@@ -51,7 +52,7 @@ def create_app(config: dict | None = None) -> Flask:
         # Só em teste/desenvolvimento: chave aleatória (sessões caem ao reiniciar).
         app.config["SECRET_KEY"] = secrets.token_hex(32)
 
-    os.makedirs(app.instance_path, exist_ok=True)
+    Path(app.instance_path).mkdir(parents=True, exist_ok=True)
     # Todo POST exige o csrf_token do formulário (o SameSite=Lax não barra o CSRF de login).
     CSRFProtect(app)
     db.init_app(app)

@@ -1,4 +1,5 @@
 """Fluxo HTTP de cadastro com código de turma, login, logout e acesso por perfil (RF01, RNF04, HU5)."""
+import pytest
 from werkzeug.security import generate_password_hash
 
 from app.db import conectar
@@ -39,7 +40,8 @@ def test_cadastro_aceita_codigo_da_turma_em_minusculas(app, turma):
     assert resposta.status_code == 302
 
 
-def test_cadastro_com_codigo_inexistente_retorna_400(cliente_anonimo, turma):
+@pytest.mark.usefixtures("turma")
+def test_cadastro_com_codigo_inexistente_retorna_400(cliente_anonimo):
     resposta = cadastrar_aluno(cliente_anonimo, "ZZZZZZ")
 
     assert resposta.status_code == 400
@@ -53,21 +55,24 @@ def test_cadastro_sem_consentimento_retorna_400(cliente_anonimo, turma):
     assert "Você precisa confirmar a autorização para continuar." in resposta.get_data(as_text=True)
 
 
-def test_cadastro_com_email_ja_usado_retorna_400(app, turma, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_cadastro_com_email_ja_usado_retorna_400(app, turma):
     resposta = cadastrar_aluno(app.test_client(), turma["codigo"], email="GABRIEL@escola.br")
 
     assert resposta.status_code == 400
     assert "Este e-mail já está cadastrado." in resposta.get_data(as_text=True)
 
 
-def test_cadastro_invalido_preserva_apelido_e_email(cliente_anonimo, turma):
+@pytest.mark.usefixtures("turma")
+def test_cadastro_invalido_preserva_apelido_e_email(cliente_anonimo):
     html = cadastrar_aluno(cliente_anonimo, "ZZZZZZ").get_data(as_text=True)
 
     assert 'value="Gabriel"' in html
     assert 'value="gabriel@escola.br"' in html
 
 
-def test_cadastro_invalido_nunca_devolve_a_senha_na_pagina(cliente_anonimo, turma):
+@pytest.mark.usefixtures("turma")
+def test_cadastro_invalido_nunca_devolve_a_senha_na_pagina(cliente_anonimo):
     html = cadastrar_aluno(cliente_anonimo, "ZZZZZZ").get_data(as_text=True)
 
     assert SENHA not in html
@@ -95,24 +100,28 @@ def test_cadastro_de_professor_invalido_retorna_400(cliente_anonimo):
 # Login e logout
 # ---------------------------------------------------------------------------
 
-def test_login_de_aluno_redireciona_para_o_painel(app, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_login_de_aluno_redireciona_para_o_painel(app):
     resposta = entrar(app.test_client(), "gabriel@escola.br")
 
     assert resposta.status_code == 302
     assert caminho(resposta).endswith("/painel/")
 
 
-def test_login_de_professor_redireciona_para_turmas(app, cliente_professor):
+@pytest.mark.usefixtures("cliente_professor")
+def test_login_de_professor_redireciona_para_turmas(app):
     resposta = entrar(app.test_client(), "prof.ana@escola.br")
 
     assert caminho(resposta).endswith("/professor/turmas")
 
 
-def test_login_ignora_maiusculas_no_email(app, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_login_ignora_maiusculas_no_email(app):
     assert entrar(app.test_client(), "Gabriel@Escola.BR").status_code == 302
 
 
-def test_login_com_senha_errada_retorna_401(app, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_login_com_senha_errada_retorna_401(app):
     resposta = entrar(app.test_client(), "gabriel@escola.br", senha="senha-errada")
 
     assert resposta.status_code == 401
@@ -131,7 +140,8 @@ def errar_a_senha(cliente, email, vezes):
         entrar(cliente, email, senha="senha-errada")
 
 
-def test_login_bloqueia_o_email_depois_de_5_senhas_erradas(app, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_login_bloqueia_o_email_depois_de_5_senhas_erradas(app):
     cliente = app.test_client()
     errar_a_senha(cliente, "gabriel@escola.br", 5)
 
@@ -142,21 +152,24 @@ def test_login_bloqueia_o_email_depois_de_5_senhas_erradas(app, cliente_aluno):
     assert cliente.get("/painel/").status_code == 302  # continua sem login
 
 
-def test_bloqueio_vale_para_o_email_em_outra_caixa(app, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_bloqueio_vale_para_o_email_em_outra_caixa(app):
     cliente = app.test_client()
     errar_a_senha(cliente, "gabriel@escola.br", 5)
 
     assert entrar(cliente, "GABRIEL@escola.br").status_code == 429
 
 
-def test_bloqueio_de_um_email_nao_afeta_outro(app, turma, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_bloqueio_de_um_email_nao_afeta_outro(app, turma):
     cadastrar_aluno(app.test_client(), turma["codigo"], email="bia@escola.br", apelido="Bia")
     errar_a_senha(app.test_client(), "gabriel@escola.br", 5)
 
     assert entrar(app.test_client(), "bia@escola.br").status_code == 302
 
 
-def test_chutes_simultaneos_nao_furam_o_limite(monkeypatch, app, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_chutes_simultaneos_nao_furam_o_limite(monkeypatch, app):
     # 6 chutes chegam juntos: cada um dispara o próximo enquanto confere a senha (o hash
     # é lento), então nenhum terminou quando o 6º chega. O 6º, com a senha certa, não entra.
     original = auth_service.conferir_senha
@@ -178,7 +191,8 @@ def test_chutes_simultaneos_nao_furam_o_limite(monkeypatch, app, cliente_aluno):
     assert sexto["resposta"].status_code == 429
 
 
-def test_login_certo_zera_as_falhas(app, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_login_certo_zera_as_falhas(app):
     cliente = app.test_client()
     errar_a_senha(cliente, "gabriel@escola.br", 4)
     entrar(cliente, "gabriel@escola.br")
@@ -187,7 +201,8 @@ def test_login_certo_zera_as_falhas(app, cliente_aluno):
     assert entrar(app.test_client(), "gabriel@escola.br").status_code == 302
 
 
-def test_login_com_hash_scrypt_antigo_entra_e_regrava_em_argon2id(app, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_login_com_hash_scrypt_antigo_entra_e_regrava_em_argon2id(app):
     # Conta de antes do Argon2id: o hash guardado é o scrypt padrão do Werkzeug.
     conn = conectar(app.config["DATABASE"])
     with conn:

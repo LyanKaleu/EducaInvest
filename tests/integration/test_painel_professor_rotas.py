@@ -2,6 +2,8 @@
 import re
 import uuid
 
+import pytest
+
 from tests.conftest import cadastrar_aluno, criar_turma
 
 
@@ -26,8 +28,8 @@ def valor(html, id_):
     return encontrado.group(1).strip()
 
 
-def test_painel_mostra_xp_medio_missoes_e_ativos(cliente_professor, turma, cliente_aluno,
-                                                 cliente_outro_aluno):
+@pytest.mark.usefixtures("cliente_outro_aluno")
+def test_painel_mostra_xp_medio_missoes_e_ativos(cliente_professor, turma, cliente_aluno):
     # Gabriel: 3 gastos x 10 XP + 30 XP da missão "Primeiros passos" = 60 XP.
     # Beatriz não registra nada: 0 XP. Média (60 + 0) / 2 = 30.
     for _ in range(3):
@@ -50,7 +52,8 @@ def test_painel_nao_mostra_valores_em_reais(cliente_professor, turma, cliente_al
     assert "37,90" not in html
 
 
-def test_aluno_de_outra_turma_nao_entra_na_media(app, cliente_professor, turma, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_aluno_de_outra_turma_nao_entra_na_media(app, cliente_professor, turma):
     criar_turma(cliente_professor, nome="3º B")
     html_turmas = cliente_professor.get("/professor/turmas").get_data(as_text=True)
     codigos = re.findall(r'<code class="codigo-turma">([A-Z0-9]{6,8})</code>', html_turmas)
@@ -72,7 +75,7 @@ def test_aluno_de_outra_turma_nao_entra_na_media(app, cliente_professor, turma, 
 
 def item_do_ranking(html, apelido):
     """Texto do item do ranking do aluno, sem tags e com espaços simples, ou None."""
-    item = re.search(rf'<li class="aluno-ranking[^"]*">\s*.*?<strong class="apelido">{apelido}</strong>.*?</li>', html, re.S)
+    item = re.search(rf'<li class="aluno-ranking[^"]*">\s*.*?<strong class="apelido">{apelido}</strong>.*?</li>', html, re.DOTALL)
     return " ".join(re.sub(r"<[^>]+>", " ", item.group(0)).split()) if item else None
 
 
@@ -86,8 +89,8 @@ def test_ranking_mostra_cada_aluno_sem_email(cliente_professor, turma, cliente_a
     assert "gabriel@escola.br" not in html
 
 
-def test_ranking_fica_em_ordem_de_xp_com_empate_por_apelido(app, cliente_professor, turma,
-                                                          cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_ranking_fica_em_ordem_de_xp_com_empate_por_apelido(app, cliente_professor, turma):
     # Ranking por XP (decisão do redesign v2). No empate vale o apelido, sem diferenciar
     # maiúsculas: "bruno" e "Gabriel" empatam em 0 XP, e a ordem binária poria "Gabriel" antes.
     ana = app.test_client()
@@ -105,7 +108,7 @@ def test_painel_aponta_quem_nao_ganha_xp_ha_7_dias(app, cliente_professor, turma
     registrar_gasto(cliente_aluno)  # Gabriel ativo hoje
     cadastrar_aluno(app.test_client(), turma["codigo"], email="bruno@escola.br", apelido="Bruno")
 
-    atencao = re.search(r'<section[^>]*id="atencao".*?</section>', painel_da_turma(cliente_professor, turma), re.S)
+    atencao = re.search(r'<section[^>]*id="atencao".*?</section>', painel_da_turma(cliente_professor, turma), re.DOTALL)
 
     assert atencao, "o painel deve ter o bloco de atenção"
     assert "Bruno" in atencao.group(0)
@@ -118,7 +121,8 @@ def test_painel_sem_inativos_nao_mostra_o_bloco_de_atencao(cliente_professor, tu
     assert 'id="atencao"' not in painel_da_turma(cliente_professor, turma)
 
 
-def test_painel_mostra_a_turma_por_nivel(app, cliente_professor, turma, cliente_aluno):
+@pytest.mark.usefixtures("cliente_aluno")
+def test_painel_mostra_a_turma_por_nivel(app, cliente_professor, turma):
     cadastrar_aluno(app.test_client(), turma["codigo"], email="bruno@escola.br", apelido="Bruno")
 
     html = painel_da_turma(cliente_professor, turma)

@@ -49,12 +49,14 @@ class MissaoRepository:
         aluno_ids = list(aluno_ids)
         if not aluno_ids:
             return {}
+        # Só os "?" entram no f-string; os ids vão por parâmetro. Por isso o
+        # S608 (SQL montado com f-string) é falso positivo aqui.
         marcadores = ", ".join("?" * len(aluno_ids))
         linhas = self.conn.execute(
             f"""
             SELECT aluno_id, COUNT(*) AS total FROM missoes_concluidas
             WHERE aluno_id IN ({marcadores}) GROUP BY aluno_id
-            """,
+            """,  # noqa: S608
             aluno_ids,
         ).fetchall()
         return {linha["aluno_id"]: linha["total"] for linha in linhas}

@@ -12,8 +12,10 @@ TEMPLATES = Path(__file__).resolve().parents[2] / "app" / "templates"
 
 
 @pytest.fixture
-def cliente_com_csrf(tmp_path, cliente_professor):
+def cliente_com_csrf(tmp_path, cliente_professor):  # noqa: ARG001
     """Cliente de um app com CSRF ligado, no mesmo banco onde a Prof. Ana já está cadastrada."""
+    # `cliente_professor` só cadastra a Prof. Ana antes. Fixture não aceita
+    # @pytest.mark.usefixtures, por isso o noqa do ARG001 acima.
     return _criar_app(tmp_path, WTF_CSRF_ENABLED=True).test_client()
 
 
@@ -71,8 +73,8 @@ def formularios_post():
     """(arquivo, trecho) de cada <form method="post"> dos templates."""
     for arquivo in sorted(TEMPLATES.rglob("*.html")):
         texto = arquivo.read_text(encoding="utf-8")
-        for form in re.findall(r"<form\b[^>]*>.*?</form>", texto, flags=re.S):
-            if re.search(r'method="post"', form.split(">", 1)[0], flags=re.I):
+        for form in re.findall(r"<form\b[^>]*>.*?</form>", texto, flags=re.DOTALL):
+            if re.search(r'method="post"', form.split(">", 1)[0], flags=re.IGNORECASE):
                 yield arquivo.relative_to(TEMPLATES).as_posix(), form
 
 
@@ -122,7 +124,7 @@ def test_cookie_de_sessao_funciona_por_http_em_debug(tmp_path):
 def adiantar_relogio_da_sessao(monkeypatch, horas):
     """Relógio do cookie assinado (itsdangerous) `horas` à frente: a fronteira de tempo."""
     agora = TimestampSigner.get_timestamp(None)
-    monkeypatch.setattr(TimestampSigner, "get_timestamp", lambda self: agora + horas * 3600)
+    monkeypatch.setattr(TimestampSigner, "get_timestamp", lambda _self: agora + horas * 3600)
 
 
 def test_sessao_com_11_horas_continua_valendo(monkeypatch, cliente_professor):
