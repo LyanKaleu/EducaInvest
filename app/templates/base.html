@@ -13,6 +13,9 @@
   {% for folha in ('tokens', 'base', 'navegacao', 'aluno', 'professor', 'entrada', 'movimento') %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/' ~ folha ~ '.css') }}">
   {% endfor %}
+  {# JS puro, só melhoria progressiva: sem ele toda tela funciona igual. Módulo já roda depois do
+     HTML (como defer). Nada de script inline: a CSP bloqueia. #}
+  <script type="module" src="{{ url_for('static', filename='js/movimento.js') }}"></script>
 </head>
 {% set e_aluno = session.get('perfil') == 'ALUNO' %}
 <body{% if e_aluno %} class="com-menu-aluno"{% endif %}>

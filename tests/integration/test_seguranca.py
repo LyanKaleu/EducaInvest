@@ -212,3 +212,49 @@ def test_sessao_com_mais_de_12_horas_volta_para_o_login(
 
     assert resposta.status_code == 302
     assert resposta.headers["Location"].endswith("/login")
+
+
+# ---------------------------------------------------------------------------
+# JavaScript de melhoria progressiva: só arquivo do próprio app, nunca inline
+# ---------------------------------------------------------------------------
+
+SCRIPT_DE_MOVIMENTO = (
+    '<script type="module" src="/static/js/movimento.js"></script>'
+)
+
+
+def test_pagina_carrega_o_js_de_movimento_como_modulo(
+    cliente_anonimo: FlaskClient,
+) -> None:
+    html = cliente_anonimo.get("/login").get_data(as_text=True)
+
+    assert SCRIPT_DE_MOVIMENTO in html
+
+
+def test_js_de_movimento_e_servido_como_javascript(
+    cliente_anonimo: FlaskClient,
+) -> None:
+    resposta = cliente_anonimo.get("/static/js/movimento.js")
+
+    assert resposta.status_code == 200
+    assert resposta.mimetype in {"text/javascript", "application/javascript"}
+
+
+def tags_script() -> list[tuple[str, str]]:
+    """(arquivo, tag de abertura) de cada <script> dos templates."""
+    return [
+        (arquivo.relative_to(TEMPLATES).as_posix(), tag)
+        for arquivo in sorted(TEMPLATES.rglob("*.html"))
+        for tag in re.findall(
+            r"<script\b[^>]*>", arquivo.read_text(encoding="utf-8")
+        )
+    ]
+
+
+def test_nenhum_template_tem_script_inline() -> None:
+    # A CSP (default-src 'self') bloqueia script inline: todo <script> aponta
+    # para um arquivo do app.
+    scripts = tags_script()
+
+    assert scripts, "o base.html deve carregar o movimento.js"
+    assert [tag for _, tag in scripts if "src=" not in tag] == []
