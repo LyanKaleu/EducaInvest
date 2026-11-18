@@ -258,3 +258,15 @@ def test_nenhum_template_tem_script_inline() -> None:
 
     assert scripts, "o base.html deve carregar o movimento.js"
     assert [tag for _, tag in scripts if "src=" not in tag] == []
+
+
+def test_script_de_direcao_roda_no_head_antes_da_primeira_pintura(
+    cliente_anonimo: FlaskClient,
+) -> None:
+    # O pagereveal acontece antes da primeira pintura: o script que dá a
+    # direção da troca de página precisa ser clássico (sem defer nem module) e
+    # estar no <head>.
+    html = cliente_anonimo.get("/login").get_data(as_text=True)
+    cabeca = html.split("</head>", 1)[0]
+
+    assert '<script src="/static/js/direcao.js"></script>' in cabeca

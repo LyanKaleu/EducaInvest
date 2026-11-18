@@ -16,6 +16,9 @@
   {# JS puro, só melhoria progressiva: sem ele toda tela funciona igual. Módulo já roda depois do
      HTML (como defer). Nada de script inline: a CSP bloqueia. #}
   <script type="module" src="{{ url_for('static', filename='js/movimento.js') }}"></script>
+  {# Clássico e no <head> de propósito: escuta o pagereveal, que vem antes da primeira pintura.
+     Baixa junto com o CSS, então não atrasa a tela. #}
+  <script src="{{ url_for('static', filename='js/direcao.js') }}"></script>
 </head>
 {% set e_aluno = session.get('perfil') == 'ALUNO' %}
 <body{% if e_aluno %} class="com-menu-aluno"{% endif %}>

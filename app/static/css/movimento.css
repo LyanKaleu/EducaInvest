@@ -22,6 +22,13 @@
   ::view-transition-old(root) { animation: sai-pagina calc(var(--duracao-pagina) * .6) var(--ease-out) both; }
   ::view-transition-new(root) { animation: entra-pagina var(--duracao-pagina) var(--ease-out) both; }
 
+  /* Com direção (direcao.js): a página desliza de lado, com um leve desfoque, como duas telas
+     lado a lado. Ir para a direita no menu ou entrar num detalhe avança; o contrário volta. */
+  html:active-view-transition-type(avanca)::view-transition-old(root) { animation: sai-para-esquerda var(--duracao-curta) var(--ease-out) both; }
+  html:active-view-transition-type(avanca)::view-transition-new(root) { animation: entra-da-direita var(--duracao-curta) var(--ease-out) both; }
+  html:active-view-transition-type(volta)::view-transition-old(root) { animation: sai-para-direita var(--duracao-curta) var(--ease-out) both; }
+  html:active-view-transition-type(volta)::view-transition-new(root) { animation: entra-da-esquerda var(--duracao-curta) var(--ease-out) both; }
+
   /* ---------- Avisos ---------- */
 
   /* O aviso aparece a cada lançamento salvo (dezenas de vezes por dia): entrada curta e sem espera. */
@@ -157,6 +164,10 @@
 
 @keyframes sai-pagina { to { opacity: 0; } }
 @keyframes entra-pagina { from { opacity: 0; transform: translateY(8px); } }
+@keyframes sai-para-esquerda { to { opacity: 0; transform: translateX(-16px); filter: blur(var(--desfoque-medio)); } }
+@keyframes entra-da-direita { from { opacity: 0; transform: translateX(16px); filter: blur(var(--desfoque-medio)); } }
+@keyframes sai-para-direita { to { opacity: 0; transform: translateX(16px); filter: blur(var(--desfoque-medio)); } }
+@keyframes entra-da-esquerda { from { opacity: 0; transform: translateX(-16px); filter: blur(var(--desfoque-medio)); } }
 @keyframes entra-aviso { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes salta-conquista {
   from { opacity: 0; transform: scale(.92); }
