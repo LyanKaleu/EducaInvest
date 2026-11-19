@@ -35,11 +35,7 @@ tests/unit/        services, sem Flask
 tests/integration/ rotas via test_client com banco temporário (fixtures em tests/conftest.py)
 docs/              especificação do MVP (ESPECIFICACAO.md), prints do README (img/) e schema de referência em PostgreSQL
 ```
-- Missões e XP (HU3) estão implementados: `missao_service`/`xp_service`, `missao_repo`/`xp_repo` e `routes/missoes.py`. O crédito de XP roda dentro da transação do lançamento (`registrar_progresso`).
-- A tela inicial do aluno (`routes/painel.py`) mostra saldo, XP, nível (com `percentual` do nível), sequência de dias (`xp_service.sequencia` e as 7 marcas de `xp_service.ultimos_dias`, com os dias que têm XP em `xp_eventos`), a missão e a meta em andamento.
-- Metas e aportes (HU2) estão implementados: `meta_service`, `meta_repo` e `routes/metas.py`. O aporte não entra no saldo nem rende XP, não passa do que falta (`conferir_limite_do_aporte`, checado depois do reenvio), e "concluída" é calculada (guardado ≥ alvo). A lista tem resumo no topo (`meta_service.resumo`) e atalhos de R$ 5/10/20, um formulário por atalho, cada um com a sua chave (N2).
-- O painel da turma (HU5) fica na rota `professor.turma`: `turma_service.painel_da_turma` calcula os agregados, a linha por aluno, o `ranking` por XP, os `inativos` e a turma `por_nivel` a partir de `XpRepository.resumo_por_aluno` e `MissaoRepository.contar_por_aluno`. "Ativo" = ganhou XP nos últimos `JANELA_FREQUENCIA_DIAS` (7, a confirmar). Nunca mostra reais nem e-mail.
-- O quiz (HU4) usa um banco local `PERGUNTAS` em `quiz_service`, no padrão do `MISSOES`, e só grava as respostas em `quiz_repo`, uma por pergunta. O código da pergunta não muda depois de publicado. O XP do acerto (teto diário de 40) entra no mesmo `with conn:` da resposta, em `routes/quiz.py`.
+- O código de uma pergunta do quiz (`PERGUNTAS` em `quiz_service`) não muda depois de publicado: as respostas gravadas apontam para ele.
 
 ## Arquitetura (decidida em 16/11/2026)
 Monólito Flask em camadas, com HTML renderizado no servidor. Não troque framework, banco ou camada enquanto um gatilho abaixo não tiver acontecido de fato. "Parece melhor" ou "é mais usado" não é gatilho.
@@ -82,11 +78,12 @@ Monólito Flask em camadas, com HTML renderizado no servidor. Não troque framew
 - Teste pela interface pública, com valor esperado escrito à mão (nunca recalculado do jeito que o código calcula). Mock só em fronteira do sistema (tempo, ambiente, falha de banco simulada).
 - Teste de correção precisa FALHAR se a correção for revertida.
 - Antes do PR: revisão pelo subagente `revisor`, em contexto novo. Na triagem, recuse estilo e especulação.
+- Os outros papéis entram por fase, só leitura, em `.claude/agents/`: `produto` antes do plano (ideia vaga vira HU e tarefa em 4 campos), `designer` antes e depois de mexer numa tela (contra o DESIGN.md) e `seguranca` antes do PR que toca rota, formulário, SQL, sessão, dados de aluno ou dependência. Codex e Gemini não carregam subagentes: leem o mesmo `.md` como instrução.
 - PR com a saída real do `bash gate.sh`, os testes novos e os invariantes tocados. Afirmação sem evidência não vale.
 - Saídas curtas: `pytest -q`. Nunca cole log inteiro; use `tail -n 30`.
 
 ## Skills
-Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. Se uma skill não estiver instalada, siga a regra resumida aqui.
+Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. `dev-dirigido-por-ia`, `engenheiro-software-ia`, `tdd`, `diagramas-archify` e `atualizar-diagramas` estão versionadas em `.claude/skills/`. As outras são de terceiros e a licença não deixa versionar: se não estiverem instaladas, siga a regra resumida aqui.
 - `dev-dirigido-por-ia`: o método deste projeto (tarefa em 4 campos, ciclo de 8 passos, revisão em contexto novo, PR com evidência, uma tarefa por sessão). Exceção: a skill diz para pular o plano quando o diff cabe numa frase; aqui o plan mode é sempre obrigatório.
 - `engenheiro-software-ia`: postura em toda tarefa (recomende um caminho e justifique, questione pedido ambíguo, prefira o simples, diga o que foi verificado e o que não foi).
 - `tdd`: todo código novo ou correção (seams, fatias verticais, anti-padrões de teste).
