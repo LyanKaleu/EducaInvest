@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # A versão do uv vem do required-version no pyproject.toml.
       # setup-uv não tem tag móvel "v10": o Dependabot (github-actions) atualiza a versão.
       - uses: astral-sh/setup-uv@v10.3.3
