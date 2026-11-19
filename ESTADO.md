@@ -36,7 +36,7 @@ Arquitetura decidida em 16/11/2026 (monólito Flask em camadas, `sqlite3` sem OR
 - **Supabase (só o Postgres, sem o Supabase Auth)** junto com a troca de deploy, nunca antes. Tirar o banco do servidor libera um host que dorme ou serverless (Render, Koyeb, Cloud Run, Vercel) e vários workers. Também leva o limite de login para o banco, porque em serverless a contagem por processo deixa de proteger.
   - Custo: `psycopg` (dependência nova), `CREATE TABLE` reescritos (O1), `COLLATE NOCASE` (N3) virando `citext` ou índice em `lower()`, gatilhos do XP (N6) em outra sintaxe e banco de teste para a suíte.
   - Ponto de partida: o schema PostgreSQL de referência em `docs/`. Antes de decidir, conferir se o plano grátis ainda pausa o projeto parado.
-- **Paperclip** (orquestrador de agentes): avaliado em 17/11/2026 e adiado; o porquê e quando reavaliar estão no HISTORICO.md.
+- **Paperclip** (orquestrador de agentes) e **OpenSpec** (spec-driven development): avaliados e adiados; o porquê e quando reavaliar estão no HISTORICO.md.
 
 ## Decisões pendentes
 - Lista de categorias e valor máximo do lançamento ("A confirmar" em `lancamento_service.py`).
