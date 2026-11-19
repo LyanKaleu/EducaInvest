@@ -83,7 +83,7 @@ Monólito Flask em camadas, com HTML renderizado no servidor. Não troque framew
 - Saídas curtas: `pytest -q`. Nunca cole log inteiro; use `tail -n 30`.
 
 ## Skills
-Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. Se uma skill não estiver instalada, siga a regra resumida aqui.
+Carregue a skill quando a tarefa chegar nela e cite no plano quais vai usar. `dev-dirigido-por-ia`, `engenheiro-software-ia`, `tdd`, `diagramas-archify` e `atualizar-diagramas` estão versionadas em `.claude/skills/`. As outras são de terceiros e a licença não deixa versionar: se não estiverem instaladas, siga a regra resumida aqui.
 - `dev-dirigido-por-ia`: o método deste projeto (tarefa em 4 campos, ciclo de 8 passos, revisão em contexto novo, PR com evidência, uma tarefa por sessão). Exceção: a skill diz para pular o plano quando o diff cabe numa frase; aqui o plan mode é sempre obrigatório.
 - `engenheiro-software-ia`: postura em toda tarefa (recomende um caminho e justifique, questione pedido ambíguo, prefira o simples, diga o que foi verificado e o que não foi).
 - `tdd`: todo código novo ou correção (seams, fatias verticais, anti-padrões de teste).
