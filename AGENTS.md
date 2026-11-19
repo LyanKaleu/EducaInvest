@@ -82,6 +82,7 @@ Monólito Flask em camadas, com HTML renderizado no servidor. Não troque framew
 - Teste pela interface pública, com valor esperado escrito à mão (nunca recalculado do jeito que o código calcula). Mock só em fronteira do sistema (tempo, ambiente, falha de banco simulada).
 - Teste de correção precisa FALHAR se a correção for revertida.
 - Antes do PR: revisão pelo subagente `revisor`, em contexto novo. Na triagem, recuse estilo e especulação.
+- Os outros papéis entram por fase, só leitura, em `.claude/agents/`: `produto` antes do plano (ideia vaga vira HU e tarefa em 4 campos), `designer` antes e depois de mexer numa tela (contra o DESIGN.md) e `seguranca` antes do PR que toca rota, formulário, SQL, sessão, dados de aluno ou dependência. Codex e Gemini não carregam subagentes: leem o mesmo `.md` como instrução.
 - PR com a saída real do `bash gate.sh`, os testes novos e os invariantes tocados. Afirmação sem evidência não vale.
 - Saídas curtas: `pytest -q`. Nunca cole log inteiro; use `tail -n 30`.
 
