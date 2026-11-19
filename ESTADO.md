@@ -1,55 +1,20 @@
 # Estado do projeto
 
-Ponto de retomada entre sessões e computadores. Atualize no PR que muda a fase ou o próximo passo.
-Regras de trabalho ficam no AGENTS.md; aqui fica só **onde estamos**.
+Ponto de retomada entre sessões e computadores: aqui fica só **onde estamos**. Regras de trabalho ficam no AGENTS.md; o que já foi entregue e as decisões antigas, no [HISTORICO.md](HISTORICO.md).
+Ao fechar um PR, a linha dele vai para o HISTORICO.md, e este arquivo muda só se a fase, o próximo passo ou o backlog mudou.
 
-**Atualizado em:** 17/11/2026 · **Branch de integração:** `develop` · **Vitrine:** `main`
+**Atualizado em:** 18/11/2026 · **Branch de integração:** `develop` · **Vitrine:** `main`
 
-## Pronto
-O escopo do MVP está completo. A especificação v2 está em [docs/ESPECIFICACAO.md](docs/ESPECIFICACAO.md).
-
-| Item | PR |
-|---|---|
-| Base, login, perfis e turmas (RF01, RF02) | #1, #2 |
-| Setup do Claude Code, gate e CI | #3 |
-| Nome de turma único por professor, sem diferenciar maiúsculas | #4 |
-| HU1: lançamentos (CRUD, busca, idempotência) | #1 |
-| HU3: missões em trilha, XP com teto diário e nível | #8 |
-| Perfil visível no cadastro, no login e no topo | #9 |
-| Plan mode obrigatório, TDD por seams, skills no AGENTS.md | #10 |
-| Tela inicial do aluno: saldo, sequência de dias (RN-13), XP, nível e missão | #12 |
-| HU2: metas e aportes (aporte fora do saldo e limitado ao que falta), card da meta na tela inicial | #13 |
-| DESIGN.md: guia visual para gerar telas em ferramentas de design | #15 |
-| HU5: painel da turma (XP médio, missões, ativos em 7 dias e linha por aluno, sem reais nem e-mail) | #16 |
-| HU4: quiz com 12 perguntas, uma resposta por pergunta, 10 XP por acerto e teto de 40 por dia | #19 |
-| Arrumação para a `main`: README curto com prints, especificação v2 em Markdown, PDF v1 fora do repositório | #20 |
-| MVP completo na `main` | #21 |
-| Deploy interno de teste, só para o grupo (onde está e como atualizar: notas privadas, fora do Git) | #22 |
-| Correções da auditoria de segurança: limite de login por e-mail, CSRF (Flask-WTF), código de turma com 8 caracteres, cookie `Secure`, headers, sessão de 12 h e aporte sem corrida | #23 |
-| `PRAGMA foreign_keys` ligado na conexão e enumeração de e-mail no cadastro registrada como risco aceito | #28 |
-| Senha em argon2id (pwdlib), com migração do hash antigo no login | #30 |
-| Dependências com uv: `uv.lock` fixa a árvore inteira, `.python-version` em 3.14, CI com `uv sync --locked` e Dependabot `uv` | #31 |
-| Redesign igual ao protótipo navegável: menu no rodapé, cartões, chips sem JavaScript, sequência de 7 dias, resumo e atalhos nas metas, ranking e inativos no painel da turma | #26 |
-| Animações só em CSS (troca de página, avisos, comemoração, toque, barras) e CSS dividido em um arquivo por assunto | #29 |
-| PEP 8 a 79 colunas com `ruff format`, lint amplo, docstrings em `app/` e anotação de tipo em todo o código | #32 |
-| `main` atualizada com os PRs #26 a #32 | #34 e o seguinte |
-| Tema escuro automático pelo tema do sistema (sem botão e sem JavaScript), cores só nos tokens e contraste AA testado nos dois temas | (este PR) |
+## Em andamento
+O MVP está completo e na `main` (PRs #1 a #41). Na branch `chore/subagentes-papeis`: subagentes `produto`, `designer` e `seguranca` e o contexto enxuto (AGENTS.md sem o que o código já mostra, histórico no HISTORICO.md).
 
 ## Próximo passo
-1. Ligar CodeQL e Dependabot security updates (a `main` já recebeu o merge; veja "Setup do GitHub" abaixo).
+1. Ligar CodeQL e Dependabot security updates no GitHub (os dois olham a `main`, que já recebeu o merge).
 2. Release `v1.0.0` na `main`. O deploy é interno: nada sobre ele entra no README nem nas notas da release.
 3. Executor de migrações (scripts SQL numerados com `PRAGMA user_version`), antes da primeira alteração de tabela com dados no deploy.
-4. PWA sobre o visual novo (o redesign já seguiu o protótipo navegável): manifest e service worker, com JavaScript só como melhoria progressiva. O botão de troca de tema entra junto (veja o backlog).
+4. PWA sobre o visual novo: manifest e service worker, sobre o JS de melhoria progressiva que já existe em `app/static/js/`. O botão de troca de tema entra junto (veja o backlog).
 
-Fly e Render foram descartados: a Fly exige cartão e o Render grátis apaga o SQLite quando o app dorme. Container (`gunicorn`, `Dockerfile`) só volta se o banco sair do SQLite local.
-
-Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem ORM, PWA sobre o Jinja e PostgreSQL só quando um gatilho acontecer. O porquê, os limites e os gatilhos ficam no AGENTS.md, seção "Arquitetura".
-
-## Setup do GitHub (depois do merge na `main`)
-- **CodeQL** e **Dependabot security updates:** ligar depois do merge na `main`, porque os dois olham a branch padrão.
-- **Dependabot de versões:** `.github/dependabot.yml` criado (uv e github-actions, toda segunda, PR para a `develop`, minor e patch agrupados, major em PR separado). Só passa a valer depois do merge na `main`. É zona O3.
-- **Discussions e Projects:** só se a equipe for usar de verdade. Wiki e Packages ficam desligados.
-- Já ligados em 11/11: varredura de segredos, push protection, alertas do Dependabot e o ruleset `protege-main-develop` (`main` e `develop` só recebem mudança por PR com o check `gate` verde, sem force push e sem apagar a branch).
+Arquitetura decidida em 16/11/2026 (monólito Flask em camadas, `sqlite3` sem ORM, PostgreSQL só com gatilho): o porquê, os limites e os gatilhos ficam no AGENTS.md, seção "Arquitetura".
 
 ## Backlog (issues abertas)
 - #5 professor renomeia turma
@@ -63,7 +28,7 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 - **Ensino fundamental:** produto à parte, mais lúdico, com outra linguagem. Abaixo de 12 anos a LGPD (art. 14) exige o consentimento específico de um dos pais ou responsável, que o RN-05 de hoje não cobre.
 - **Mascote** próprio para a marca e a divulgação.
 - **Botão de troca de tema** (claro, escuro ou o do sistema), junto com o PWA. Hoje o tema escuro segue o tema do sistema, sem botão; a escolha manual precisa ser guardada (cookie ou JavaScript), e no celular o tema do sistema já resolve.
-- Do protótipo, o que ficou de fora por precisar de JavaScript: avisos que somem sozinhos, busca ao digitar e sugestões de nome na nova meta. A comemoração de conquista entrou só com CSS.
+- Do protótipo, o que ainda falta e precisa de JavaScript: busca ao digitar e sugestões de nome na nova meta.
 - **Quiz do dia** com perguntas de cálculo parametrizadas (números novos por aluno e por dia, resposta calculada pelo código, sem IA) e **gerador de perguntas com IA**. O texto das 12 perguntas atuais precisa de revisão.
   - O gerador é um comando Python que chama a API de IA direto, sem n8n nem Zapier (seria mais um serviço e uma credencial fora do gate). Ele pede um lote em JSON com schema e valida com as regras do `quiz_service`.
   - O lote vai para um arquivo no repositório, ao lado do `PERGUNTAS`, e não para o banco: o PR é a revisão humana, e o código da pergunta continua imutável depois de publicado.
@@ -71,10 +36,7 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 - **Supabase (só o Postgres, sem o Supabase Auth)** junto com a troca de deploy, nunca antes. Tirar o banco do servidor libera um host que dorme ou serverless (Render, Koyeb, Cloud Run, Vercel) e vários workers. Também leva o limite de login para o banco, porque em serverless a contagem por processo deixa de proteger.
   - Custo: `psycopg` (dependência nova), `CREATE TABLE` reescritos (O1), `COLLATE NOCASE` (N3) virando `citext` ou índice em `lower()`, gatilhos do XP (N6) em outra sintaxe e banco de teste para a suíte.
   - Ponto de partida: o schema PostgreSQL de referência em `docs/`. Antes de decidir, conferir se o plano grátis ainda pausa o projeto parado.
-- **Paperclip (orquestrador de agentes, open source)**, avaliado em 17/11/2026 e adiado. Ele comanda Claude Code, Codex e Gemini CLI por heartbeat, com organograma, orçamento e aprovações. O Antigravity não entra, porque é uma IDE, não um CLI.
-  - Por que não agora: os adaptadores rodam em modo automático (sem plan mode aprovado nem TDD com o teste vermelho), o hook `protege.py` e o Stop hook só valem para o Claude, o adaptador do Gemini não isola a árvore de trabalho, a documentação não cita Windows e cada heartbeat gasta a cota das assinaturas. Também não há tarefa paralela em volume: o próximo passo é sequencial.
-  - Quando reavaliar: tarefa recorrente e autônoma com revisão no PR (ex.: o gerador de perguntas do quiz), sempre com o check `gate` como rede comum.
-  - Enquanto isso: Claude Code implementa, Codex dá a segunda opinião na revisão do PR e Antigravity/Gemini ficam com protótipo de tela e teste no navegador, cada um na sua branch ou worktree, todos lendo o `AGENTS.md`.
+- **Paperclip** (orquestrador de agentes) e **OpenSpec** (spec-driven development): avaliados e adiados; o porquê e quando reavaliar estão no HISTORICO.md.
 
 ## Decisões pendentes
 - Lista de categorias e valor máximo do lançamento ("A confirmar" em `lancamento_service.py`).
@@ -84,6 +46,3 @@ Arquitetura decidida em 16/11/2026: monólito Flask em camadas, `sqlite3` sem OR
 
 ## Riscos de segurança aceitos (MVP)
 - **Enumeração de e-mail no cadastro:** `/cadastro` responde "e-mail já cadastrado" para e-mail existente, então dá para descobrir quais e-mails têm conta. Aceito: o dado é de baixo valor (apelido, contexto escolar), sem envio de e-mail não dá para o "cadastro silencioso", e limitar por IP brigaria com a turma saindo pelo mesmo Wi-Fi (por isso o login limita por e-mail). Revisitar só se entrar verificação por e-mail. Achado da auditoria de 17/11 (BugHunter); o resto veio limpo.
-
-## Em andamento
-Tema escuro (`feature/tema-escuro`) em revisão. A `main` recebe a `develop` (PRs #26 a #32); a release `v1.0.0` fica para depois.

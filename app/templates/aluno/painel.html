@@ -40,7 +40,10 @@
     </span>
   </section>
 
-  <section class="indicador" aria-labelledby="titulo-nivel">
+  {# Os data-* alimentam o contador do movimento.js: ele compara com o último XP que o aluno viu
+     neste aparelho e, se subiu, rola o número e enche a barra a partir de onde ela estava. #}
+  <section class="indicador nivel" aria-labelledby="titulo-nivel" data-aluno="{{ session.get('usuario_id') }}"
+           data-xp="{{ xp_total }}" data-nivel="{{ nivel.nivel }}" data-percentual="{{ nivel.percentual }}">
     <h2 id="titulo-nivel" class="rotulo">Nível {{ nivel.nivel }} · {{ nivel.nome }}</h2>
     <strong id="xp-total">{{ xp_total }} XP</strong>
     <progress class="fina" max="100" value="{{ nivel.percentual }}" aria-labelledby="titulo-nivel">{{ nivel.percentual }}%</progress>

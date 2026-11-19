@@ -52,6 +52,23 @@ def test_painel_mostra_saldo_xp_sequencia_e_missao(
     assert valor(html, "missao-progresso") == "Primeiros passos: 1 de 3"
 
 
+def test_cartao_do_nivel_entrega_xp_nivel_e_percentual_ao_contador(
+    cliente_aluno: FlaskClient,
+) -> None:
+    registrar(cliente_aluno, "entrada", "Mesada", "50,00")
+    registrar(cliente_aluno, "saida", "Alimentação", "25,00")
+
+    cartao = re.search(
+        r'<section class="indicador nivel"[^>]*>', painel(cliente_aluno)
+    )
+
+    # 20 XP: nível 1 (0 a 99 XP), 20% do caminho até o nível 2.
+    assert cartao, "o painel deve ter o cartão do nível"
+    assert 'data-xp="20"' in cartao.group(0)
+    assert 'data-nivel="1"' in cartao.group(0)
+    assert 'data-percentual="20"' in cartao.group(0)
+
+
 def test_saldo_nao_inclui_lancamentos_de_outro_aluno(
     cliente_aluno: FlaskClient, cliente_outro_aluno: FlaskClient
 ) -> None:

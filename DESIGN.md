@@ -12,7 +12,7 @@ Se uma proposta nova for aprovada, atualize este arquivo junto com o CSS.
 
 ## 2. Restrições técnicas (obrigatórias)
 O design precisa caber nestas regras. Proposta que depende de algo fora delas não é implementável.
-- **HTML renderizado no servidor (Jinja), sem JavaScript.** Nada de modal, drawer, carrossel, abas dinâmicas, tooltip, drag and drop, toast que some sozinho ou gráfico interativo. Toda ação é um link ou um formulário que recarrega a página.
+- **HTML renderizado no servidor (Jinja), com JavaScript só como melhoria progressiva.** Toda ação é um link ou um formulário que recarrega a página, e toda tela funciona igual com o JS desligado. O JS (`app/static/js/`, sem framework e sem build) só acrescenta movimento: a pílula do Gasto/Entrada, o XP rolando e a direção da troca de página. Nada de modal, drawer, carrossel, tooltip, drag and drop ou gráfico interativo.
 - **CSS puro, um arquivo por assunto** em `app/static/css/` (`tokens`, `base`, `navegacao`, `aluno`, `professor`, `entrada`, `movimento`), carregados em ordem pelo `base.html`, sem `@import` e sem etapa de build. Sem framework (sem Tailwind, sem Bootstrap) e sem fonte externa. Animação só em CSS, toda em `movimento.css`, conforme a seção 7a. Sem `style` inline: a política de segurança (CSP) bloqueia.
 - **Gráficos:** só o que dá para fazer com HTML e CSS: `<progress>`, barras com largura em %, números grandes. Sem bibliotecas de gráfico.
 - **Ícones:** SVG inline de traço, sempre acompanhados de texto. Nada de emoji. Nenhuma informação só no ícone.
@@ -76,7 +76,7 @@ Texto branco (`--texto-sobre-cor`) sobre `--primaria` e `--perigo` passa de 5:1 
 - **Botão secundário:** contorno verde de 2px com fundo `--fundo` (atalhos de aporte, "Cancelar").
 - **Voltar:** seta à esquerda do título nas telas de formulário, quiz e turma.
 - **Campo de formulário:** rótulo em negrito acima, campo com 100% de largura, borda `--borda`, altura de 44px. Com erro, a borda fica vermelha de 2px e a mensagem aparece em vermelho, embaixo do campo. Valores em reais usam um campo maior (1,6rem, negrito).
-- **Botões de escolha (sem JavaScript):** rádios com cara de botão. Tipo do lançamento em dois botões (Gasto em vermelho, Entrada em verde), categoria em chips (o marcado fica escuro) e alternativas do quiz em cartões com a letra num círculo. O CSS (`:has`) mostra só as categorias do tipo marcado.
+- **Botões de escolha (funcionam sem JavaScript):** rádios com cara de botão. Tipo do lançamento em dois botões (Gasto em vermelho, Entrada em verde), categoria em chips (o marcado fica escuro) e alternativas do quiz em cartões com a letra num círculo. O CSS (`:has`) mostra só as categorias do tipo marcado.
 - **Barra de progresso:** `<progress>` com trilho claro e preenchimento verde; azul na missão em andamento; branca sobre cartão colorido.
 - **Aviso (flash):** fundo claro e faixa esquerda de 6px: verde para sucesso, vermelha para erro.
 - **Cartão de destaque:** verde, texto branco, número grande (saldo do aluno, nível em Missões, alunos ativos no painel da turma). Dentro dele o anel de foco é branco, porque o azul some sobre o verde. O saldo negativo pinta o cartão de vermelho e diz "Você gastou mais do que entrou."
@@ -97,17 +97,23 @@ Texto branco (`--texto-sobre-cor`) sobre `--primaria` e `--perigo` passa de 5:1 
 9. **Turma:** cartão verde com os ativos nos últimos 7 dias, XP médio e missões; "Precisa de atenção" com quem não ganhou XP nos últimos 7 dias; ranking por XP com barra; turma por nível; convite com o código. **Sem valores em reais e sem e-mail.**
 
 ## 7a. Movimento
-Tudo em `app/static/css/movimento.css`. O movimento completo fica dentro de `@media (prefers-reduced-motion: no-preference)`. Quem pede menos movimento recebe a versão suave: o aviso aparecendo, a troca de cor dos botões e um esmaecimento de 150ms entre páginas, sem deslocamento, escala, salto, confete nem barra se desenhando. Menos movimento não é zero.
+Os padrões vêm do transitions.dev (skills `transitions-dev` e `transitions-polish`). O CSS fica em `app/static/css/movimento.css`; o JS, em `app/static/js/` (`movimento.js`, `contador.js` e `direcao.js`). O movimento completo fica dentro de `@media (prefers-reduced-motion: no-preference)`. Quem pede menos movimento recebe a versão suave: o aviso aparecendo, a troca de cor dos botões e um esmaecimento de 150ms entre páginas, sem deslocamento, escala, salto, confete nem barra se desenhando. Menos movimento não é zero.
 - **Por que animar:** retorno ao toque, continuidade entre telas e comemoração de conquista. Nada anima "porque fica bonito". Ação repetida muitas vezes por dia anima pouco ou nada.
 - **Curva e tempo** (tokens em `tokens.css`):
   - `--ease-out` é `cubic-bezier(0.23, 1, 0.32, 1)`: começa rápido e assenta devagar. Nunca `ease-in` em interface.
-  - Toque: 160ms. Troca de cor: 150ms. Troca de página: 240ms (abaixo de 300ms, porque a página fica inerte durante a troca). Aviso: 200ms. Barra: 280ms.
+  - Hover: 150ms entrando e 120ms saindo (cartão: 180ms entrando). Clique: 90ms. Troca de cor: 150ms. Troca de página: 240ms (abaixo de 300ms, porque a página fica inerte durante a troca). Aviso: 200ms. Barra: 280ms.
+  - Escala do transitions.dev: escalonar 40ms, tremida 80ms por trecho, fechar 150ms, abrir e deslizar 250ms, toast 350ms, ênfase 500ms; `--ease-mola` só em entrada (check, contador, escolha marcada), nunca em saída.
   - A comemoração é a exceção: até ~1,4s, uma vez só.
 - **O que anima:**
   - **Troca de página:** `@view-transition { navigation: auto; }`. O topo e o menu ficam parados; o conteúdo sai num fade e entra subindo 8px. Onde o navegador não suporta, a página só carrega normal.
-  - **Avisos:** entram descendo 6px.
+  - **Troca de página com direção** (`direcao.js`): ir para a direita no menu ou entrar num detalhe desliza 8px para a esquerda com desfoque de 3px; voltar desliza para o outro lado.
+  - **Avisos:** entram descendo 6px. O de sucesso é um toast no rodapé, com check desenhado, e some da vista sozinho em 5s, só com CSS (o texto continua para o leitor de tela). O mouse em cima pausa, e um toque segura até o próximo toque (JS).
+  - **Erro:** o campo com erro treme uma vez (80/60/80/60ms) e a mensagem entra junto.
+  - **Escolhas:** o chip e a alternativa marcados assentam com mola; no Gasto/Entrada, uma pílula desliza até a opção (JS).
+  - **Painel:** as marcas da sequência acendem em cascata; se o XP subiu desde a última visita neste aparelho, o número rola num tambor 3D e a barra enche desde onde estava (JS, `localStorage`).
+  - **Quiz:** enunciado e alternativas entram em cascata; depois de responder, a certa assenta e a errada treme.
   - **Conquista** (missão, nível, meta concluída): o cartão verde dá um pequeno salto, o troféu balança e um confete de CSS cai uma vez.
-  - **Toque:** botões, chips e alternativas afundam (`scale(.97)`); cartões-link e ícones do menu afundam menos (`scale(.985)` e `scale(.95)`).
+  - **Hover e toque** (camada do taste-skill, `references/motion.md`, sem mola): com mouse, o botão sobe 1px e o cartão-link sobe 2px com a borda um passo mais escura; no clique, o botão desce 1px e encolhe para `scale(.985)`, e cartões, chips e alternativas só encolhem; o ícone do menu afunda `scale(.95)`. O link de ação tem um fio de 35% da cor em repouso, e no hover ou no foco a linha cheia se desenha da esquerda e sai pela direita. Com menos movimento, nada se desloca: só a cor e a borda mudam, e o sublinhado aparece sem viajar.
   - **Barras:** se desenham da esquerda com `clip-path`. O navegador não anima o preenchimento do `<progress>`.
 - **O que não anima:**
   - layout (`width`, `height`, `margin`, `top`);
@@ -127,10 +133,10 @@ Tudo em `app/static/css/movimento.css`. O movimento completo fica dentro de `@me
 - Gradientes, sombras fortes, glassmorphism, fundo escuro com neon, ilustrações 3D genéricas.
 - Gráfico de pizza ou de linha (precisa de JavaScript ou de muita gambiarra em CSS).
 - Mostrar valores em reais ou e-mail do aluno nas telas do professor.
-- Menu hambúrguer, abas, modais ou qualquer coisa que dependa de clique sem recarregar a página.
+- Menu hambúrguer, abas, modais ou qualquer coisa que só funcione com JavaScript.
 - Textos em inglês ou jargão financeiro sem explicação.
 
 ## 9. Prompt sugerido
 > Desenhe telas de celular (375px) de um app web de finanças gamificado para jovens brasileiros de 16 a 24 anos, seguindo o DESIGN.md anexo.
 > Comece pela tela inicial do aluno, pela tela de metas e pelo painel agregado da turma para o professor.
-> Respeite as restrições da seção 2: HTML e CSS puros, sem JavaScript, sem framework, sem sombras e sem gradientes. Mantenha a paleta e os componentes descritos, e mostre também o estado vazio de cada tela.
+> Respeite as restrições da seção 2: HTML e CSS puros (JavaScript só como enfeite que pode faltar), sem framework, sem sombras e sem gradientes. Mantenha a paleta e os componentes descritos, e mostre também o estado vazio de cada tela.
