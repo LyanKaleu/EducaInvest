@@ -16,8 +16,8 @@ dependencies = [
 [dependency-groups]
 # Ferramentas do gate.sh: entram no `uv sync`, não vão para produção (`--no-dev`).
 dev = [
-    "ruff==0.17.5",
-    "import-linter==2.16",
+    "ruff==0.17.6",
+    "import-linter==2.17",
     "pytest==9.2.0",
 ]
 
