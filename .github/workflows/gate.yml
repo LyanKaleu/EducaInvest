@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v7
       # A versão do uv vem do required-version no pyproject.toml.
       # setup-uv não tem tag móvel "v10": o Dependabot (github-actions) atualiza a versão.
-      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: astral-sh/setup-uv@v10.4.0
         with:
           enable-cache: true
       # --locked falha se o uv.lock estiver atrasado em relação ao pyproject.toml.
